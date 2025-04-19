@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Cards</title>
+    <!-- Include Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Baloo Chettan 2', cursive; /* Apply Baloo Chettan 2 font */
+            margin: 0;
+            padding: 0;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            text-decoration: none;
+            color: white; /* Ensure text color is white for all cards */
+        }
+
+        .add-card {
+            color: inherit; /* Keep default text color for the card adder */
+        }
+
+        .card:nth-child(1) {
+            background: linear-gradient(135deg, #6a4cae, #d45a85); /* Slightly darker purple gradient */
+        }
+
+        .card:nth-child(2) {
+            background: linear-gradient(135deg, #d45a5a, #e07a9f); /* Slightly darker pink gradient */
+        }
+
+        .card:nth-child(3) {
+            background: linear-gradient(135deg, #4a90e2, #3a78c2); /* Slightly darker blue gradient */
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card:nth-child(1):hover {
+            background: linear-gradient(135deg, #5a3a9a, #c0466e); /* Even darker purple gradient */
+        }
+
+        .card:nth-child(2):hover {
+            background: linear-gradient(135deg, #c04646, #d0678a); /* Even darker pink gradient */
+        }
+
+        .card:nth-child(3):hover {
+            background: linear-gradient(135deg, #3a6fb2, #2a5f92); /* Even darker blue gradient */
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .add-card-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .add-card-form input, .add-card-form button {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .add-card-form button {
+            background-color: #42a5f5;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-card-form button:hover {
+            background-color: #1e88e5;
+        }
+    </style>
+    <script>
+        function showAddCardForm() {
+            const form = document.getElementById('add-card-form');
+            form.style.display = 'flex'; // Show the form
+        }
+
+        function addCard() {
+            const titleInput = document.getElementById('card-title-input');
+            const descriptionInput = document.getElementById('card-description-input');
+            const cardContainer = document.querySelector('.card-container');
+
+            const title = titleInput.value.trim();
+            const description = descriptionInput.value.trim();
+
+            if (title && description) {
+                const newCard = document.createElement('div');
+                newCard.className = 'card';
+                newCard.style.background = 'linear-gradient(135deg, #4a90e2, #3a78c2)'; // Default blue gradient for new cards
+                newCard.innerHTML = `
+                    <h2 class="card-title">${title}</h2>
+                    <p class="card-description">${description}</p>
+                `;
+                newCard.style.color = 'white'; // Ensure text is visible
+                cardContainer.insertBefore(newCard, cardContainer.querySelector('.add-card')); // Add before "+" card
+
+                titleInput.value = '';
+                descriptionInput.value = '';
+                document.getElementById('add-card-form').style.display = 'none'; // Hide the form
+            } else {
+                alert('Please enter both a title and a description.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="card-container">
+        <a href="https://rentry.org/deeplink" class="card" target="_blank">
+            <h2 class="card-title">WhatsApp Deeplinks</h2>
+            <p class="card-description">Collection of WhatsApp deeplinks for actions like chat, group join, calls, and message prefill</p>
+        </a>
+        <a href="https://rentry.org/justask" class="card" target="_blank">
+            <h2 class="card-title">DontAskToAsk Malayalam</h2>
+            <p class="card-description">Malayalam translation of dontasktoask.com</p>
+        </a>
+        <a href="https://fmhy.net" class="card" target="_blank">
+            <h2 class="card-title">FMHY</h2>
+            <p class="card-description">The largest collection of free stuff on the internet!</p>
+        </a>
+        <!-- New card with "+" icon -->
+        <div class="card add-card" onclick="showAddCardForm()">
+            <h2 class="card-title">+</h2>
+            <p class="card-description">Add a new card</p>
+        </div>
+    </div>
+
+    <!-- Add Card Form -->
+    <div class="add-card-form" id="add-card-form" style="display: none;">
+        <input type="text" id="card-title-input" placeholder="Enter card title">
+        <input type="text" id="card-description-input" placeholder="Enter card description">
+        <button onclick="addCard()">Add Card</button>
+    </div>
+</body>
+</html>
