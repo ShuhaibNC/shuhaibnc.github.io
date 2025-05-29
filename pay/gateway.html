@@ -133,6 +133,12 @@
         }, function (e) {
             console.log("Service worker registration failed:", e)
         }) : console.log("Service workers are not supported.");
+  function copyText() {
+    const input = document.getElementById("textBox");
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile
+    document.execCommand("copy");
+  }
     </script>
 
 </head>
@@ -142,6 +148,16 @@
     <div class=" text-center" style="background-color: #47a4f0; padding: 1rem; color: white;">
             <h4 style=" -webkit-text-stroke: .2px black;font-weight: bold;text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3)">PAYMENT GATEWAY</h4>
         <h1 class="d-none">Pay to shuhaibnc@upi</h1>
+        <div style="position: relative; display: inline-block; width: 300px;">
+  <input id="textBox" value="shuhaibnc@upi" readonly
+         style="width: 100%; padding-right: 30px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" />
+
+  <button onclick="copyText()" title="Copy"
+          style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+                 border: none; background: #161616; cursor: pointer; color: #FFFFFF;border-radius: 4px;">
+    Copy
+  </button>
+</div>
     </div>
     <div class="container">
         <div class="row">
@@ -171,8 +187,6 @@
                     </div>
                 </div>
                 <div class="col-12 p-2 text-center">
-                    <a href="" id="save-qr" class="btn btn-md py-2 px-4 text-light shadow-lg font-weight-bold mt-2"
-                        style="background-color: #47a4f0;">Click Here To Pay </a>
                     <span class="text-muted d-block font-weight-bold mt-2 small">Varify Payee Name While Making
                         Payment</span>
                 </div>
