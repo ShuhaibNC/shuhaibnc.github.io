@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Shuhaib N C",
   description: "Personal Notes",
-  base: "/home/",
+  base: "/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
