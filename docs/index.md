@@ -13,9 +13,6 @@ hero:
     - theme: alt
       text: API Examples
       link: /api-examples
-    - theme: brand
-      text: APK Tool M
-      link: /apktoolm
 features:
   - title: Feature A
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
