@@ -8,17 +8,17 @@ hero:
   tagline: My great collection of knowledge
   actions:
     - theme: brand
-      text: Markdown Examples
+      text: Beginners Guide
       link: /markdown-examples
     - theme: alt
       text: API Examples
       link: /api-examples
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Science
+    details: Psychology, Physics Notes
+  - title: Coding
+    details: Programming Notes
+  - title: Cybersecurity
+    details: Security Notes
 ---
 

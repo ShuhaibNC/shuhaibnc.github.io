@@ -8,13 +8,15 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/home' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: 'Portfolio', link: '/portfolio' },
+      { text: 'Notes', link: '/notes' },
+      { text: 'UPI', link: '/upi' },
+      
     ],
 
     sidebar: [
       {
-        text: 'Examples',
+        text: 'Notes',
         items: [
           { text: 'Markdown Examples', link: '/markdown-examples' },
           { text: 'Runtime API Examples', link: '/api-examples' },
@@ -24,7 +26,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/shuhaibnc }
     ]
   }
 })
