@@ -9,8 +9,8 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Portfolio', link: '/portfolio' },
-      { text: 'Notes', link: '/notes' },
-      { text: 'UPI', link: '/upi' },
+      { text: 'Simple Notes', link: '/notes' },
+      { text: 'Donate', link: '/upi' },
       
     ],
 
@@ -19,7 +19,8 @@ export default defineConfig({
         text: 'Notes',
         items: [
           { text: 'Coding', link: '/coding' },
-          { text: 'Cyber Security API Examples', link: '/cybersecurity' },
+          { text: 'Cyber Security', link: '/cybersecurity' },
+          { text: 'Science', link: '/science' },
         ]
       }
     ],

@@ -9,19 +9,19 @@ hero:
   actions:
     - theme: brand
       text: Beginners Guide
-      link: /markdown-examples
+      link: /beginner
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: About
+      link: /about
 features:
-  - title: Science
-    details: Psychology, Physics Notes
-    link: /science
   - title: Coding
     details: Programming Notes
     link: /coding
   - title: Cybersecurity
     details: Security Notes
     link: /cybersecurity
+  - title: Science
+    details: Psychology, Physics Notes
+    link: /science
 ---
 
