@@ -4,15 +4,15 @@ layout: home
 description: My great collection of knowledge
 
 hero:
-  name: ShuhaibNC
-  text: "Personal Notes"
+  name: Shuhaib's
+  text: "Personal ByteBook"
   tagline: Shuhaib's great collection of knowledge
   actions:
     - theme: brand
       text: Beginners Guide
       link: /beginner
     - theme: alt
-      text: About
+      text: Portfolio
       link: /portfolio
       target: "_blank"
   image:

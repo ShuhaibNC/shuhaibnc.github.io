@@ -1,3 +1,5 @@
+# A nematode survived 46,000 years in permafrost
+
   ![](https://media.npr.org/assets/img/2023/07/29/file-2-_custom-dc0b5683545119277e8d8e64af249d7a3065fdc6.jpg?s=1100&c=50&f=jpeg)
 
 A _Panagrolaimus kolymaensis_ nematode is seen under the microscope at the University of Cologne's worm lab in Germany.

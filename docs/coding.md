@@ -1,3 +1,3 @@
 # **Coding**
 
-## [Best Code Editors](./coding/BestCodeEditors.md)
+## [Code Editors](./coding/BestCodeEditors.md)
