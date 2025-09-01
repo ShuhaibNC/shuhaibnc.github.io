@@ -8,9 +8,9 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Portfolio', link: '/portfolio' },
-      { text: 'Simple Notes', link: '/notes' },
-      { text: 'Donate', link: '/upi' },
+      { text: '📰 Portfolio', link: '/portfolio', target: '_blank' },
+      { text: '🗒️ Simple Notes', link: '/notes', target: '_blank' },
+      { text: '💰 Donate', link: '/upi', target: '_blank' },
       
     ],
 
@@ -18,15 +18,17 @@ export default defineConfig({
       {
         text: 'Notes',
         items: [
-          { text: 'Coding', link: '/coding' },
-          { text: 'Cyber Security', link: '/cybersecurity' },
-          { text: 'Science', link: '/science' },
+          { text: '🧑🏻‍💻 Coding', link: '/coding' },
+          { text: '🔐 Cyber Security', link: '/cybersecurity' },
+          { text: '🧬 Science', link: '/science' },
         ]
       }
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/shuhaibnc' }
+      { icon: 'github', link: 'https://github.com/ShuhaibNC' },
+      { icon: 'telegram', link: 'https://t.me/ShuhaibNC' },
+      { icon: 'instagram', link: 'https://instagram.com/realshuhaib' }
     ]
   }
 })
