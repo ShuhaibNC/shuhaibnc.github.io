@@ -16,9 +16,12 @@ hero:
 features:
   - title: Science
     details: Psychology, Physics Notes
+    link: /science
   - title: Coding
     details: Programming Notes
+    link: /coding
   - title: Cybersecurity
     details: Security Notes
+    link: /cybersecurity
 ---
 

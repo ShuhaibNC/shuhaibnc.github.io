@@ -1,4 +1,4 @@
-*🃏Best Websites To Test Your Cybersecurity Skills*
+# 🃏Best Websites To Test Your Cybersecurity Skills
 
 [https://pwnable.kr/](https://pwnable.kr/)
 [https://hack.me/](https://hack.me/)
@@ -17,9 +17,4 @@
 [http://hax.tor.hu/](http://hax.tor.hu/)
 [https://thisislegal.com/](https://thisislegal.com/)
 [https://tryhackme.com](https://tryhackme.com)
-
-
-*~Mucheettu🃏*
-
- #Cybersecurity
 

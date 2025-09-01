@@ -18,9 +18,8 @@ export default defineConfig({
       {
         text: 'Notes',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' },
-          { text: 'Apktoolm', link: '/apktoolm' },
+          { text: 'Coding', link: '/coding' },
+          { text: 'Cyber Security API Examples', link: '/cybersecurity' },
         ]
       }
     ],
