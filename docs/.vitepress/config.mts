@@ -26,7 +26,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/shuhaibnc }
+      { icon: 'github', link: 'https://github.com/shuhaibnc' }
     ]
   }
 })
