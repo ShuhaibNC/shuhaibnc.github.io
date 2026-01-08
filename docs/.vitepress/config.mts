@@ -15,6 +15,7 @@ export default defineConfig({
     ['link', { rel: 'alternate icon', href: '/icon.png' }],
     ['link', { rel: 'mask-icon', href: '/icon.png', color: '#7bc5e4' }],
     ['meta', { name: 'keywords', content: "ShuhaibNC Shuhaib N C" }],
+    ['meta', { name: 'description', content : 'Personal website of Shuhaib NC. Cybersecurity, Linux, digital forensics, and technical experiments.'}],
     ['link', { rel: 'apple-touch-icon', href: '/icon.png', sizes: '192x192' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
