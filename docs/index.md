@@ -16,7 +16,6 @@ hero:
       link: /portfolio
       target: "_blank"
   image:
-    src: /deptheye.svg
     alt: ShuhaibNC
 features:
   - title: Coding
