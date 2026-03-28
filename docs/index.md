@@ -5,12 +5,12 @@ description: My great collection of knowledge
 
 hero:
   name: Shuhaib's
-  text: "Personal ByteBook"
+  text: "Official Website"
   tagline: Shuhaib's great collection of knowledge
   actions:
     - theme: brand
-      text: Beginners Guide
-      link: /beginner
+      text: About Me
+      link: /about
     - theme: alt
       text: Portfolio
       link: /portfolio
