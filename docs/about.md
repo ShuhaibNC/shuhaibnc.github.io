@@ -5,7 +5,7 @@
 - If you're looking for general information of mine, Checkout [Wikipedia](https://en.wikipedia.org/wiki/User:ShuhaibNC)
 - I have a telegram channel with 17,000 Subscribers, 
 Check here [Shuhaib's Channel](https://t.me/shuhaibchannel), 
-[ShuhaibsChat](https://t.me/ShuhaibsChat) (Telegram Group) Read [RULES](http://t.me/MissRose_bot?start=rules_-1001666122378) before joining, also read [JustAsk](/justask)
+[ShuhaibsChat](https://t.me/ShuhaibsChat) (Telegram Group) Read [RULES](http://t.me/MissRose_bot?start=rules_-1001666122378) before joining, also read [JustAsk](./notes/justask)
 - I have a WhatsApp channel with 2,381 Followers, Check here [WhatsApp Channel](https://whatsapp.com/channel/0029Va9wa0m1Hsq68kqLSQ3r)
 - If you're looking for resources that i made? Look here [Internet Database](https://t.me/+liIYPqzMtZA0NDI1)
 
