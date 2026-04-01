@@ -34,10 +34,10 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: 'Notes',
+        text: 'Sections',
         items: [
-          { text: '🧑🏻‍💻 Coding', link: '/coding' },
           { text: '🔐 Cyber Security', link: '/cybersecurity' },
+          { text: '🧑🏻‍💻 Programming', link: '/coding' },
           { text: '🧬 Science', link: '/science' },
           { text: '🎬 Movies', link: '/movies' },
           { text: '📝 Notes', link: '/notes' },
