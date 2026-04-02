@@ -8,14 +8,16 @@
 - [OSINT King](./cybersecurity/osint.md) - The Ultimate Index of OSINT
 
 ## Learning & Practice
-- [CTF Starter Pack](./cybersecurity/ctfstarter.md) - Beginner To Advanced Resources For Learning CTF Skills
+- [CTF Starter Pack Full](./cybersecurity/ctfstarter.md) - Beginner To Advanced Resources For Learning CTF Skills
 - [Best CTF Websites](./cybersecurity/cyberskills) - Websites To Practice Hacking Skills
-- [Free TryHackMe Rooms](./cybersecurity/tryhackme.md) - Free TryHackMe Rooms
 - [Practice Pentesting](./cybersecurity/pentesting.md) - Hands-On Platforms And Labs For Practicing Penetration Testing
+- [TryHackMe Rooms](./cybersecurity/tryhackme.md) - Free TryHackMe Rooms
 
 ## Tools & Resources
-- [Vulnerability scanning tools](./cybersecurity/automated_vulnerability_scanning_tools.md) - Automated Vulnerability Scanning Tools Both Paid and Free
+- [Cybersecurity Tools](./cybersecurity/cybersecurity_tools.md) - Automated Vulnerability Scanning Tools Both Paid and Free
 - [Hackers Resources](./cybersecurity/hackersres.md) - Collection Of Exploit Databases, Tools, And Resources
+- [Ethical Hacking Learning Resources](./cybersecurity/learningresources.md) - Comprehensive Resources For Learning Ethical Hacking Through Labs, Courses, And Real-World Practice.
+
 
 ## Advanced Topics
 - [Malware Analysis](./cybersecurity/malware.md) - Tools And Platforms For Analyzing, Debugging Malware

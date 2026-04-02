@@ -1,4 +1,4 @@
-# Automated vulnerability scanning tools 
+# Cybersecurity Tools 
 
 ## Top Tier (Enterprise / Most Powerful)
 

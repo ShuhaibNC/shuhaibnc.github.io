@@ -1,0 +1,29 @@
+## Ethical Hacking Learning Resources
+
+- [Root Me](https://www.root-me.org/) — Challenges
+- [Stök YouTube](https://www.youtube.com/c/STOKfredrik) — Videos
+- [Hacker101 Videos](https://www.youtube.com/c/HackerOneTV) — Videos
+- [InsiderPhD YouTube](https://www.youtube.com/c/InsiderPhD) — Videos
+- [EchoCTF](https://echoctf.red/) — Interactive Learning
+- [Vuln Machines](https://www.youtube.com/c/VulnMachines) — Videos And Labs
+- [Try2Hack](https://try2hack.com/) — Interactive Learning
+- [Pentester Land](https://pentester.land/) — Written Content
+- [Checkmarx](https://checkmarx.com/learn/) — Interactive Learning
+- [Cybrary](https://www.cybrary.it/) — Written Content And Labs
+- [RangeForce](https://www.rangeforce.com/) — Interactive Exercises
+- [VulnHub](https://www.vulnhub.com/) — Written Content And Labs
+- [TCM Security](https://academy.tcm-sec.com/) — Interactive Learning
+- [HackXpert](https://www.hackxpert.com/) — Written Content And Labs
+- [TryHackMe](https://tryhackme.com/) — Written Content And Labs
+- [OverTheWire](https://overthewire.org/wargames/) — Written Content And Labs
+- [Hack The Box](https://www.hackthebox.com/) — Written Content And Labs
+- [CyberSecLabs](https://cyberseclabs.co.uk/) — Written Content And Labs
+- [Pentester Academy](https://www.pentesteracademy.com/) — Written Content And Labs
+- [Bug Bounty Reports Explained](https://www.youtube.com/c/nahamsec) — Videos
+- [Web Security Academy](https://portswigger.net/web-security) — Written Content And Labs
+- [Securibee Infosec Resources](https://securib.ee/beelog/) — Written Content
+- [Jhaddix Bug Bounty Repo](https://github.com/jhaddix/tbhm) — Written Content
+- [Zseano Bug Bounty Methodology](https://zseano.com/) — Free Ebook
+- [Awesome AppSec](https://github.com/paragonie/awesome-appsec) — Written Content
+- [NahamSec Bug Bounty Repo](https://github.com/nahamsec/Resources-for-Beginner-Bug-Bounty-Hunters) — Written Content
+- [Kontra Application Security](https://application.security/) — General Learning

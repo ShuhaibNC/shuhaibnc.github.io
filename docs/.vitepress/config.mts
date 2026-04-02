@@ -19,9 +19,31 @@ export default defineConfig({
     ['link', { rel: 'apple-touch-icon', href: '/icon.png', sizes: '192x192' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    search: {
+  provider: 'local',
+  options: {
+    detailedView: true,
+    translations: {
+      button: {
+        buttonText: 'Search Docs',
+        buttonAriaLabel: 'Search'
+      },
+      modal: {
+        noResultsText: 'No results found',
+        resetButtonTitle: 'Clear search',
+        footer: {
+          selectText: 'to select',
+          navigateText: 'to navigate',
+          closeText: 'to close'
+        }
+      }
+    }
+  }
+},
+
     nav: [
-      { text: '✨ Portfolio', link: '/portfolio', target: '_blank' },
-      { text: '💰 Donate', link: '/upi', target: '_blank' },
+      { text: 'Portfolio', link: '/portfolio', target: '_blank' },
+      { text: 'Donate', link: '/upi', target: '_blank' },
       
     ],
 
@@ -36,11 +58,70 @@ export default defineConfig({
       {
         text: 'Sections',
         items: [
-          { text: '🔐 Cyber Security', link: '/cybersecurity' },
-          { text: '🧑🏻‍💻 Programming', link: '/coding' },
-          { text: '🧬 Science', link: '/science' },
+          { text: '🔐 Cyber Security', link: '/cybersecurity',
+            items: [
+  {
+    text: 'Cybersecurity',
+    items: [
+      {
+        text: 'Foundations',
+        items: [
+          { text: 'Useful Linux Commands', link: '/cybersecurity/linuxcommands' },
+          { text: 'Shell Upgrade and Stabilization', link: '/cybersecurity/shellupgrade' },
+          { text: 'Google Dork', link: '/cybersecurity/googledork' },
+          { text: 'Cybersecurity Search Engines', link: '/cybersecurity/cyberengines' },
+          { text: 'OSINT King', link: '/cybersecurity/osint' }
+        ]
+      },
+      {
+        text: 'Learning & Practice',
+        items: [
+          { text: 'CTF Starter Pack Full', link: '/cybersecurity/ctfstarter' },
+          { text: 'Best CTF Websites', link: '/cybersecurity/cyberskills' },
+          { text: 'Practice Pentesting', link: '/cybersecurity/pentesting' },
+          { text: 'TryHackMe Rooms', link: '/cybersecurity/tryhackme' }
+        ]
+      },
+      {
+        text: 'Tools & Resources',
+        items: [
+          { text: 'Cybersecurity Tools', link: '/cybersecurity/cybersecurity_tools' },
+          { text: 'Hackers Resources', link: '/cybersecurity/hackersres' },
+          { text: 'Ethical Hacking Learning Resources', link: '/cybersecurity/learningresources' }
+        ]
+      },
+      {
+        text: 'Advanced Topics',
+        items: [
+          { text: 'Malware Analysis', link: '/cybersecurity/malware' },
+          { text: 'Privacy Guides', link: '/cybersecurity/privacy' }
+        ]
+      },
+      {
+        text: 'Writeups',
+        items: [
+          { text: 'Cybersecurity Writeups', link: '/cybersecurity/writeups' }
+        ]
+      }
+    ]
+  }
+],
+          collapsed: true
+           },
+          { text: '🧑🏻‍💻 Programming', link: '/coding',
+           },
+          { text: '🌠 Science', link: '/science' },
           { text: '🎬 Movies', link: '/movies' },
-          { text: '📝 Notes', link: '/notes' },
+          { text: '📝 Notes', link: '/notes',
+            items: [
+
+      { text: 'JustAsk', link: '/notes/justask' },
+      { text: 'WhatsApp Deeplinks', link: '/notes/deeplink' },
+      { text: 'Best Torrent Search Engines of all time', link: '/notes/Best-Torrent-Search-Engines-of-all%20time' },
+      { text: 'Best Compressions', link: '/notes/compressions' }
+],
+          collapsed: false
+           },
         ]
       }
     ],

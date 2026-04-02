@@ -1,4 +1,4 @@
-# **Websites To Test Your Cybersecurity Skills**
+# **Best CTF Websites**
 - 🌟[TryHackMe](https://tryhackme.com)
 - ⭐[Hack The Box](https://hackthebox.com/)
 - [pwnable.kr](https://pwnable.kr/)

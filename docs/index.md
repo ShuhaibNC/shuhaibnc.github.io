@@ -16,6 +16,7 @@ hero:
       link: /portfolio
       target: "_blank"
   image:
+    src: /logo.png
     alt: ShuhaibNC
 features:
   - title: Cybersecurity
