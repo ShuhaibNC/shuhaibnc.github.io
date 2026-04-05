@@ -4,6 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "ShuhaibNC",
   description: "Personal Notes",
+  cleanUrls: true,
   base: "/",
   head: [
     ['meta', { name: 'theme-color', content: '#7bc5e4' }],
@@ -60,16 +61,21 @@ export default defineConfig({
         items: [
           { text: '🔐 Cyber Security', link: '/cybersecurity',
             items: [
-  {
-    text: 'Cybersecurity',
-    items: [
+
+              
+      {
+        text: 'Writeups',
+        link: '/cybersecurity/writeups'
+      },
+  
+    
       {
         text: 'Foundations',
         items: [
           { text: 'Useful Linux Commands', link: '/cybersecurity/linuxcommands' },
           { text: 'Shell Upgrade and Stabilization', link: '/cybersecurity/shellupgrade' },
           { text: 'Google Dork', link: '/cybersecurity/googledork' },
-          { text: 'Cybersecurity Search Engines', link: '/cybersecurity/cyberengines' },
+          { text: 'Search Engines', link: '/cybersecurity/cyberengines' },
           { text: 'OSINT King', link: '/cybersecurity/osint' }
         ]
       },
@@ -85,7 +91,7 @@ export default defineConfig({
       {
         text: 'Tools & Resources',
         items: [
-          { text: 'Cybersecurity Tools', link: '/cybersecurity/cybersecurity_tools' },
+          { text: 'All Tools', link: '/cybersecurity/cybersecurity_tools' },
           { text: 'Hackers Resources', link: '/cybersecurity/hackersres' },
           { text: 'Ethical Hacking Learning Resources', link: '/cybersecurity/learningresources' }
         ]
@@ -96,15 +102,9 @@ export default defineConfig({
           { text: 'Malware Analysis', link: '/cybersecurity/malware' },
           { text: 'Privacy Guides', link: '/cybersecurity/privacy' }
         ]
-      },
-      {
-        text: 'Writeups',
-        items: [
-          { text: 'Cybersecurity Writeups', link: '/cybersecurity/writeups' }
-        ]
       }
-    ]
-  }
+    
+  
 ],
           collapsed: true
            },

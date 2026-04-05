@@ -1,42 +1,7 @@
 # Useful Google Dorks for Bug Bounty
 
-## Top 7 Google Dorks
-
-### Cache
-Shows cached version of a website  
-- `cache:example.com`
-
-### After
-Shows results after a specific year (use with site)  
-- `after:2019 site:example.com`
-- `after:2016 site:example.com`
-
-### Allintext
-Search for specific text in page content  
-- `allintext:admin`
-
-### Allinurl
-Search for keywords in URL  
-- `allinurl:"password"`
-
-### Anchor Text
-Search for specific anchor text  
-- `"Some_Text" filetype:php`
-
-### Filetype / Ext
-Search for specific file types  
-- `"python" ext:pdf`
-- `filetype:pdf "python"`
-
-### Allinurl (again usage)
-- `allinurl:"login"`
-
----
-
 ## Usage Note
 Use these with `site:target.com` and optionally exclude cache.
-
----
 
 ## 1. Discovering Exposed Files
 - `intitle:"index of" site:target.com`
@@ -91,3 +56,35 @@ Use these with `site:target.com` and optionally exclude cache.
 - `filetype:tgz inurl:backup site:target.com`
 
 Replace `target.com` with your target domain.
+
+### Cache
+Shows cached version of a website  
+- `cache:example.com`
+
+### After
+Shows results after a specific year (use with site)  
+- `after:2019 site:example.com`
+- `after:2016 site:example.com`
+
+### Allintext
+Search for specific text in page content  
+- `allintext:admin`
+
+### Allinurl
+Search for keywords in URL  
+- `allinurl:"password"`
+
+### Anchor Text
+Search for specific anchor text  
+- `"Some_Text" filetype:php`
+
+### Filetype / Ext
+Search for specific file types  
+- `"python" ext:pdf`
+- `filetype:pdf "python"`
+
+### Allinurl (again usage)
+- `allinurl:"login"`
+
+---
+
