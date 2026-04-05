@@ -91,7 +91,7 @@ export default defineConfig({
       {
         text: 'Tools & Resources',
         items: [
-          { text: 'All Tools', link: '/cybersecurity/cybersecurity_tools' },
+          { text: 'All Tools', link: '/cybersecurity/tools' },
           { text: 'Hackers Resources', link: '/cybersecurity/hackersres' },
           { text: 'Ethical Hacking Learning Resources', link: '/cybersecurity/learningresources' }
         ]

@@ -6,7 +6,7 @@ description: My great collection of knowledge
 hero:
   name: Shuhaib's
   text: "Official Website"
-  tagline: Shuhaib's great collection of knowledge
+  tagline: 📝 My Great Collection Of Knowledge
   actions:
     - theme: brand
       text: About Me

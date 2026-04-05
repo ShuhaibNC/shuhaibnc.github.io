@@ -17,7 +17,7 @@
 - [TryHackMe Rooms](./cybersecurity/tryhackme.md) - Free TryHackMe Rooms
 
 ## Tools & Resources
-- [Cybersecurity Tools](./cybersecurity/cybersecurity_tools.md) - Automated Vulnerability Scanning Tools Both Paid and Free
+- [Cybersecurity Tools](./cybersecurity/tools.md) - Automated Vulnerability Scanning Tools Both Paid and Free
 - [Hackers Resources](./cybersecurity/hackersres.md) - Collection Of Exploit Databases, Tools, And Resources
 - [Ethical Hacking Learning Resources](./cybersecurity/learningresources.md) - Comprehensive Resources For Learning Ethical Hacking Through Labs, Courses, And Real-World Practice.
 
