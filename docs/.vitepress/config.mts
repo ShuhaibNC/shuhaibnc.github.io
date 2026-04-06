@@ -6,6 +6,9 @@ export default defineConfig({
   description: "Personal Notes",
   cleanUrls: true,
   base: "/",
+  sitemap: {
+    hostname: 'https://shuhaibnc.github.io'
+  },
   head: [
     ['meta', { name: 'theme-color', content: '#7bc5e4' }],
     ['meta', { name: 'og:type', content: 'website' }],
