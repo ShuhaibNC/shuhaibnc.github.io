@@ -110,21 +110,51 @@
 
 
 ## Forums / Communities
-- [Leakbase](https://leakbase.io)
-- [XSS](https://xss.is)
-- [BreachForums](https://breachforums.st)
-- [CyberCarders](https://cybercarders.com)
-- [WWH Club](https://wwh-club.link)
-- [BlackHatWorld](https://blackhatworld.com)
-- [TurkHackTeam](https://turkhackteam.org)
-- [CDRPro](https://cdrpro.cc)
-- [DemonForums](https://demonforums.net)
-- [Exploit.in](https://exploit.in)
-- [Niflheim](https://niflheim.top)
-- [Antimigalki](https://antimigalki.org)
-- [Sinster](https://sinster.ly)
-- [NoHide](https://nohide.space)
-- [VLMI](https://vlmi.top)
+- 0x00sec
+- AntiOnline
+- BlackHatWorld
+- Breached
+- Cracked
+- Cracking Arena
+- Cracking Fire
+- Dread
+- Envoy Forum
+- ExteTools
+- Forum Team
+- Garage4Hackers
+- G4Expert
+- GreySec Forums
+- Hack Forums
+- HackHound
+- HackThis
+- KernelMode
+- MMO4ME
+- MPGH
+- Nulled
+- OGUsers
+- Offensive Community
+- PirateBay Forum
+- RaidForums
+- Runion
+- Safe Sky Hacks
+- StresserForums
+- The Hub
+- Torum
+- UnKnoWnCheaTs
+- V3rmillion
+- XSS Forums
+- Leakbase
+- CyberCarders
+- WWH Club
+- TurkHackTeam
+- CDRPro
+- DemonForums
+- Exploit.in
+- Niflheim
+- Antimigalki
+- Sinster
+- NoHide
+- VLMI
 
 
 
