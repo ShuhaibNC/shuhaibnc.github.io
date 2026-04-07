@@ -1,0 +1,162 @@
+## Darknet Forums / Communities (Illegal)
+
+::: danger
+I Intentionally removed the links from this list, because of the misuse, It took me several days to make this list, Do not enter any website if you don't know what you're doing
+:::
+- 0x00sec
+- 0xDump
+- AmrNet1
+- AnonymousEgypt
+- BinsPremium2
+- Breachforums
+- DB_MARKEETS
+- Darkforums
+- Leakbase
+- Moon_Log
+- MrHamza
+- RansomHouse
+- Rdp_Learning
+- Sector08
+- The Underground 4
+- arvin_club
+- blackhatworld
+- boosty66brvte
+- cardersclub93
+- combo_listt
+- darkstormteambackup2
+- databasestore4ol
+- ddosiamonitor
+- documentors
+- emailmarketingdata_tools
+- cvvboard
+- zone-h
+- 1877
+- 4pda
+- altenens
+- antimigalki
+- ascarding
+- dublikat
+- bdfclub
+- blackbones
+- breachforums-vc
+- breachforums.is
+- breachsta
+- carder.market
+- chitachok
+- combofre
+- cpamafia
+- crackia
+- crackingall
+- crackingx
+- crdcrew
+- crdpro
+- criminalz
+- cybercarders
+- darknetarmy
+- darknetweb
+- darkpro
+- darkweb
+- darkwebs
+- deeptor
+- drdark
+- exploit
+- forumteam
+- gerki
+- hard-tm
+- hellofhackers
+- htdark
+- ihaxglobal
+- in4
+- infected-zone
+- ipbmafia
+- leakbase.cc
+- leakbase.io
+- leakeddatabases
+- leetforums
+- legitcarder
+- legitcarders
+- mipped
+- niflheim
+- nohide
+- novihacks
+- nullcrack
+- opencard
+- piratebuhta
+- replace
+- shadowcarders
+- spy.gen.tr
+- leakbase_cc
+- leaksdatabase
+- monster_cloud
+- tgcnnatgvctfenqwf
+- tg.i-c-a
+- ransomwatcher
+- verified
+- victus
+- vlmi
+- aljyyosh
+- cardingworld
+- cweb
+- enclave
+- inoreader
+- nodo313
+- nullscripts
+- reddit HUBHackinG
+- turkhackteam
+- x-cracking
+- xforums
+- xnforo
+- xreactor
+- zismo
+- zx-pk
+- leak_db
+- leakbase_official
+- musicarusaesp
+- noname05716
+- patched
+- ransom_house
+- ransomware
+- AntiOnline
+- BlackHatWorld
+- Breached
+- Cracked
+- Cracking Arena
+- Cracking Fire
+- Dread
+- Envoy Forum
+- ExteTools
+- Forum Team
+- Garage4Hackers
+- G4Expert
+- GreySec Forums
+- Hack Forums
+- HackHound
+- HackThis
+- KernelMode
+- MMO4ME
+- MPGH
+- Nulled
+- OGUsers
+- Offensive Community
+- PirateBay Forum
+- RaidForums
+- Runion
+- Safe Sky Hacks
+- StresserForums
+- The Hub
+- Torum
+- UnKnoWnCheaTs
+- V3rmillion
+- XSS Forums
+- Leakbase
+- CyberCarders
+- WWH Club
+- TurkHackTeam
+- CDRPro
+- DemonForums
+- Exploit.in
+- Niflheim
+- Antimigalki
+- Sinster
+- NoHide
+- VLMI

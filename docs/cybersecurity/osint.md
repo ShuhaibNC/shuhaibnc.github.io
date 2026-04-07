@@ -1,8 +1,11 @@
 # OSINT King
 
 ## Index Level
-- [Maltego](https://maltego.com)
-- [OSINT Framework](https://osintframework.com/)
+:::warning
+Use any tool or website at your own risk, I'm not responsible for any of your actions
+:::
+- ⭐ [Maltego](https://maltego.com) - All-In-One Framework
+- ⭐ [OSINT Framework](https://osintframework.com/) - OSINT Framework
 
 ## Username Checkers
 - [Namechk](https://namechk.com/)
@@ -33,11 +36,6 @@
 - [Hunter Domain Search](http://hunter.io/domain-search)
 - [AnyMailFinder](http://anymailfinder.com/email-finder-by-domain)
 - [Minelead](http://minelead.io)
-
-## Email Data Leaks
-- [Have I Been Pwned](https://haveibeenpwned.com/)
-- [Vigilante](https://www.vigilante.pw/)
-- [Dehashed](https://dehashed.com/)
 
 ## IP Loggers
 - [ki.tc](https://ki.tc/)
@@ -82,14 +80,14 @@
 - [Faker.js Examples](https://cdn.rawgit.com/Marak/faker.js/master/examples/index.htm)
 
 
-
-## Hidden Content / Breach & Leak Search
+## Breach & Leak Search (Legal)
+- ⭐ [Have I Been Pwned](https://haveibeenpwned.com/)
+- ⭐ [Dehashed](https://dehashed.com/)
 - [Illicit Services](https://search.illicit.services)
 - [Leak.sx](https://leak.sx)
 - [Intelligence X](https://intelx.io)
 - [4IQ](https://4iq.com)
 - [LeakCheck](https://leakcheck.io)
-- [Vigilante](https://vigilante.pw)
 - [LeakCheck.net](https://leakcheck.net)
 - [LeakPeek](https://leakpeek.com)
 - [RSLookup](https://rslookup.com)
@@ -99,64 +97,13 @@
 - [NuclearLeaks](https://nuclearleaks.com)
 - [Private-Base](https://private-base.info)
 - [HaveIBeenSold](https://haveibeensold.app)
-- [Dehashed](https://www.dehashed.com)
 - [ScatteredSecrets](http://scatteredsecrets.com)
-- [Have I Been Pwned](https://haveibeenpwned.com)
 - [NormShield](https://services.normshield.com)
 - [LeakEngine](https://joe.black/leakengine.html)
 - [Epieos](https://epieos.com)
 - [BreachDirectory](https://breachdirectory.com/search)
 
-
-
-## Forums / Communities
-- 0x00sec
-- AntiOnline
-- BlackHatWorld
-- Breached
-- Cracked
-- Cracking Arena
-- Cracking Fire
-- Dread
-- Envoy Forum
-- ExteTools
-- Forum Team
-- Garage4Hackers
-- G4Expert
-- GreySec Forums
-- Hack Forums
-- HackHound
-- HackThis
-- KernelMode
-- MMO4ME
-- MPGH
-- Nulled
-- OGUsers
-- Offensive Community
-- PirateBay Forum
-- RaidForums
-- Runion
-- Safe Sky Hacks
-- StresserForums
-- The Hub
-- Torum
-- UnKnoWnCheaTs
-- V3rmillion
-- XSS Forums
-- Leakbase
-- CyberCarders
-- WWH Club
-- TurkHackTeam
-- CDRPro
-- DemonForums
-- Exploit.in
-- Niflheim
-- Antimigalki
-- Sinster
-- NoHide
-- VLMI
-
-
+## [Leak / Breach Search / Darknet Forums / Communities (Illegal)](./darknet.md)
 
 ## Air and Space Tracking
 - [ADS-B Exchange](https://globe.adsbexchange.com)
