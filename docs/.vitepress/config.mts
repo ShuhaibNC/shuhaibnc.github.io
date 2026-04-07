@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "ShuhaibNC",
+  title: "ShuhaibNC (Shuhaib N C) - Official Website",
   description: "Personal Notes",
   cleanUrls: true,
   base: "/",

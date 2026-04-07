@@ -4,8 +4,8 @@ layout: home
 description: My great collection of knowledge
 
 hero:
-  name: Shuhaib's
-  text: "Official Website"
+  name: Shuhaib's 
+  text: " Official Website"
   tagline: 📝 My Great Collection Of Knowledge
   actions:
     - theme: brand
