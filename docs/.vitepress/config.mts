@@ -115,16 +115,7 @@ export default defineConfig({
            },
           { text: '🌠 Science', link: '/science' },
           { text: '🎬 Movies', link: '/movies' },
-          { text: '📝 Notes', link: '/notes',
-            items: [
-
-      { text: 'JustAsk', link: '/notes/justask' },
-      { text: 'WhatsApp Deeplinks', link: '/notes/deeplink' },
-      { text: 'Best Torrent Search Engines of all time', link: '/notes/Best-Torrent-Search-Engines-of-all%20time' },
-      { text: 'Best Compressions', link: '/notes/compressions' }
-],
-          collapsed: false
-           },
+          { text: '📝 Notes', link: '/notes'},
         ]
       }
     ],
