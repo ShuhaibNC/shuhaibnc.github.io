@@ -43,6 +43,11 @@ Check here [Shuhaib's Channel](https://t.me/shuhaibchannel),
 
 - https://github.com/buzz/imdb-link-em-all/graphs/contributors
 
+#### Fullscreen Toggle Button
+- I made a Userscript that add a fullscreen button to bottom-left corner of any mobile view pages, This userscript is designed primarily for mobile phone users who want to view web pages in fullscreen mode. Unlike desktop browsers where users can press the F11 key to enter fullscreen, mobile browsers typically do not provide a direct fullscreen option.
+
+- https://greasyfork.org/en/scripts/542320-fullscreen-toggle-button
+
 
 ## THM 
 <iframe src="https://tryhackme.com/api/v2/badges/public-profile?userPublicId=213556" style="border:none; width:329px; height:88px; display:block;"></iframe>
