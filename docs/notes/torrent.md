@@ -1,4 +1,4 @@
-### https://knaben.info for Proxy list
+### Goto https://knaben.info for Links
 
 - thepiratebay
 - 1337x
