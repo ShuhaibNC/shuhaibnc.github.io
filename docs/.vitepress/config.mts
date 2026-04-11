@@ -47,7 +47,6 @@ export default defineConfig({
 
     nav: [
       { text: 'Portfolio', link: '/portfolio', target: '_blank' },
-      { text: 'Donate', link: '/upi', target: '_blank' },
       
     ],
 
