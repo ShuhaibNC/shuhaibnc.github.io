@@ -50,6 +50,7 @@ Use any tool or website at your own risk, I'm not responsible for any of your ac
 
 ## People Search
 - [TraceLabs](https://www.tracelabs.org/)
+- [Dumpor](https://dumpor.io/) - Instagram OSINT Tool
 - [FamilyTreeNow](http://www.familytreenow.com/)
 - [Lullar](https://com.lullar.com/)
 - [Spkeo](https://www.spokeo.com/)
