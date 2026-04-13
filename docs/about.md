@@ -10,14 +10,18 @@ Check here [Shuhaib's Channel](https://t.me/shuhaibchannel),
 - If you're looking for resources that i made? Look here [Internet Database](https://t.me/+liIYPqzMtZA0NDI1)
 
 ## Some Telegram Bots i made
-
-- [NightAI Bot](https://t.me/NightAIBot) - A failed attempt of multipurpose experimental bot
-- [MovieCrackerBot](https://t.me/MovieCrackerBot) - It can search movie files
-- [ScopeGramBot](https://t.me/ScopeGramBot) - A Solution to find Public Private Channels, Groups, Forums with ownership
-- [APK info Bot](https://t.me/APKinfoRobot) - Analyzes Android APK files and extracts key technical details instantly. Simply send an APK file
-- [Juliet](https://t.me/MissJulietBot) - Telegram group management bot
+> Online - ✅ | Offline - ❌
+- ⭐ [NightAI Bot](https://t.me/NightAIBot) ✅ - An attempt of multipurpose experimental bot 
+- ⭐ [MovieCrackerBot](https://t.me/MovieCrackerBot) ✅ - It can search movie files
+- [ScopeGramBot](https://t.me/ScopeGramBot) ❌ - A Solution to find Public Private Channels, Groups, Forums with ownership
+- [APK info Bot](https://t.me/APKinfoRobot) ❌ - Analyzes Android APK files and extracts key technical details instantly. Simply send an APK file
+- [Juliet](https://t.me/MissJulietBot) ❌ - Telegram group management bot
 
 ## Some contributions i made in internet world
+
+#### **Bug Bounty Huntings**
+
+- I found and reported an XSS vulnerability in `asmix.com` by testing how user input was handled, and received a **$50 bug bounty** for the finding.
 
 #### WABetaInfo
 
