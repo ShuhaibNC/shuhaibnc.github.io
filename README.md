@@ -9,13 +9,12 @@
 
 ## 🗺️ Table of Contents
 
-- [🛡️ Cybersecurity](#️-cybersecurity)
-  - [Learning Resources](#-learning-resources)
-  - [Tools & Engines](#-tools--engines)
-  - [Techniques](#-techniques)
-  - [CTF & Writeups](#-ctf--writeups)
-- [👤 About](#-about)
-- [🗂️ Full File Index](#️-full-file-index)
+- [🛡️ Cybersecurity](#%EF%B8%8F-cybersecurity)
+  - [Learning Resources](#learning-resources)
+  - [Tools & Engines](#tools--engines)
+  - [Techniques](#techniques)
+  - [CTF & Writeups](#ctf--writeups)
+- [🗂️ Full File Index](#%EF%B8%8F-full-file-index)
 
 ---
 
