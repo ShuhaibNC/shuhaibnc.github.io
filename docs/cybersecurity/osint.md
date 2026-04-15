@@ -115,6 +115,62 @@ Use any tool or website at your own risk, I'm not responsible for any of your ac
 
 ## [Leak / Breach Search / Darknet Forums / Communities (Illegal)](./darknet.md)
 
+## Best Dark Web Monitoring Tools
+
+- [DarkOwl Vision](https://www.darkowl.com/) - A dark web intelligence platform that collects, indexes, and analyzes data from dark web sources to detect threats and reduce risks  
+- [Recorded Future](https://www.recordedfuture.com/) - Threat intelligence using AI and machine learning to identify potential threats including dark web activity  
+- [SpyCloud](https://spycloud.com/) - Focuses on recovering and analyzing stolen data like credentials to prevent account takeover and identity theft  
+
+- [IntSights](https://www.intsights.com/) - Monitors dark web forums and marketplaces in real time to identify risks and enable proactive defense  
+- [Constella Intelligence](https://constella.ai/) - Combines dark web monitoring with identity protection to uncover compromised data  
+- [KELA](https://www.kelacyber.com/) - Provides actionable intelligence on criminal activity and threat actors from the dark web  
+
+- [Cybersixgill](https://cybersixgill.com/) - Automates dark web data collection and analysis with real-time alerts for threat mitigation  
+- [Digital Shadows SearchLight](https://www.digitalshadows.com/) - Offers visibility into dark web threats, data leaks, and brand impersonation  
+- [ZeroFox](https://www.zerofox.com/) - Monitors dark web and social media for threats like phishing and impersonation  
+
+- [Cognito](https://www.cognitosec.com/) - Cybersecurity intelligence platform for monitoring dark web activity and improving security strategy  
+- [Flashpoint](https://www.flashpoint-intel.com/) - Collects and analyzes dark web data to deliver business risk intelligence  
+- [Echosec Beacon](https://www.echosec.net/) - Search and monitoring tool providing insights into threats like breaches and fraud  
+
+- [DarkTracer](https://darktracer.io/) - Tracks dark web activities and emerging threats with actionable intelligence  
+- [ID Agent](https://www.idagent.com/) - Monitoring service for tracking compromised credentials and threats  
+- [Blueliv Threat Compass](https://www.blueliv.com/) - Modular threat intelligence platform including dark web monitoring  
+
+- [Cyberint Argos Edge](https://www.cyberint.com/) - Monitors external digital environments including dark web for leaks and fraud  
+- [SurfWatch Labs (HelpSystems)](https://www.fortra.com/products/surfwatch) - Provides analytics and monitoring to identify dark web risks  
+- [Sanction Scanner](https://sanctionscanner.com/) - Focuses on compliance and financial crime by monitoring dark web activity  
+
+## 21 Dark Web Tools for OSINT Professionals
+
+- [Tor Browser](https://www.torproject.org/) - Web browser  
+- [Ahmia](https://ahmia.fi/) - Search engine  
+- Haystack - Search engine  
+
+- Tor66 - Search engine  
+- Torch - Search engine  
+- Onion Engine - Search engine  
+
+- Telemetry - Telegram search  
+- Library of Leaks - Leaks & breaches  
+- [Have I Been Pwned](https://haveibeenpwned.com/) - Search data breaches  
+
+- [DeHashed](https://www.dehashed.com/) - Search data breaches  
+- LeakOSINT - Telegram bot  
+- UniversalSearchBot - Telegram bot  
+
+- DeepDarkCTI - Collection of CTI sources  
+- DarkwebDaily Live - Links to onion sites  
+- [Onion.live](https://onion.live/) - Links to onion sites  
+
+- Tor.link - Links to onion sites  
+- The Hidden Wiki - Links to onion sites  
+- TorCrawl.py - Crawl and extract webpages  
+
+- [Aleph](https://aleph.occrp.org/) - Search data on the dark web  
+- [Tor2web](https://www.tor2web.org/) - Access to Tor hidden services  
+- PGP Tool - Encrypt, decrypt, and verify PGP  
+
 ## Air and Space Tracking
 - [ADS-B Exchange](https://globe.adsbexchange.com)
 - [FlightAware](https://www.flightaware.com)

@@ -31,3 +31,55 @@
 29. [Packet Storm](https://packetstormsecurity.com/) — Latest vulnerabilities and exploits  
 30. [SearchCode](https://searchcode.com/) — Search billions of lines of code  
 31. [Amass](https://github.com/owasp-amass/amass) — In-depth attack surface mapping
+32. Natlas  
+33. NIST NVD  
+34. osv.dev  
+35. opencve  
+36. VulnIQ  
+37. Vulmon  
+38. VulDB  
+39. Sploitus  
+
+40. LOLBAS  
+41. GTFOBins  
+42. NerdyData  
+43. SynapsInt  
+44. skymem  
+45. ThatsThem  
+46. Omnisint  
+47. Riddler  
+48. RobTex  
+49. BuiltWith  
+
+50. DNSdb  
+51. DNSviz  
+
+52. C99.nl  
+53. wifimap  
+54. wifispc  
+55. mylnikov  
+
+56. Snusbase  
+57. HashKiller  
+
+58. AHMIA  
+59. tor.link  
+
+60. google  
+61. yandex  
+62. bing  
+
+63. Insecam  
+
+64. ORKL  
+65. tria.ge  
+66. filesec  
+67. malapi  
+
+68. Tellows  
+69. sync.me  
+70. SpyDialer  
+
+71. Rapid7 DB  
+
+72. TinEye  

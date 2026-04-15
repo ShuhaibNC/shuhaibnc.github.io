@@ -74,11 +74,12 @@ export default defineConfig({
       {
         text: 'Foundations',
         items: [
+          { text:'Linux Distro', link : '/cybersecurity/linuxdistro'},
           { text: 'Useful Linux Commands', link: '/cybersecurity/linuxcommands' },
           { text: 'Shell Upgrade and Stabilization', link: '/cybersecurity/shellupgrade' },
           { text: 'Google Dork', link: '/cybersecurity/googledork' },
           { text: 'Search Engines', link: '/cybersecurity/cyberengines' },
-          { text: 'OSINT King', link: '/cybersecurity/osint' }
+          { text: 'OSINT King', link: '/cybersecurity/osint' },
         ]
       },
       {
@@ -87,6 +88,7 @@ export default defineConfig({
           { text: 'CTF Starter Pack Full', link: '/cybersecurity/ctfstarter' },
           { text: 'Best CTF Websites', link: '/cybersecurity/cyberskills' },
           { text: 'Practice Pentesting', link: '/cybersecurity/pentesting' },
+          { text: 'Platforms to Learn Cybersecurity', link: '/cybersecurity/platforms' },
           { text: 'TryHackMe Rooms', link: '/cybersecurity/tryhackme' }
         ]
       },
@@ -94,8 +96,13 @@ export default defineConfig({
         text: 'Tools & Resources',
         items: [
           { text: 'All Tools', link: '/cybersecurity/tools' },
+          { text: 'Forensic Tools', link: '/cybersecurity/forensic'},
+          { text: 'Defensive Security Tools', link: '/cybersecurity/defensive'},
           { text: 'Hackers Resources', link: '/cybersecurity/hackersres' },
-          { text: 'Ethical Hacking Learning Resources', link: '/cybersecurity/learningresources' }
+          { text: 'Ethical Hacking Learning Resources', link: '/cybersecurity/learningresources' },
+          { text:'Useful Wireshark Filters', link : '/cybersecurity/wireshark'},
+          { text:'Cybersecurity Hardwares', link : '/cybersecurity/hardware'},
+          { text:'Top Cybersecurity GitHub Projects', link : '/cybersecurity/githubprojects'},
         ]
       },
       {
@@ -103,6 +110,13 @@ export default defineConfig({
         items: [
           { text: 'Malware Analysis', link: '/cybersecurity/malware' },
           { text: 'Privacy Guides', link: '/cybersecurity/privacy' }
+        ]
+      },
+      {
+        text: 'Career',
+        items: [
+          { text: 'Cybersecurity Certifications', link: '/cybersecurity/certificate' },
+          { text: 'Roles and Domains', link: '/cybersecurity/domainroles' }
         ]
       }
     

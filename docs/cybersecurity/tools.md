@@ -24,6 +24,11 @@
 - [OWASP ZAP](https://www.zaproxy.org/)
 - [Nikto](https://github.com/sullo/nikto)
 - [WPScan](https://wpscan.com/)
+- [Dirsearch](https://github.com/maurosoria/dirsearch)
+- [Gobuster](https://github.com/Oj/gobuster)
+- [httpx](https://github.com/projectdiscovery/httpx)
+- [ffuf](https://github.com/ffuf/ffuf)
+- [Feroxbuster](https://github.com/epi052/feroxbuster)
 - [sqlmap](https://sqlmap.org/)
 - [W3af](http://w3af.org/)
 - [Arachni](https://github.com/Arachni/arachni)
@@ -38,6 +43,23 @@
 - [Censys](https://censys.io/)
 - [BinaryEdge](https://binaryedge.io/)
 - [Findomain](https://github.com/findomain/findomain)
+- [Sublist3r](https://github.com/aboul3la/Sublist3r)
+- [Amass](https://github.com/owasp-amass/amass)
+- [Assetfinder](https://github.com/tomnomnom/assetfinder)
+- [Dnsx](https://github.com/projectdiscovery/dnsx)
+- [Puredns](https://github.com/d3mondev/puredns)
+- [Dnsvalidator](https://github.com/vortexau/dnsvalidator)
+- [Naabu](https://github.com/projectdiscovery/naabu)
+- [Masscan](https://github.com/robertdavidgraham/masscan)
+- [Gowitness](https://github.com/sensepost/gowitness)
+- [Waybackurls](https://github.com/tomnomnom/waybackurls)
+- [Subfinder](https://github.com/projectdiscovery/subfinder)
+- [gau (GetAllURLs)](https://github.com/lc/gau)
+- [Waymore](https://github.com/xnl-h4ck3r/waymore)
+- [Gospider](https://github.com/jaeles-project/gospider)
+- [Whatweb](https://github.com/urbanadventurer/WhatWeb)
+- [Gotator](https://github.com/Josue87/gotator)
+- [Altdns](https://github.com/infosec-au/altdns)
 
 ## DevSecOps / SAST / Dependency Scanning
 
@@ -69,6 +91,7 @@
 - [JSQL Injection](https://github.com/ron190/jsql-injection)
 - [Havij](https://www.havij.com/)
 - [DSSS](https://github.com/stamparm/DSSS)
+- [truffleHog](https://github.com/trufflesecurity/trufflehog)
 
 ## Proxy / Traffic / Fuzzing Tools
 
@@ -115,3 +138,12 @@
 - [Tsunami Security Scanner](https://github.com/google/tsunami-security-scanner)
 - [GasMask](https://github.com/tweedge/gasmask)
 - [Screaming Frog SEO Spider](https://www.screamingfrog.co.uk/seo-spider/)
+- [Aquatone](https://github.com/michenriksen/aquatone)
+- [LinkFinder](https://github.com/GerbenJavado/LinkFinder)
+
+## Tools Without Reliable Official Links (Kept Separate)
+
+- Lazy Recon - Subdomain discovery  
+- XSS Hunter - Blind XSS discovery  
+- JS-Scan - Endpoint discovery through JS files  
+- Parameth - Bruteforce GET and POST parameters  
