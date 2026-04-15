@@ -229,78 +229,66 @@
         })();
 
         $(document).ready(function () {
-            var QR;
-            // QR = {
-            //     "Type": "UPI",
-            //     "UPI": "Upi Address",
-            //     "Amount": 150
-            // };
+    try {
+        QR = JSON.parse('{"Type":"UPI","UPI":"shuhaibsaad5-1@okicici"}')
+    } catch (error) {
+        swal("Invalid Upi Details", "Sorry, Invalid UPI Details Received!", "warning")
+        return;
+    }
 
-            // QR = {
-            //     "Type": "Bank",
-            //     "Account": "Account Number",
-            //     "IFSC": "IFSC Code",
-            //     "Amount": Amount
-            // };
+    var PaymentTo = "Pay ";
+    var pa = "";
+    var pn = "Shuhaib%20N%20C";
+    var aid = "uGICAgMDh59yfNg";
+    var amt = ("Amount" in QR) ? QR.Amount : null;
 
-            try {
-                QR = JSON.parse('{"Type":"UPI","UPI":"shuhaibnc@upi"}')
-            } catch (error) {
-                swal("Invalid Upi Details", "Sorry, Invalid UPI Details Received!", "warning")
-                return;
-            }
+    if (amt) {
+        PaymentTo = PaymentTo + " ₹" + amt;
+    }
 
-            var PaymentLink = "upi://pay?pn=Shuhaib%20N%20C&aid=uGICAgMDh59yfNg";
-            var PaymentTo = "Pay ";
+    if (!("Type" in QR)) {
+        qr.set({ foreground: 'black', size: 180, value: "https://upi.pe" });
+        $("#save-qr").attr("href", "https://upi.pe");
+        return;
+    }
 
-            if ("Amount" in QR) {
-                PaymentLink = PaymentLink + "&amt=" + QR.Amount
-                PaymentTo = PaymentTo + " ₹" + QR.Amount;
-            }
+    if (QR.Type == "UPI") {
+        pa = QR.UPI;
+        $("#paying-to").html(PaymentTo + " to <br>" + QR.UPI);
 
-            if ("Type" in QR) {
-                if (QR.Type == "UPI") {
-                    VPA = QR.UPI
-                    PaymentLink = PaymentLink + "&pa=" + QR.UPI
-                    $("#paying-to").html(PaymentTo + " to <br>" + QR.UPI)
-                    $("#save-qr").attr("href", PaymentLink)
+    } else if (QR.Type == "Bank") {
+        pa = QR.Account + "@" + QR.IFSC + ".ifsc.npci";
+        $("#paying-to").html("Account No.:" + QR.Account + "<br> IFSC: " + QR.IFSC);
 
-                } else if (QR.Type == "Bank") {
-                    PaymentLink = PaymentLink + "&pa=" + QR.Account + "@" + QR.IFSC + ".ifsc.npci"
-                    VPA = QR.Account + "@" + QR.IFSC + ".ifsc.npci"
-                    $("#paying-to").html("Account No.:" + QR.Account + "<br> IFSC: " + QR.IFSC)
-                    $("#save-qr").attr("href", PaymentLink)
-                } else {
-                    PaymentLink = "https://upi.pe";
-                    VPA = "https://upi.pe"
-                    $("#save-qr").attr("href", PaymentLink)
-                }
+    } else {
+        qr.set({ foreground: 'black', size: 180, value: "https://upi.pe" });
+        $("#save-qr").attr("href", "https://upi.pe");
+        return;
+    }
 
-            } else {
-                PaymentLink = "https://upi.pe";
-                $("#save-qr").attr("href", PaymentLink)
-            }
+    // Build link with correct parameter order: pa, pn, aid, amt
+    var PaymentLink = "upi://pay?pa=" + pa + "&pn=" + pn + "&aid=" + aid;
+    if (amt) PaymentLink += "&amt=" + amt;
 
-            qr.set({
-                foreground: 'black',
-                size: 180,
-                value: PaymentLink
-            });
+    $("#save-qr").attr("href", PaymentLink);
 
-            $("#qrcode-block").show()
+    qr.set({
+        foreground: 'black',
+        size: 180,
+        value: PaymentLink
+    });
 
+    $("#qrcode-block").show();
 
-
-            $("#save-qr").on('click', function () {
-                gtag('event', 'PayNow', {
-                    'event_category': 'PayNow',
-                    'event_action': 'Pay',
-                    'event_label': VPA,
-                    'value': 0
-                });
-            });
-
-        })
+    $("#save-qr").on('click', function () {
+        gtag('event', 'PayNow', {
+            'event_category': 'PayNow',
+            'event_action': 'Pay',
+            'event_label': pa,
+            'value': 0
+        });
+    });
+});
 
     </script>
 </body>
