@@ -53,5 +53,55 @@ Check here [Shuhaib's Channel](https://t.me/shuhaibchannel),
 - https://greasyfork.org/en/scripts/542320-fullscreen-toggle-button
 
 
-## THM 
-<iframe src="https://tryhackme.com/api/v2/badges/public-profile?userPublicId=213556" style="border:none; width:329px; height:88px; display:block;"></iframe>
+#### What am i playing?
+
+<div style="text-align:center;">
+  <img src="https://lastfm-recently-played.vercel.app/api?user=shuhaibnc&show_user=header&width=700&bg_color=161618" />
+</div>
+
+#### My OS
+
+<img src="https://skillicons.dev/icons?i=linux,arch,debian,ubuntu,kali,raspberrypi" />
+
+#### What Softwares do i use?
+
+<img src="https://skillicons.dev/icons?i=git,github,obsidian,neovim,regex,androidstudio,vscode,vscodium" />
+
+#### What languages do i use?
+
+<img src="https://skillicons.dev/icons?i=bash,md,c,java,py,django,mysql,html,css" />
+
+#### TryHackMe Rank
+
+<img src="https://tryhackme-badges.s3.amazonaws.com/shuhaibnc.png" alt="ShuhaibNC" />
+
+#### Github Commit Graph
+
+<img style="background:#010307;border-radius:12px;" src="https://raw.githubusercontent.com/ShuhaibNC/ShuhaibNC/refs/heads/output/github-contribution-grid-snake-dark.svg">
+
+#### Social
+
+<a href="https://telegram.me/ShuhaibNC">
+        <img
+            src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white"
+            alt="Telegram"
+        />
+    </a>
+    <a href="https://x.com/realshuhaib">
+        <img
+            src="https://img.shields.io/badge/Twitter-blue?&style=for-the-badge&logoColor=white&logo=twitter"
+            alt="Twitter"
+        />
+    </a>
+    <a href="https://gitlab.com/ShuhaibNC">
+        <img
+            src="https://img.shields.io/badge/GitLab-red?style=for-the-badge&logoColor=white&logo=gitlab"
+            alt="GitLab"
+        />
+    </a>
+    <a href="https://www.linkedin.com/in/shuhaibnc/">
+        <img
+            src="https://img.shields.io/badge/LinkedIn-blue?&style=for-the-badge&logo=linkedin"
+            alt="LinkedIn"
+        />
+    </a>
