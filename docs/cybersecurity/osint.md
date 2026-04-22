@@ -22,6 +22,7 @@ Use any tool or website at your own risk, I'm not responsible for any of your ac
 
 ## Email Searchers
 - ⭐ [BehindTheEmail](https://behindtheemail.com/)
+- [Buster](https://github.com/sham00n/buster)
 - [ThatsThem Reverse Email](https://thatsthem.com/reverse-email-lookup)
 - [MelissaData](http://www.melissadata.com/lookups/emails.asp)
 - [Pipl](https://pipl.com/)
@@ -36,6 +37,11 @@ Use any tool or website at your own risk, I'm not responsible for any of your ac
 - [Hunter Domain Search](http://hunter.io/domain-search)
 - [AnyMailFinder](http://anymailfinder.com/email-finder-by-domain)
 - [Minelead](http://minelead.io)
+
+## Phone
+
+- [Phoneinfoga](https://github.com/sundowndev/phoneinfoga) - Information gathering framework for phone numbers.
+- [Truecaller](https://www.truecaller.com/) - Caller ID and spam lookup service (commercial).
 
 ## IP Loggers
 - [ki.tc](https://ki.tc/)
