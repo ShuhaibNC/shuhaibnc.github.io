@@ -3,6 +3,7 @@
 ::: danger
 I Intentionally removed the links from this list, because of the misuse, It took me several days to make this list, Do not enter any website if you don't know what you're doing
 :::
+- breachforums.ai
 - 0x00sec
 - 0xDump
 - AmrNet1
