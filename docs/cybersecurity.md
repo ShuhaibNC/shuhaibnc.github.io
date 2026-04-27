@@ -1,8 +1,5 @@
 # Cybersecurity
 
-## Writeups
-- [Cybersecurity Writeups](./cybersecurity/writeups.md) - My Write-Ups
-
 ## Foundations
 - [Useful Linux Commands](./cybersecurity/linuxcommands.md) - Powerful Linux commands
 - [Shell Upgrade and Stabilization](./cybersecurity/shellupgrade.md) - Upgrade Unstable Reverse Shells
