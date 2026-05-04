@@ -183,6 +183,70 @@
 
     @keyframes blink { 50% { opacity: 0.3; } }
 
+    .skeleton {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .skeleton-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-inner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,0.04) 50%,
+        transparent 100%
+      );
+      animation: shimmer 1.6s infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .skeleton-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .skeleton-icon::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 7px 0 7px 13px;
+      border-color: transparent transparent transparent var(--border);
+      margin-left: 2px;
+    }
+
+    .skeleton.hidden {
+      display: none;
+    }
+
     .ch-label {
       font-size: 10px;
       letter-spacing: 1.5px;
@@ -334,11 +398,16 @@
     cell.className = 'cell';
     cell.dataset.index = i;
 
+    const skeleton = document.createElement('div');
+    skeleton.className = 'skeleton';
+    skeleton.innerHTML = `<div class="skeleton-inner"><div class="skeleton-icon"></div></div>`;
+
     const iframe = document.createElement('iframe');
     iframe.src = embedURL(v.id);
     iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
     iframe.allowFullscreen = true;
     iframe.loading = 'lazy';
+    iframe.addEventListener('load', () => skeleton.classList.add('hidden'));
 
     const overlay = document.createElement('div');
     overlay.className = 'cell-overlay';
@@ -367,6 +436,7 @@
       openModal(v.id);
     });
 
+    cell.appendChild(skeleton);
     cell.appendChild(iframe);
     cell.appendChild(overlay);
     cell.appendChild(btn);
