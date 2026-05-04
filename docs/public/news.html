@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>News LiveGrid — 9 Channels</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&display=swap');
+
+    :root {
+      --bg: #080a0f;
+      --surface: #0d1117;
+      --border: #1e2530;
+      --accent: #ff3b3b;
+      --accent2: #00e5ff;
+      --text: #c9d1d9;
+      --dim: #4a5568;
+      --header-h: 48px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      overflow: hidden;
+    }
+
+    header {
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 3px;
+      color: #fff;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--dim);
+    }
+
+    .mute-all-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+    .mute-all-btn:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .grid-container {
+      height: calc(100vh - var(--header-h));
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border);
+    }
+
+    .cell {
+      position: relative;
+      background: var(--bg);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .cell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid transparent;
+      z-index: 5;
+      pointer-events: none;
+      transition: border-color 0.2s;
+    }
+
+    .cell:hover::before {
+      border-color: var(--accent2);
+    }
+
+    .cell iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .cell-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 6px 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .cell:hover .cell-overlay {
+      opacity: 1;
+    }
+
+    .ch-label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: #fff;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .ch-num {
+      font-size: 9px;
+      color: var(--accent2);
+      letter-spacing: 1px;
+    }
+
+    .expand-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 7;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 11px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s, border-color 0.2s;
+    }
+
+    .cell:hover .expand-btn {
+      opacity: 1;
+    }
+
+    .expand-btn:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    /* Fullscreen modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-inner {
+      width: min(90vw, 160vh);
+      aspect-ratio: 16/9;
+      position: relative;
+    }
+
+    .modal-inner iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .modal-close {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 6px 14px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .scanline {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.04) 2px,
+        rgba(0,0,0,0.04) 4px
+      );
+    }
+  </style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<header>
+  <div class="logo">Live<span>Grid</span></div>
+  <div class="live-indicator">
+    <div class="dot"></div>
+    9 Channels Live
+  </div>
+  <div class="controls">
+    <button class="mute-all-btn" onclick="toggleMuteAll()">⊘ All Muted</button>
+  </div>
+</header>
+
+<div class="grid-container" id="grid"></div>
+
+<div class="modal" id="modal">
+  <button class="modal-close" onclick="closeModal()">✕ CLOSE</button>
+  <div class="modal-inner">
+    <iframe id="modal-iframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+  </div>
+</div>
+
+<script>
+  const videos = [
+    { id: '1wECsnGZcfc', label: 'Channel 01' },
+    { id: 's0LLVQeMmtU', label: 'Channel 02' },
+    { id: 'nObUcHKZEGY', label: 'Channel 03' },
+    { id: 'AT0fo8Ty4jo', label: 'Channel 04' },
+    { id: 'tgBTspqA5nY', label: 'Channel 05' },
+    { id: 'YGEgelAiUf0', label: 'Channel 06' },
+    { id: 'T9Ol2JHqKlM', label: 'Channel 07' },
+    { id: '-8d8-c0yvyU', label: 'Channel 08' },
+    { id: 'yiiqRHY1Bl8', label: 'Channel 09' },
+  ];
+
+  const embedURL = (id, muted = 1) =>
+    `https://www.youtube.com/embed/${id}?autoplay=1&mute=${muted}&controls=1&rel=0&modestbranding=1&playsinline=1`;
+
+  const grid = document.getElementById('grid');
+  let allMuted = true;
+
+  videos.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.index = i;
+
+    const iframe = document.createElement('iframe');
+    iframe.src = embedURL(v.id);
+    iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.loading = 'lazy';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'cell-overlay';
+    overlay.innerHTML = `<span class="ch-label">${v.label}</span><span class="ch-num">CH ${String(i+1).padStart(2,'0')}</span>`;
+
+    const btn = document.createElement('button');
+    btn.className = 'expand-btn';
+    btn.title = 'Expand';
+    btn.innerHTML = '⤢';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openModal(v.id);
+    });
+
+    cell.appendChild(iframe);
+    cell.appendChild(overlay);
+    cell.appendChild(btn);
+    grid.appendChild(cell);
+  });
+
+  function openModal(id) {
+    const modal = document.getElementById('modal');
+    const iframe = document.getElementById('modal-iframe');
+    iframe.src = embedURL(id, 0);
+    modal.classList.add('active');
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('modal');
+    const iframe = document.getElementById('modal-iframe');
+    modal.classList.remove('active');
+    iframe.src = '';
+  }
+
+  document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  function toggleMuteAll() {
+    // Note: YouTube iframes don't allow mute toggling via JS post-load.
+    // This reloads all iframes with new mute state.
+    allMuted = !allMuted;
+    const btn = document.querySelector('.mute-all-btn');
+    btn.textContent = allMuted ? '⊘ All Muted' : '♪ Unmuted';
+
+    const iframes = grid.querySelectorAll('iframe');
+    iframes.forEach((iframe, i) => {
+      iframe.src = embedURL(videos[i].id, allMuted ? 1 : 0);
+    });
+  }
+</script>
+</body>
+</html>
