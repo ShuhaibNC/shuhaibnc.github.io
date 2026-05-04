@@ -28,6 +28,13 @@
       overflow: hidden;
     }
 
+    @media (max-width: 768px) {
+      html, body {
+        height: auto;
+        overflow-y: auto;
+      }
+    }
+
     header {
       height: var(--header-h);
       display: flex;
@@ -107,6 +114,20 @@
       background: var(--border);
     }
 
+    @media (max-width: 768px) {
+      .grid-container {
+        height: auto;
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        overflow-y: auto;
+      }
+
+      .cell {
+        aspect-ratio: 16 / 9;
+        height: auto;
+      }
+    }
+
     .cell {
       position: relative;
       background: var(--bg);
@@ -154,6 +175,13 @@
     .cell:hover .cell-overlay {
       opacity: 1;
     }
+
+    .ch-label.loading {
+      color: var(--dim);
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0.3; } }
 
     .ch-label {
       font-size: 10px;
@@ -314,7 +342,21 @@
 
     const overlay = document.createElement('div');
     overlay.className = 'cell-overlay';
-    overlay.innerHTML = `<span class="ch-label">${v.label}</span><span class="ch-num">CH ${String(i+1).padStart(2,'0')}</span>`;
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'ch-label loading';
+    labelSpan.textContent = 'Fetching…';
+    overlay.appendChild(labelSpan);
+
+    const numSpan = document.createElement('span');
+    numSpan.className = 'ch-num';
+    numSpan.textContent = `CH ${String(i+1).padStart(2,'0')}`;
+    overlay.appendChild(numSpan);
+
+    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${v.id}&format=json`)
+      .then(r => r.json())
+      .then(d => { labelSpan.textContent = d.author_name || v.label; labelSpan.classList.remove('loading'); })
+      .catch(() => { labelSpan.textContent = v.label; labelSpan.classList.remove('loading'); });
 
     const btn = document.createElement('button');
     btn.className = 'expand-btn';
