@@ -1,4 +1,10 @@
-import DefaultTheme from "vitepress/theme";
-// import "@catppuccin/vitepress/theme/mocha/red.css";
+import DefaultTheme from 'vitepress/theme'
+import { VPFeatures } from 'vitepress/theme'
+import type { Theme } from 'vitepress'
 
-export default DefaultTheme;
+export default {
+  extends: DefaultTheme,
+  enhanceApp({ app }) {
+    app.component('VPFeatures', VPFeatures)
+  }
+} satisfies Theme
