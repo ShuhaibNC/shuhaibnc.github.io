@@ -42,6 +42,10 @@ Use any tool or website at your own risk, I'm not responsible for any of your ac
 
 - [Phoneinfoga](https://github.com/sundowndev/phoneinfoga) - Information gathering framework for phone numbers.
 - [Truecaller](https://www.truecaller.com/) - Caller ID and spam lookup service (commercial).
+- [HaveIBeenZuckered](https://haveibeenzuckered.com/) - Facebook Data Breach Checker
+- [FreeCarrierLookup](https://www.freecarrierlookup.com/) - Free Carrier Lookup Service
+- [Ignorant](https://github.com/megadose/ignorant) - Phonenumber to snap, insta
+- [SyncMe](https://sync.me/) - Caller ID Checker (Need Trial/Paid Subscription)
 
 ## IP Loggers
 - [ki.tc](https://ki.tc/)
