@@ -33,7 +33,7 @@
       '<div class="desert-banner-inner">' +
       '<span class="desert-banner-emoji">\uD83C\uDFDC\uFE0F</span>' +
       '<span class="desert-banner-text"><strong>New: Desert Mode</strong> &mdash; wander this site as a 3D desert. Drive the car, tap the cacti.</span>' +
-      '<a class="desert-banner-btn" href="/desert/">Enter Desert</a>' +
+      '<a class="desert-banner-btn" href="/desert/" target="_blank" rel="noopener">Enter Desert</a>' +
       '<button class="desert-banner-close" type="button" aria-label="Dismiss">\u2715</button>' +
       '</div>';
     b.querySelector('.desert-banner-close').addEventListener('click', function () {
