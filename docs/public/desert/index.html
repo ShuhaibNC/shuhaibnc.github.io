@@ -293,7 +293,7 @@
       .hint span { display: none; }
       .hint { flex: 0 0 auto; padding: 0 5px; }
       button { width: 43px; padding: 0; }
-      button span { display: none; }
+      button span:not(.mode-dot) { display: none; }
     }
     @media (prefers-reduced-motion: reduce) {
       button, .cactus-link, .cactus-link::after, .drive-pad { transition: none; }
