@@ -8,8 +8,8 @@
     '.desert-banner-inner{max-width:1152px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}' +
     '.desert-banner-emoji{font-size:22px;line-height:1;}' +
     '.desert-banner-text{font-size:14px;color:var(--vp-c-text-1);}' +
-    '.desert-banner-btn{display:inline-block;padding:6px 18px;border-radius:20px;background:var(--vp-c-brand-1);color:#fff !important;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;}' +
-    '.desert-banner-btn:hover{background:var(--vp-c-brand-2);color:#fff !important;text-decoration:none;}' +
+    '.desert-banner-btn{display:inline-block;padding:6px 18px;border-radius:20px;background:var(--vp-c-brand-2);color:#fff !important;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;}' +
+    '.desert-banner-btn:hover{background:var(--vp-c-brand-1);color:#fff !important;text-decoration:none;}' +
     '.desert-banner-close{background:none;border:none;color:var(--vp-c-text-2);cursor:pointer;font-size:13px;padding:4px 8px;line-height:1;}' +
     '.desert-banner-close:hover{color:var(--vp-c-text-1);}';
 
