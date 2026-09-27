@@ -83,3 +83,49 @@ features:
 
 ---
 
+<div id="desert-mode-banner" style="display:none;">
+  <div class="desert-banner-inner">
+    <span class="desert-banner-emoji">&#127964;&#65039;</span>
+    <span class="desert-banner-text"><strong>New: Desert Mode</strong> &mdash; wander this site as a 3D desert. Drive the car, tap the cacti.</span>
+    <a class="desert-banner-btn" href="/desert/">Enter Desert</a>
+    <button class="desert-banner-close" id="desert-mode-banner-close" aria-label="Dismiss">&#10005;</button>
+  </div>
+</div>
+
+<style>
+#desert-mode-banner{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.04));border-bottom:1px solid var(--vp-c-divider);}
+.desert-banner-inner{max-width:1152px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}
+.desert-banner-emoji{font-size:22px;line-height:1;}
+.desert-banner-text{font-size:14px;color:var(--vp-c-text-1);}
+.desert-banner-btn{display:inline-block;padding:6px 18px;border-radius:20px;background:var(--vp-c-brand-1);color:#fff !important;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;}
+.desert-banner-btn:hover{background:var(--vp-c-brand-2);color:#fff !important;text-decoration:none;}
+.desert-banner-close{background:none;border:none;color:var(--vp-c-text-2);cursor:pointer;font-size:13px;padding:4px 8px;line-height:1;}
+.desert-banner-close:hover{color:var(--vp-c-text-1);}
+</style>
+
+<script>
+(function () {
+  function setup() {
+    try {
+      var p = window.location.pathname;
+      if (p !== '/' && p !== '/index.html') return;
+      if (window.localStorage.getItem('desert-mode-banner-dismissed')) return;
+      var banner = document.getElementById('desert-mode-banner');
+      if (!banner || banner.dataset.moved) return;
+      var home = document.querySelector('.VPHome');
+      if (!home) return;
+      banner.dataset.moved = '1';
+      banner.style.display = 'block';
+      home.prepend(banner);
+      var close = document.getElementById('desert-mode-banner-close');
+      if (close) close.addEventListener('click', function () {
+        banner.remove();
+        try { window.localStorage.setItem('desert-mode-banner-dismissed', '1'); } catch (e) {}
+      });
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  setup();
+  setTimeout(setup, 600);
+})();
+</script>
