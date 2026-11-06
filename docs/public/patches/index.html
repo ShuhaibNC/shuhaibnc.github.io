@@ -47,13 +47,16 @@ select{padding:11px;border-radius:10px;border:1px solid var(--line);background:v
 .pill{font-size:12px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--muted)}
 .pill.count{color:var(--accent);font-weight:700}
 .toggle{width:100%;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--text);cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px}
-.toggle .chev{transition:transform .15s}
-.toggle.open .chev{transform:rotate(180deg)}
 .pkg button{display:inline-flex;align-items:center;gap:4px}
-.patches{list-style:none;margin:12px 0 0;padding:0;display:none}
-.patches.open{display:block}
-.patches li{border-top:1px solid var(--line);padding:10px 0}
-.patches li:first-child{border-top:0}
+dialog{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:0;max-width:640px;width:calc(100% - 32px);max-height:85vh}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+.dlg-body{padding:20px;max-height:85vh;overflow-y:auto}
+.dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.dlg-head h3{margin:0;font-size:19px}
+#dlgClose{flex:none;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--chip);color:var(--text);cursor:pointer;font-size:15px;line-height:1}
+.dlg-patches{list-style:none;margin:12px 0 0;padding:0}
+.dlg-patches li{border-top:1px solid var(--line);padding:10px 0}
+.dlg-patches li:first-child{border-top:0}
 .pname{font-weight:700;font-size:14px}
 .pdesc{color:var(--muted);font-size:13px;margin-top:2px}
 .popts{font-size:12px;color:var(--muted);margin-top:4px}
@@ -67,7 +70,7 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;border-top:1px solid va
 <body>
 <div class="wrap">
   <a class="back" href="/">&larr; shuhaibnc.github.io</a>
-  <h1>&#129657; Shuhaib&rsquo;s Patches</h1>
+  <h1>Shuhaib&rsquo;s Patches</h1>
   <p class="sub">Patches for apps I like. Every app and patch below comes straight from
   <a href="https://github.com/ShuhaibNC/morphe-patches">github.com/ShuhaibNC/morphe-patches</a>
   &mdash; the list updates itself whenever the repo does.</p>
@@ -107,8 +110,18 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;border-top:1px solid va
   <p id="status">Loading the latest patches from GitHub…</p>
   <div id="notice"></div>
   <div class="grid" id="apps"></div>
-  <h2 class="sec" id="uniHead" style="display:none">&#127760; Universal patches</h2>
+  <h2 class="sec" id="uniHead" style="display:none">Universal patches</h2>
   <div class="grid" id="universal"></div>
+  <dialog id="patchDialog">
+    <div class="dlg-body">
+      <div class="dlg-head">
+        <div><h3 id="dlgTitle"></h3><div class="pkg" id="dlgPkg"></div></div>
+        <button id="dlgClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="meta" id="dlgMeta"></div>
+      <ul class="dlg-patches" id="dlgPatches"></ul>
+    </div>
+  </dialog>
   <footer>
     Data is fetched live from <a href="https://github.com/ShuhaibNC/morphe-patches">ShuhaibNC/morphe-patches</a>
     (<code>patches-list.json</code>) on every visit, so new apps and patches appear here automatically &mdash; no rebuild needed.
@@ -124,7 +137,7 @@ var BUNDLE_URL = "https://raw.githubusercontent.com/ShuhaibNC/morphe-patches/mai
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 var ICON_COPY = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
 var ICON_CHECK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
-var ICON_CHEV = '<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+var ICON_LIST = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>';
 function initials(name){return name.split(/\s+/).slice(0,2).map(function(w){return w[0]||"";}).join("").toUpperCase();}
 
 function normalizeLive(d){
@@ -158,17 +171,16 @@ function catOf(p){
 var DATA = null, CAT = "all";
 function patchHTML(p){
   var opts = (p.options||[]).length ? '<div class="popts">Options: ' + p.options.map(function(o){return "<span>"+esc(o)+"</span>";}).join("") + "</div>" : "";
-  return '<li><div class="pname">&#128138; '+esc(p.name)+(p["default"]?'<span class="default-tag">ON BY DEFAULT</span>':"")+'</div>'
+  return '<li><div class="pname">'+esc(p.name)+(p["default"]?'<span class="default-tag">ON BY DEFAULT</span>':"")+'</div>'
     + '<div class="pdesc">'+esc(p.desc)+'</div>' + opts + '</li>';
 }
-function cardHTML(a){
+function cardHTML(a, idx){
   var vers = a.versions.length ? a.versions.map(function(v){return '<span class="pill">'+esc(v)+'</span>';}).join("") : '<span class="pill">any version</span>';
   return '<article class="card" data-name="'+esc(a.name.toLowerCase())+'" data-pkg="'+esc(a.package.toLowerCase())+'" data-text="'+esc((a.name+" "+a.package+" "+a.patches.map(function(p){return p.name+" "+p.desc;}).join(" ")).toLowerCase())+'">'
     + '<div class="apphead"><div class="tile" style="background:'+esc(a.color)+'">'+esc(initials(a.name))+'</div>'
     + '<div><h3>'+esc(a.name)+'</h3><div class="pkg">'+esc(a.package)+'<button data-copy="'+esc(a.package)+'">'+ICON_COPY+'Copy</button></div></div></div>'
     + '<div class="meta"><span class="pill count">'+a.patches.length+' patch'+(a.patches.length>1?"es":"")+'</span><span class="pill">'+esc(a.type)+'</span>'+vers+'</div>'
-    + '<button class="toggle">'+ICON_CHEV+'<span>Show patches</span></button>'
-    + '<ul class="patches">'+a.patches.map(patchHTML).join("")+'</ul></article>';
+    + '<button class="toggle" data-app="'+idx+'">'+ICON_LIST+'<span>Show patches</span></button></article>';
 }
 function render(){
   var apps = DATA.apps.slice();
@@ -181,7 +193,7 @@ function render(){
   document.getElementById("apps").innerHTML = apps.map(function(a){
     var okQ = !q || (a.name+" "+a.package+" "+a.patches.map(function(p){return p.name+" "+p.desc;}).join(" ")).toLowerCase().indexOf(q)>=0;
     var okC = CAT==="all" || a.patches.some(function(p){return catOf(p)===CAT;});
-    if(okQ && okC){ shown++; return cardHTML(a); }
+    if(okQ && okC){ shown++; return cardHTML(a, DATA.apps.indexOf(a)); }
     return "";
   }).join("") || '<p class="empty">No apps match your search.</p>';
   var total = DATA.apps.reduce(function(n,a){return n+a.patches.length;},0);
@@ -193,18 +205,14 @@ function render(){
   if(DATA.universal.length){
     document.getElementById("uniHead").style.display = "";
     uni.innerHTML = DATA.universal.map(function(p){
-      return '<article class="card"><div class="pname">&#127760; '+esc(p.name)+'</div><div class="pdesc">'+esc(p.desc)+'</div><div class="meta"><span class="pill">Works on any app</span></div></article>';
+      return '<article class="card"><div class="pname">'+esc(p.name)+'</div><div class="pdesc">'+esc(p.desc)+'</div><div class="meta"><span class="pill">Works on any app</span></div></article>';
     }).join("");
   }
 }
 document.getElementById("apps").addEventListener("click", function(e){
   var tgl = e.target.closest(".toggle");
   if(tgl){
-    var list = tgl.nextElementSibling;
-    list.classList.toggle("open");
-    var open = list.classList.contains("open");
-    tgl.classList.toggle("open", open);
-    tgl.innerHTML = ICON_CHEV + "<span>" + (open ? "Hide patches" : "Show patches") + "</span>";
+    openDialog(parseInt(tgl.getAttribute("data-app"), 10));
     return;
   }
   var cp = e.target.closest("[data-copy]");
@@ -215,6 +223,17 @@ document.getElementById("apps").addEventListener("click", function(e){
     else { var ta=document.createElement("textarea"); ta.value=c; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(_){} document.body.removeChild(ta); done(); }
   }
 });
+function openDialog(i){
+  var a = DATA.apps[i]; if(!a) return;
+  var dlg = document.getElementById("patchDialog");
+  document.getElementById("dlgTitle").textContent = a.name;
+  document.getElementById("dlgPkg").textContent = a.package + " · " + a.type;
+  document.getElementById("dlgMeta").innerHTML = '<span class="pill count">'+a.patches.length+' patch'+(a.patches.length>1?"es":"")+'</span>' + (a.versions.length ? a.versions.map(function(v){return '<span class="pill">'+esc(v)+'</span>';}).join("") : '<span class="pill">any version</span>');
+  document.getElementById("dlgPatches").innerHTML = a.patches.map(patchHTML).join("");
+  if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+}
+document.getElementById("dlgClose").addEventListener("click", function(){ document.getElementById("patchDialog").close(); });
+document.getElementById("patchDialog").addEventListener("click", function(e){ if(e.target === this) this.close(); });
 document.getElementById("search").addEventListener("input", render);
 document.getElementById("sort").addEventListener("change", render);
 document.getElementById("chips").addEventListener("click", function(e){
