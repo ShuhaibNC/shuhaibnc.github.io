@@ -103,8 +103,8 @@ features:
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15h16l-2.5 5h-11z"/><path d="M12 15V6"/><path d="M12 6l6.5 9H12z"/><path d="M2 22.5c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/><title>Ocean</title></svg>
 
   - title: Morphe Patches
-    details: Community Morphe patches for niche Android apps
-    link: https://github.com/ShuhaibNC/morphe-patches
+    details: Browse all 32 patches across 20 apps — search, filter and add to Morphe Manager
+    link: https://muse.ai/s/shuhaib-s-patches-xdxv6lxuwxpxl0xbb/VwATkyZ9KtQ-5CX40xp6TdlsZz5UK2ex95uWzgq6sU0
     target: "_blank"
     icon: |
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><title>Patches</title></svg>
