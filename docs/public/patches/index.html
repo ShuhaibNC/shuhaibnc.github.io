@@ -20,7 +20,8 @@ h1{font-size:32px;margin:8px 0 4px}
 .badge{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px}
 .badge b{color:var(--accent)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 20px}
-.btn{display:inline-block;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.btn svg{flex:none}
 .btn.primary{background:var(--green);border-color:var(--green);color:#04140a}
 .howto{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 24px}
 .howto h2{font-size:16px;margin:0 0 8px}
@@ -45,7 +46,10 @@ select{padding:11px;border-radius:10px;border:1px solid var(--line);background:v
 .meta{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
 .pill{font-size:12px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--muted)}
 .pill.count{color:var(--accent);font-weight:700}
-.toggle{width:100%;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--text);cursor:pointer;font-size:14px;font-weight:600}
+.toggle{width:100%;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--text);cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px}
+.toggle .chev{transition:transform .15s}
+.toggle.open .chev{transform:rotate(180deg)}
+.pkg button{display:inline-flex;align-items:center;gap:4px}
 .patches{list-style:none;margin:12px 0 0;padding:0;display:none}
 .patches.open{display:block}
 .patches li{border-top:1px solid var(--line);padding:10px 0}
@@ -73,10 +77,10 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;border-top:1px solid va
     <span class="badge"><b id="nPatches">…</b> patches</span>
   </div>
   <div class="actions">
-    <a class="btn primary" href="https://morphe.software/add-source?github=ShuhaibNC/morphe-patches">Add to Morphe Manager</a>
-    <a class="btn" id="dlBtn" href="https://github.com/ShuhaibNC/morphe-patches/releases">Download .mpp bundle</a>
-    <a class="btn" href="https://github.com/ShuhaibNC/morphe-patches">GitHub repo</a>
-    <a class="btn" href="https://telegram.me/ShuhaibsChat">Request a patch</a>
+    <a class="btn primary" href="https://morphe.software/add-source?github=ShuhaibNC/morphe-patches"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add to Morphe Manager</a>
+    <a class="btn" id="dlBtn" href="https://github.com/ShuhaibNC/morphe-patches/releases"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 21h16"/></svg>Download .mpp bundle</a>
+    <a class="btn" href="https://github.com/ShuhaibNC/morphe-patches"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub repo</a>
+    <a class="btn" href="https://telegram.me/ShuhaibsChat"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>Request a patch</a>
   </div>
   <div class="howto">
     <h2>How to use</h2>
@@ -118,6 +122,9 @@ var LIST_URL = "https://raw.githubusercontent.com/ShuhaibNC/morphe-patches/main/
 var BUNDLE_URL = "https://raw.githubusercontent.com/ShuhaibNC/morphe-patches/main/patches-bundle.json";
 
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+var ICON_COPY = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+var ICON_CHECK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+var ICON_CHEV = '<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
 function initials(name){return name.split(/\s+/).slice(0,2).map(function(w){return w[0]||"";}).join("").toUpperCase();}
 
 function normalizeLive(d){
@@ -158,9 +165,9 @@ function cardHTML(a){
   var vers = a.versions.length ? a.versions.map(function(v){return '<span class="pill">'+esc(v)+'</span>';}).join("") : '<span class="pill">any version</span>';
   return '<article class="card" data-name="'+esc(a.name.toLowerCase())+'" data-pkg="'+esc(a.package.toLowerCase())+'" data-text="'+esc((a.name+" "+a.package+" "+a.patches.map(function(p){return p.name+" "+p.desc;}).join(" ")).toLowerCase())+'">'
     + '<div class="apphead"><div class="tile" style="background:'+esc(a.color)+'">'+esc(initials(a.name))+'</div>'
-    + '<div><h3>'+esc(a.name)+'</h3><div class="pkg">'+esc(a.package)+'<button data-copy="'+esc(a.package)+'">Copy</button></div></div></div>'
+    + '<div><h3>'+esc(a.name)+'</h3><div class="pkg">'+esc(a.package)+'<button data-copy="'+esc(a.package)+'">'+ICON_COPY+'Copy</button></div></div></div>'
     + '<div class="meta"><span class="pill count">'+a.patches.length+' patch'+(a.patches.length>1?"es":"")+'</span><span class="pill">'+esc(a.type)+'</span>'+vers+'</div>'
-    + '<button class="toggle">Show patches</button>'
+    + '<button class="toggle">'+ICON_CHEV+'<span>Show patches</span></button>'
     + '<ul class="patches">'+a.patches.map(patchHTML).join("")+'</ul></article>';
 }
 function render(){
@@ -191,14 +198,19 @@ function render(){
   }
 }
 document.getElementById("apps").addEventListener("click", function(e){
-  if(e.target.classList.contains("toggle")){
-    var list = e.target.nextElementSibling;
+  var tgl = e.target.closest(".toggle");
+  if(tgl){
+    var list = tgl.nextElementSibling;
     list.classList.toggle("open");
-    e.target.textContent = list.classList.contains("open") ? "Hide patches" : "Show patches";
+    var open = list.classList.contains("open");
+    tgl.classList.toggle("open", open);
+    tgl.innerHTML = ICON_CHEV + "<span>" + (open ? "Hide patches" : "Show patches") + "</span>";
+    return;
   }
-  var c = e.target.getAttribute && e.target.getAttribute("data-copy");
-  if(c){
-    var done = function(){ e.target.textContent = "Copied"; setTimeout(function(){ e.target.textContent = "Copy"; }, 1200); };
+  var cp = e.target.closest("[data-copy]");
+  if(cp){
+    var c = cp.getAttribute("data-copy");
+    var done = function(){ cp.innerHTML = ICON_CHECK + "Copied"; setTimeout(function(){ cp.innerHTML = ICON_COPY + "Copy"; }, 1200); };
     if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(c).then(done, done); }
     else { var ta=document.createElement("textarea"); ta.value=c; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(_){} document.body.removeChild(ta); done(); }
   }
