@@ -104,7 +104,7 @@ features:
 
   - title: Morphe Patches
     details: Browse all 32 patches across 20 apps — search, filter and add to Morphe Manager
-    link: https://muse.ai/s/shuhaib-s-patches-xdxv6lxuwxpxl0xbb/VwATkyZ9KtQ-5CX40xp6TdlsZz5UK2ex95uWzgq6sU0
+    link: /patches
     target: "_blank"
     icon: |
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><title>Patches</title></svg>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://raw.githubusercontent.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+<title>Shuhaib's Patches — Morphe patches for 20 apps</title>
+<meta name="description" content="Browse Shuhaib's Morphe patches: every app and patch from github.com/ShuhaibNC/morphe-patches, updated automatically." />
+<link rel="icon" href="/icon.png" />
+<style>
+:root{--bg:#0b1220;--card:#111c2e;--card2:#0f1930;--line:#1e2d47;--text:#e6edf7;--muted:#93a4bd;--accent:#38bdf8;--green:#22c55e;--chip:#16233a}
+@media (prefers-color-scheme: light){:root{--bg:#f1f5f9;--card:#ffffff;--card2:#f8fafc;--line:#dbe4ef;--text:#0f172a;--muted:#5b6b82;--accent:#0284c7;--chip:#e8eef6}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 16px 64px}
+a{color:var(--accent)}
+.back{color:var(--muted);text-decoration:none;font-size:14px}
+h1{font-size:32px;margin:8px 0 4px}
+.sub{color:var(--muted);margin:0 0 16px;max-width:640px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.badge{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px}
+.badge b{color:var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 20px}
+.btn{display:inline-block;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#04140a}
+.howto{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 24px}
+.howto h2{font-size:16px;margin:0 0 8px}
+.howto ol{margin:0;padding-left:20px;color:var(--muted)}
+.howto li{margin:4px 0}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 8px}
+#search{flex:1;min-width:220px;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:15px}
+select{padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+.chip{padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-size:13px}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#04121d;font-weight:600}
+#status{color:var(--muted);font-size:13px;margin:0 0 16px}
+#notice{display:none;background:#3f2a00;border:1px solid #92600a;color:#ffd88a;border-radius:10px;padding:10px 14px;margin:0 0 16px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card.hidden{display:none}
+.apphead{display:flex;gap:12px;align-items:center}
+.tile{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex:none}
+.apphead h3{margin:0;font-size:17px}
+.pkg{font-size:12px;color:var(--muted);word-break:break-all}
+.pkg button{margin-left:6px;font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--chip);color:var(--text);cursor:pointer}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.pill{font-size:12px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--muted)}
+.pill.count{color:var(--accent);font-weight:700}
+.toggle{width:100%;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--text);cursor:pointer;font-size:14px;font-weight:600}
+.patches{list-style:none;margin:12px 0 0;padding:0;display:none}
+.patches.open{display:block}
+.patches li{border-top:1px solid var(--line);padding:10px 0}
+.patches li:first-child{border-top:0}
+.pname{font-weight:700;font-size:14px}
+.pdesc{color:var(--muted);font-size:13px;margin-top:2px}
+.popts{font-size:12px;color:var(--muted);margin-top:4px}
+.popts span{background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin-right:4px}
+.default-tag{font-size:11px;color:var(--green);font-weight:700;margin-left:6px}
+h2.sec{font-size:20px;margin:32px 0 12px}
+footer{color:var(--muted);font-size:13px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+.empty{color:var(--muted);text-align:center;padding:40px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; shuhaibnc.github.io</a>
+  <h1>&#129657; Shuhaib&rsquo;s Patches</h1>
+  <p class="sub">Patches for apps I like. Every app and patch below comes straight from
+  <a href="https://github.com/ShuhaibNC/morphe-patches">github.com/ShuhaibNC/morphe-patches</a>
+  &mdash; the list updates itself whenever the repo does.</p>
+  <div class="badges">
+    <span class="badge">Version <b id="ver">…</b></span>
+    <span class="badge"><b id="nApps">…</b> apps</span>
+    <span class="badge"><b id="nPatches">…</b> patches</span>
+  </div>
+  <div class="actions">
+    <a class="btn primary" href="https://morphe.software/add-source?github=ShuhaibNC/morphe-patches">Add to Morphe Manager</a>
+    <a class="btn" id="dlBtn" href="https://github.com/ShuhaibNC/morphe-patches/releases">Download .mpp bundle</a>
+    <a class="btn" href="https://github.com/ShuhaibNC/morphe-patches">GitHub repo</a>
+    <a class="btn" href="https://telegram.me/ShuhaibsChat">Request a patch</a>
+  </div>
+  <div class="howto">
+    <h2>How to use</h2>
+    <ol>
+      <li>Tap <b>Add to Morphe Manager</b> above, or add the source <code>ShuhaibNC/morphe-patches</code> in Morphe Manager.</li>
+      <li>Pick an app below and choose the patches you want.</li>
+      <li>Patch the app in Morphe Manager and install it.</li>
+    </ol>
+  </div>
+  <div class="controls">
+    <input id="search" type="search" placeholder="Search apps or patches…" autocomplete="off" />
+    <select id="sort" aria-label="Sort apps">
+      <option value="name">Sort: Name A–Z</option>
+      <option value="most">Sort: Most patches</option>
+      <option value="fewest">Sort: Fewest patches</option>
+    </select>
+  </div>
+  <div class="chips" id="chips">
+    <button class="chip active" data-cat="all">All</button>
+    <button class="chip" data-cat="premium">Premium unlocks</button>
+    <button class="chip" data-cat="theme">Themes</button>
+    <button class="chip" data-cat="ads">Ad removal</button>
+  </div>
+  <p id="status">Loading the latest patches from GitHub…</p>
+  <div id="notice"></div>
+  <div class="grid" id="apps"></div>
+  <h2 class="sec" id="uniHead" style="display:none">&#127760; Universal patches</h2>
+  <div class="grid" id="universal"></div>
+  <footer>
+    Data is fetched live from <a href="https://github.com/ShuhaibNC/morphe-patches">ShuhaibNC/morphe-patches</a>
+    (<code>patches-list.json</code>) on every visit, so new apps and patches appear here automatically &mdash; no rebuild needed.
+    Morphe is only a framework; patches are community-made and open source. Licensed GPL-3.0.
+  </footer>
+</div>
+<noscript><p style="text-align:center">This page needs JavaScript to load the patch list.</p></noscript>
+<script>
+var FALLBACK = {"version": "1.17.0", "apps": [{"name": "1DM", "package": "idm.internet.download.manager", "color": "#1689C5", "type": "APKM", "versions": ["20.0"], "patches": [{"name": "Unlock PiP and Bg Play Features in Youtube", "desc": "Unlocks picture-in-picture mode and background play features in Youtube.", "options": [], "default": true}]}, {"name": "apk-signer", "package": "com.haibison.apksigner", "color": "#FFFFFF", "type": "APK", "versions": ["7.3.13", "7.3.14", "7.4.0", "7.4.2"], "patches": [{"name": "Disable Forground Services Warning", "desc": "Turns off annoying forground service warning at startup", "options": [], "default": true}, {"name": "Unlock Pro", "desc": "Unlocks Pro and remove ads from APK Signer.", "options": [], "default": true}]}, {"name": "Beat.ly", "package": "vinkle.video.editor", "color": "#0B0217", "type": "APK", "versions": ["2.46.10891", "2.46.10897"], "patches": [{"name": "Unlock Beat.ly VIP", "desc": "All VIP features are unlocked.", "options": [], "default": true}]}, {"name": "CandyLink VPN", "package": "com.candylink.openvpn", "color": "#4CAF50", "type": "APK", "versions": ["4.0.1", "4.0.2"], "patches": [{"name": "Disable Tracking", "desc": "Disable tracking statistics for CandyLink VPN .", "options": [], "default": true}, {"name": "Unlock Premium", "desc": "Premium features are unlocked and ads are disabled.", "options": [], "default": true}]}, {"name": "FFmpeg Media Encoder", "package": "com.silentlexx.ffmpeggui", "color": "#00C300", "type": "APKM", "versions": [], "patches": [{"name": "Remove Ads of FFmpeg", "desc": "Unlock donator features and removes ads.", "options": [], "default": true}]}, {"name": "Footej Camera", "package": "com.footej.camera", "color": "#008D85", "type": "APK", "versions": ["2.4.1 build 202"], "patches": [{"name": "Unlock Footej Camera Premium", "desc": "All Premium features are unlocked.", "options": [], "default": true}]}, {"name": "GoCut", "package": "com.videoedit.gocut", "color": "#000000", "type": "APK", "versions": ["3.0.1", "3.0.2", "3.0.3", "3.0.4"], "patches": [{"name": "Unlock GoCut Pro", "desc": "Enables premium features and functionality in the GoCut application.", "options": [], "default": true}]}, {"name": "Manglish Keyboard", "package": "com.clusterdev.malayalamkeyboard", "color": "#4CAF50", "type": "APK", "versions": ["10.1.0"], "patches": [{"name": "Unlock Premium", "desc": "Premium features are unlocked and ads are disabled.", "options": [], "default": true}]}, {"name": "Melon VPN", "package": "com.vpnbottle.melon.free.unblock.fast.vpn", "color": "#4CAF50", "type": "APK", "versions": ["8.0.211", "8.0.212", "8.0.338", "8.0.527"], "patches": [{"name": "Unlock Pro", "desc": "Unlimited access to everything. 80+ Servers, Removed Ad, 5x Speed, Unlimited Time", "options": [], "default": true}]}, {"name": "MP3 Cutter and Ringtone Maker", "package": "com.atomic.apps.ringtone.cutter", "color": "#C02997", "type": "APK", "versions": ["4.1"], "patches": [{"name": "Amoled Theme", "desc": "Replaces the app background graphics.", "options": [], "default": true}, {"name": "Remove Ads", "desc": "Removes AdActivities and the internet permission from the manifest and hides ad containers.", "options": [], "default": true}]}, {"name": "Mvideo", "package": "music.videomaker.slideshow", "color": "#7DFD91", "type": "APK", "versions": ["1.0.11515"], "patches": [{"name": "Unlock Mvideo VIP", "desc": "All VIP features are unlocked.", "options": [], "default": true}]}, {"name": "OviCut", "package": "video.editor.videoeditor.musicvideoeditor", "color": "#1C2029", "type": "APK", "versions": ["2.3.1"], "patches": [{"name": "Unlock OviCut Pro", "desc": "Enables premium features and functionality in the OviCut application.", "options": [], "default": true}]}, {"name": "Reverso Context", "package": "com.softissimo.reverso.context", "color": "#F8FBFF", "type": "APK", "versions": ["16.5.0"], "patches": [{"name": "Unlock Reverso Context Premium", "desc": "All Premium features are unlocked.", "options": [], "default": true}]}, {"name": "Sticker Maker", "package": "com.marsvard.stickermakerforwhatsapp", "color": "#4CAF50", "type": "APK", "versions": ["1.0.10-5"], "patches": [{"name": "Unlock Premium", "desc": "Premium features are unlocked and ads are disabled.", "options": [], "default": true}]}, {"name": "TrebEdit", "package": "com.teejay.trebedit", "color": "#293F53", "type": "APK", "versions": ["3.5.5"], "patches": [{"name": "Unlock Premium Features", "desc": "Unlocks lifetime access to TrebEdit Premium.", "options": [], "default": true}]}, {"name": "Video to MP3", "package": "mp3videoconverter.videotomp3.videotomp3converter", "color": "#CE2492", "type": "APKM", "versions": ["2.2.7.1"], "patches": [{"name": "Unlock Premium of Video to MP3", "desc": "Enables premium features and functionality in the Video to MP3 application.", "options": [], "default": true}]}, {"name": "Vidma", "package": "vidma.video.editor.videomaker", "color": "#1C1C1C", "type": "APK", "versions": ["2.11.5"], "patches": [{"name": "Unlock Vip Of Vidma", "desc": "Unlock Vip features and removes ads.", "options": [], "default": true}]}, {"name": "Where is my Train", "package": "com.whereismytrain.android", "color": "#03A9F4", "type": "APK", "versions": ["7.1.5.974952539"], "patches": [{"name": "Amoled Dark Theme", "desc": "Changes selected night theme colors to pure black.", "options": [], "default": true}, {"name": "Change Accent Color", "desc": "Changes the accent color throughout the app.", "options": ["Accent Color"], "default": true}, {"name": "Change Accent Color (Bytecode Dependency)", "desc": "Applies the selected accent color to the app's bytecode.", "options": ["Accent Color"], "default": true}, {"name": "Enable Internal Settings", "desc": "Shows additional location settings that are normally hidden.", "options": [], "default": true}, {"name": "Hide Items From Sidebar", "desc": "Hides sharing, rating, reporting, feature request, and language options.", "options": [], "default": true}]}, {"name": "World Map Quiz", "package": "com.qbis.guessthecountry", "color": "#59ADAE", "type": "XAPK", "versions": ["3.38"], "patches": [{"name": "Amoled Dark Theme", "desc": "Adds amoled dark graphics to the app.", "options": [], "default": true}, {"name": "Enable Premium", "desc": "Unlocks Premium mode, map themes, rivers, mountains, deserts, oceanic trenches, oceanic currents, lakes, islands and winds", "options": [], "default": true}, {"name": "Remove Unwanted Promotional Icons and Ads", "desc": "Removes bloated promotional icons and ads from the home screen.", "options": [], "default": true}]}, {"name": "Yatse", "package": "org.leetzone.android.yatsewidgetfree", "color": "#00D0C9", "type": "APK", "versions": ["12.0.0"], "patches": [{"name": "Unlock Yatse Pro", "desc": "Unlocks lifetime access to Yatse Pro Unlocker.", "options": [], "default": true}]}], "universal": [{"name": "Fake System Time", "description": "Replaces System.currentTimeMillis() and System.nanoTime() with a fixed timestamp."}, {"name": "Hide launcher icon", "description": "Hides the app's launcher icon."}, {"name": "Remove all receivers", "description": "Removes every <receiver> declaration from AndroidManifest.xml."}]};
+var LIST_URL = "https://raw.githubusercontent.com/ShuhaibNC/morphe-patches/main/patches-list.json";
+var BUNDLE_URL = "https://raw.githubusercontent.com/ShuhaibNC/morphe-patches/main/patches-bundle.json";
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function initials(name){return name.split(/\s+/).slice(0,2).map(function(w){return w[0]||"";}).join("").toUpperCase();}
+
+function normalizeLive(d){
+  var apps = {}, order = [];
+  (d.patches||[]).forEach(function(p){
+    var pkgs = p.compatiblePackages;
+    if(!pkgs || !pkgs.length) return;
+    pkgs.forEach(function(c){
+      var key = c.packageName;
+      if(!apps[key]){ apps[key] = {name:c.name, package:c.packageName, color:c.appIconColor||"#334155", type:c.apkFileType||"APK", versions:[], patches:[]}; order.push(key); }
+      (c.targets||[]).forEach(function(t){ if(t.version && apps[key].versions.indexOf(t.version)<0) apps[key].versions.push(t.version); });
+      apps[key].patches.push({name:p.name, desc:p.description, options:(p.options||[]).map(function(o){return o.title;}), "default":!!p["default"]});
+    });
+  });
+  var universal = (d.patches||[]).filter(function(p){return !p.compatiblePackages || !p.compatiblePackages.length;})
+    .map(function(p){return {name:p.name, desc:p.description};});
+  return {version:d.version||"", apps:order.map(function(k){return apps[k];}), universal:universal};
+}
+function normalizeFallback(d){
+  return {version:d.version||"", apps:(d.apps||[]).map(function(a){return {name:a.name, package:a.package, color:a.color||"#334155", type:a.type||"APK", versions:a.versions||[], patches:(a.patches||[]).map(function(p){return {name:p.name, desc:p.desc, options:p.options||[], "default":!!p["default"]};})};}),
+    universal:(d.universal||[]).map(function(p){return {name:p.name, desc:p.description};})};
+}
+function catOf(p){
+  var t = (p.name+" "+p.desc).toLowerCase();
+  if(/amoled|theme|accent|dark/.test(t)) return "theme";
+  if(/ads|advert/.test(t)) return "ads";
+  if(/premium|pro|vip|unlock/.test(t)) return "premium";
+  return "other";
+}
+
+var DATA = null, CAT = "all";
+function patchHTML(p){
+  var opts = (p.options||[]).length ? '<div class="popts">Options: ' + p.options.map(function(o){return "<span>"+esc(o)+"</span>";}).join("") + "</div>" : "";
+  return '<li><div class="pname">&#128138; '+esc(p.name)+(p["default"]?'<span class="default-tag">ON BY DEFAULT</span>':"")+'</div>'
+    + '<div class="pdesc">'+esc(p.desc)+'</div>' + opts + '</li>';
+}
+function cardHTML(a){
+  var vers = a.versions.length ? a.versions.map(function(v){return '<span class="pill">'+esc(v)+'</span>';}).join("") : '<span class="pill">any version</span>';
+  return '<article class="card" data-name="'+esc(a.name.toLowerCase())+'" data-pkg="'+esc(a.package.toLowerCase())+'" data-text="'+esc((a.name+" "+a.package+" "+a.patches.map(function(p){return p.name+" "+p.desc;}).join(" ")).toLowerCase())+'">'
+    + '<div class="apphead"><div class="tile" style="background:'+esc(a.color)+'">'+esc(initials(a.name))+'</div>'
+    + '<div><h3>'+esc(a.name)+'</h3><div class="pkg">'+esc(a.package)+'<button data-copy="'+esc(a.package)+'">Copy</button></div></div></div>'
+    + '<div class="meta"><span class="pill count">'+a.patches.length+' patch'+(a.patches.length>1?"es":"")+'</span><span class="pill">'+esc(a.type)+'</span>'+vers+'</div>'
+    + '<button class="toggle">Show patches</button>'
+    + '<ul class="patches">'+a.patches.map(patchHTML).join("")+'</ul></article>';
+}
+function render(){
+  var apps = DATA.apps.slice();
+  var q = document.getElementById("search").value.trim().toLowerCase();
+  var sort = document.getElementById("sort").value;
+  if(sort==="most") apps.sort(function(x,y){return y.patches.length-x.patches.length;});
+  else if(sort==="fewest") apps.sort(function(x,y){return x.patches.length-y.patches.length;});
+  else apps.sort(function(x,y){return x.name.localeCompare(y.name);});
+  var shown = 0;
+  document.getElementById("apps").innerHTML = apps.map(function(a){
+    var okQ = !q || (a.name+" "+a.package+" "+a.patches.map(function(p){return p.name+" "+p.desc;}).join(" ")).toLowerCase().indexOf(q)>=0;
+    var okC = CAT==="all" || a.patches.some(function(p){return catOf(p)===CAT;});
+    if(okQ && okC){ shown++; return cardHTML(a); }
+    return "";
+  }).join("") || '<p class="empty">No apps match your search.</p>';
+  var total = DATA.apps.reduce(function(n,a){return n+a.patches.length;},0);
+  document.getElementById("ver").textContent = "v"+DATA.version;
+  document.getElementById("nApps").textContent = DATA.apps.length;
+  document.getElementById("nPatches").textContent = total;
+  document.getElementById("status").textContent = "Showing "+shown+" of "+DATA.apps.length+" apps · "+total+" app patches + "+DATA.universal.length+" universal";
+  var uni = document.getElementById("universal");
+  if(DATA.universal.length){
+    document.getElementById("uniHead").style.display = "";
+    uni.innerHTML = DATA.universal.map(function(p){
+      return '<article class="card"><div class="pname">&#127760; '+esc(p.name)+'</div><div class="pdesc">'+esc(p.desc)+'</div><div class="meta"><span class="pill">Works on any app</span></div></article>';
+    }).join("");
+  }
+}
+document.getElementById("apps").addEventListener("click", function(e){
+  if(e.target.classList.contains("toggle")){
+    var list = e.target.nextElementSibling;
+    list.classList.toggle("open");
+    e.target.textContent = list.classList.contains("open") ? "Hide patches" : "Show patches";
+  }
+  var c = e.target.getAttribute && e.target.getAttribute("data-copy");
+  if(c){
+    var done = function(){ e.target.textContent = "Copied"; setTimeout(function(){ e.target.textContent = "Copy"; }, 1200); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(c).then(done, done); }
+    else { var ta=document.createElement("textarea"); ta.value=c; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(_){} document.body.removeChild(ta); done(); }
+  }
+});
+document.getElementById("search").addEventListener("input", render);
+document.getElementById("sort").addEventListener("change", render);
+document.getElementById("chips").addEventListener("click", function(e){
+  var b = e.target.closest(".chip"); if(!b) return;
+  document.querySelectorAll(".chip").forEach(function(x){x.classList.remove("active");});
+  b.classList.add("active"); CAT = b.getAttribute("data-cat"); render();
+});
+Promise.allSettled([
+  fetch(LIST_URL, {cache:"no-cache"}).then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); }),
+  fetch(BUNDLE_URL, {cache:"no-cache"}).then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+]).then(function(res){
+  var live = res[0].status==="fulfilled" ? res[0].value : null;
+  var bundle = res[1].status==="fulfilled" ? res[1].value : null;
+  if(live){ DATA = normalizeLive(live); }
+  else {
+    DATA = normalizeFallback(FALLBACK);
+    var n = document.getElementById("notice");
+    n.style.display = "block";
+    n.textContent = "Could not load the live patch list from GitHub — showing the cached v" + DATA.version + " snapshot instead. Check your connection and refresh.";
+  }
+  var dl = bundle && bundle.download_url ? bundle.download_url
+    : "https://github.com/ShuhaibNC/morphe-patches/releases/download/v"+DATA.version+"/patches-"+DATA.version+".mpp";
+  document.getElementById("dlBtn").href = dl;
+  render();
+}).catch(function(){
+  DATA = normalizeFallback(FALLBACK);
+  render();
+});
+</script>
+</body>
+</html>
