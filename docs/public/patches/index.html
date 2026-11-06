@@ -7,6 +7,8 @@
 <title>Shuhaib's Patches — Morphe patches for 20 apps</title>
 <meta name="description" content="Browse Shuhaib's Morphe patches: every app and patch from github.com/ShuhaibNC/morphe-patches, updated automatically." />
 <link rel="icon" href="/icon.png" />
+<link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin />
+<link rel="preconnect" href="https://play-lh.googleusercontent.com" crossorigin />
 <style>
 :root{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--card2:#242424;--line:#2e2e2e;--text:#e5e5e5;--muted:#9e9e9e;--accent:#64b5f6;--green:#22c55e;--chip:#262626}
 *{box-sizing:border-box}
@@ -44,7 +46,10 @@ select{padding:11px;border-radius:10px;border:1px solid var(--line);background:v
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
 .card.hidden{display:none}
 .apphead{display:flex;gap:12px;align-items:center}
-.tile{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex:none}
+.tile{position:relative;overflow:hidden;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex:none}
+.appicon{position:absolute;inset:0;width:48px;height:48px;object-fit:cover}
+#dlgIcon .tile{width:40px;height:40px;border-radius:10px;font-size:15px}
+#dlgIcon .appicon{width:40px;height:40px}
 .apphead h3{margin:0;font-size:17px}
 .pkg{font-size:12px;color:var(--muted);word-break:break-all}
 .pkg button{margin-left:6px;font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--chip);color:var(--text);cursor:pointer}
@@ -134,7 +139,7 @@ footer{color:var(--muted);font-size:13px;margin-top:40px;border-top:1px solid va
   <dialog id="patchDialog">
     <div class="dlg-body">
       <div class="dlg-head">
-        <div><h3 id="dlgTitle"></h3><div class="pkg" id="dlgPkg"></div></div>
+        <div><div style="display:flex;gap:12px;align-items:center"><span id="dlgIcon"></span><div><h3 id="dlgTitle"></h3><div class="pkg" id="dlgPkg"></div></div></div>
         <button id="dlgClose" aria-label="Close">&times;</button>
       </div>
       <div class="meta" id="dlgMeta"></div>
@@ -157,7 +162,12 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){retur
 var ICON_COPY = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
 var ICON_CHECK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
 var ICON_LIST = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>';
+var ICONS = {"idm.internet.download.manager": "https://play-lh.googleusercontent.com/O22rWPbgLS6WhWbdzPnX5CuLSbWd4dyFS0XTfHR-sQxNQkS317Jt5kK3Bbwaccm7Zp-HsCsGWhep9zSNRS4B=s96", "com.haibison.apksigner": "https://play-lh.googleusercontent.com/oKbxy_uRCvj_XLmytqYNR002xmw_JWaI4wr5wEBcBFA17NU7iRV0AVFJRDE82h9I1LxJIkVHY_SgDOFUuCT81Q=s96", "vinkle.video.editor": "https://play-lh.googleusercontent.com/CokbUGHZpL9Kyc3AeCCXJXyTI0IXjqu7EW1j2sqFZ2WUwtdgrJESw0d6AoGggQS6j98km5w_ppV-4lvGmgizsg=s96", "com.candylink.openvpn": "https://play-lh.googleusercontent.com/vi57Q4aw2HwEJun6IdrNzIK6-TQUQuQ-zO_qS6OX2mNEVYfBemry56fGY1f1eSEto4DRSSzDwb8cA1nY-7um8g=s96", "com.silentlexx.ffmpeggui": "https://play-lh.googleusercontent.com/-aGSa92Ul-dHV4tZnOs-1ytJaBhMSdvt_t2Pkj-JNdv0u5nj_1U-BCVh0n6n-insks5UltsuT7nX7m1cD3b6AA=s96", "com.videoedit.gocut": "https://play-lh.googleusercontent.com/xs8JV2Fn2yr7ckKVMGHv0GjzV9KRIXGRWbEuk-hn_Ms-M1ypRaSlv5991c0BFnKK8PMFAAqFJnOdFeAZzYmwIQ=s96", "com.clusterdev.malayalamkeyboard": "https://play-lh.googleusercontent.com/9xMtYeCMiZ-YIWFSm4leOs0nqlTKIRsl5vDkEqq6wMkOxN0H3GGAaqqU_7cmnA-2jQruJZAxHkzsX68JypcKvQ=s96", "com.vpnbottle.melon.free.unblock.fast.vpn": "https://play-lh.googleusercontent.com/VTyEtNdHLmRhAjwmirX8HKr0YLyoRbQag9XlyWQHo_jChBZ8HDiGc_itIdq8qJPsyPVmBojdMxG17cIKKWsB7w=s96", "com.atomic.apps.ringtone.cutter": "https://play-lh.googleusercontent.com/Y9QAB2jsF6IRcXrN0M4COTQZ0ZmvpckV5hvSrQgefCyePwVOFLr1c032M8MQaUcbwHBDsmJGcgSi02C9O8gJaQ=s96", "music.videomaker.slideshow": "https://play-lh.googleusercontent.com/WxhIhR4pBDtavObCat1MeURxlrp7aTchBvFWIU0lNk48ppXxBheUcyPUCq9wQgNxESnM-QWFVFQxs0H-5FDghA=s96", "com.softissimo.reverso.context": "https://play-lh.googleusercontent.com/uRjmH_kJP1Lm2KQBTM2q6f1Zx_qkJAkzne4fM59hNlhlfOh0zbdMGsSOFBfPQMHx47BCDbBpJuuFUzbLsWxpEQ=s96", "com.marsvard.stickermakerforwhatsapp": "https://play-lh.googleusercontent.com/PTcO4Uf0LJzFZDp-N_5PYR0_4CuFqjm1ipAy-bUhOb-oPlzX18OSgQoSs_94gt8M_tXUslGXUKruObvbQzyR=s96", "com.teejay.trebedit": "https://play-lh.googleusercontent.com/6UOlvAFjIrp53DXuIt0M6_0EbG6jpP7MMNDoJr3h2UZiJzGsxi-Tj_pcBqObsR7cf1YcOOG5Z9NdE6Gk2GrISA=s96", "mp3videoconverter.videotomp3.videotomp3converter": "https://play-lh.googleusercontent.com/vFDfZ98oeMrGgALFdIdFpcBzVIm65rSSEBxBY95HYNjeQKVzeZqX2NXZljCJQ3qEfXQ8NEaErvf3bBiv89-Lsyo=s96", "vidma.video.editor.videomaker": "https://play-lh.googleusercontent.com/N4kxRqxYwrYSGSVCx_K13vI4PTZIZ4l5Xtfh-2vQ9IK1l731Jkeyw_gZz56DKpJY9N8bV1PMFv8VUdlbkrXE4A=s96", "com.whereismytrain.android": "https://play-lh.googleusercontent.com/ONrQkTTvPePeU0T9UMcXm5xUTXMqeBO6GzZ4HRe_Pyd4Asl9MxDanxQsqBMRMn3PH-_OqJnt4JRTQAcQ6njbCw=s96", "com.qbis.guessthecountry": "https://play-lh.googleusercontent.com/B6F6bSdd0F4RFHgnvjDPAi2Sv3RSnFFmtagBWJ6ZrlMqoL6klPffaDj7phK6eFXuFvuQKy4KBBxWruadP75IUQ=s96", "org.leetzone.android.yatsewidgetfree": "https://play-lh.googleusercontent.com/z15jXycg0Ac28xg8jwhnI5M1ej2UpFV_7bDJ7LEL6spmnkIdnrRRreC8e3uTnL3XdyLBJ_WU_Wo33nnpybT1Gg=s96"};
 function initials(name){return name.split(/\s+/).slice(0,2).map(function(w){return w[0]||"";}).join("").toUpperCase();}
+function tileHTML(a){
+  var icon = ICONS[a.package];
+  return '<div class="tile" style="background:'+esc(a.color)+'"><span>'+esc(initials(a.name))+'</span>' + (icon ? '<img class="appicon" src="'+esc(icon)+'" alt="" loading="lazy" decoding="async" width="48" height="48" onerror="this.remove()">' : '') + '</div>';
+}
 
 function normalizeLive(d){
   var apps = {}, order = [];
@@ -196,7 +206,7 @@ function patchHTML(p){
 function cardHTML(a, idx){
   var vers = a.versions.length ? a.versions.map(function(v){return '<span class="pill">'+esc(v)+'</span>';}).join("") : '<span class="pill">any version</span>';
   return '<article class="card" data-name="'+esc(a.name.toLowerCase())+'" data-pkg="'+esc(a.package.toLowerCase())+'" data-text="'+esc((a.name+" "+a.package+" "+a.patches.map(function(p){return p.name+" "+p.desc;}).join(" ")).toLowerCase())+'">'
-    + '<div class="apphead"><div class="tile" style="background:'+esc(a.color)+'">'+esc(initials(a.name))+'</div>'
+    + '<div class="apphead">'+tileHTML(a)
     + '<div><h3>'+esc(a.name)+'</h3><div class="pkg">'+esc(a.package)+'<button data-copy="'+esc(a.package)+'">'+ICON_COPY+'Copy</button></div></div></div>'
     + '<div class="meta"><span class="pill count">'+a.patches.length+' patch'+(a.patches.length>1?"es":"")+'</span><span class="pill">'+esc(a.type)+'</span>'+vers+'</div>'
     + '<button class="toggle" data-app="'+idx+'">'+ICON_LIST+'<span>Show patches</span></button></article>';
@@ -245,6 +255,7 @@ document.getElementById("apps").addEventListener("click", function(e){
 function openDialog(i){
   var a = DATA.apps[i]; if(!a) return;
   var dlg = document.getElementById("patchDialog");
+  document.getElementById("dlgIcon").innerHTML = tileHTML(a);
   document.getElementById("dlgTitle").textContent = a.name;
   document.getElementById("dlgPkg").textContent = a.package + " · " + a.type;
   document.getElementById("dlgMeta").innerHTML = '<span class="pill count">'+a.patches.length+' patch'+(a.patches.length>1?"es":"")+'</span>' + (a.versions.length ? a.versions.map(function(v){return '<span class="pill">'+esc(v)+'</span>';}).join("") : '<span class="pill">any version</span>');
@@ -260,26 +271,32 @@ document.getElementById("chips").addEventListener("click", function(e){
   document.querySelectorAll(".chip").forEach(function(x){x.classList.remove("active");});
   b.classList.add("active"); CAT = b.getAttribute("data-cat"); render();
 });
+// Paint instantly from the embedded snapshot, then refresh in the background.
+DATA = normalizeFallback(FALLBACK);
+render();
+document.getElementById("status").textContent += " · checking for updates…";
 Promise.allSettled([
-  fetch(LIST_URL, {cache:"no-cache"}).then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); }),
-  fetch(BUNDLE_URL, {cache:"no-cache"}).then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+  fetch(LIST_URL).then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); }),
+  fetch(BUNDLE_URL).then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
 ]).then(function(res){
   var live = res[0].status==="fulfilled" ? res[0].value : null;
   var bundle = res[1].status==="fulfilled" ? res[1].value : null;
-  if(live){ DATA = normalizeLive(live); }
-  else {
-    DATA = normalizeFallback(FALLBACK);
+  if(bundle && bundle.download_url) document.getElementById("dlBtn").href = bundle.download_url;
+  if(live && live.version && live.version !== DATA.version){
+    DATA = normalizeLive(live);
+    render();
+    if(!bundle || !bundle.download_url) document.getElementById("dlBtn").href = "https://github.com/ShuhaibNC/morphe-patches/releases/download/v"+DATA.version+"/patches-"+DATA.version+".mpp";
+    document.getElementById("status").textContent += " · updated to v" + DATA.version;
+  } else if(live){
+    document.getElementById("status").textContent = document.getElementById("status").textContent.replace(" · checking for updates…", " · up to date (v" + DATA.version + ")");
+  } else {
     var n = document.getElementById("notice");
     n.style.display = "block";
     n.textContent = "Could not load the live patch list from GitHub — showing the cached v" + DATA.version + " snapshot instead. Check your connection and refresh.";
+    document.getElementById("status").textContent = document.getElementById("status").textContent.replace(" · checking for updates…", "");
   }
-  var dl = bundle && bundle.download_url ? bundle.download_url
-    : "https://github.com/ShuhaibNC/morphe-patches/releases/download/v"+DATA.version+"/patches-"+DATA.version+".mpp";
-  document.getElementById("dlBtn").href = dl;
-  render();
 }).catch(function(){
-  DATA = normalizeFallback(FALLBACK);
-  render();
+  document.getElementById("status").textContent = document.getElementById("status").textContent.replace(" · checking for updates…", "");
 });
 </script>
 </body>
