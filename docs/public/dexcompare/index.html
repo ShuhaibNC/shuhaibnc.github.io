@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>DexCompare — compare APKs in your browser</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app-menu">
+    <img id="appLogo" src="icon.png" alt="APK Compare" />
+    <div class="help-menu">
+      <button id="helpMenuButton" aria-haspopup="true" aria-expanded="false">
+        Help
+      </button>
+      <div id="helpMenuItems" class="menu-items hidden">
+        <strong>Quick help</strong>
+        <p>Choose a package on each side, then select Compare to view class, method, and field changes.</p>
+        <p>Select an item to inspect its Smali diff. Use F7 for the next difference and Shift+F7 for the previous one.</p>
+      </div>
+    </div>
+    <button id="aboutMenuItem" class="titlebar-menu-button">About</button>
+  </div>
+  <div id="webnote">Runs entirely in your browser — your files never leave your device. No install, no upload.
+    <a href="https://github.com/ShuhaibNC/dex-compare" target="_blank" rel="noopener">Desktop app</a> ·
+    <a href="DexCompare-v1.1.0.apk" download>Android app (APK, v1.1.0)</a> ·
+    <a href="/">shuhaibnc.github.io</a>
+  </div>
+  <div id="toolbar">
+    <div class="file-pick" id="pickLeftBox">
+      <span class="label old">LEFT (old)</span>
+      <input id="leftPath" type="text" placeholder="no APK / XAPK / APKS / APKM / DEX selected — or drop a file here" readonly />
+      <button id="pickLeft">Choose…</button>
+      <input type="file" id="leftFile" accept=".apk,.xapk,.apks,.apkm,.zip,.dex" hidden />
+    </div>
+    <button id="swap" title="Swap sides">&#8646;</button>
+    <div class="file-pick" id="pickRightBox">
+      <span class="label new">RIGHT (new)</span>
+      <input id="rightPath" type="text" placeholder="no APK / XAPK / APKS / APKM / DEX selected — or drop a file here" readonly />
+      <button id="pickRight">Choose…</button>
+      <input type="file" id="rightFile" accept=".apk,.xapk,.apks,.apkm,.zip,.dex" hidden />
+    </div>
+  <button id="compareBtn" disabled>Compare</button>
+</div>
+<div id="progress" class="hidden" role="progressbar" aria-label="Comparing files" aria-valuetext="Comparison in progress">
+  <div id="progressLabel">Preparing comparison…</div>
+  <div class="progress-track"><div class="progress-bar"></div></div>
+</div>
+<div id="summary" class="hidden">
+    <div class="summary-group">
+      <span class="summary-title">Classes</span>
+      <span class="pill modified" data-k="classes.modified">0</span>
+      <span class="pill added" data-k="classes.added">0</span>
+      <span class="pill removed" data-k="classes.removed">0</span>
+      <span class="pill same" data-k="classes.same">0</span>
+    </div>
+    <div class="summary-group">
+      <span class="summary-title">Methods</span>
+      <span class="pill modified" data-k="methods.modified">0</span>
+      <span class="pill added" data-k="methods.added">0</span>
+      <span class="pill removed" data-k="methods.removed">0</span>
+      <span class="pill same" data-k="methods.same">0</span>
+    </div>
+    <div class="summary-group">
+      <span class="summary-title">Fields</span>
+      <span class="pill modified" data-k="fields.modified">0</span>
+      <span class="pill added" data-k="fields.added">0</span>
+      <span class="pill removed" data-k="fields.removed">0</span>
+      <span class="pill same" data-k="fields.same">0</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="meta" id="metaLine"></div>
+  </div>
+
+  <div id="main">
+    <div id="left-pane">
+      <div id="tree-heading">CLASSES</div>
+      <div id="filters">
+        <input id="search" type="text" placeholder="Filter by class / method / field…" />
+        <label class="chk"><input type="checkbox" id="onlyDiff" checked /> Only differences</label>
+        <label class="chk"><input type="checkbox" id="showSame" /> Show unchanged</label>
+        <label class="chk"><input type="checkbox" id="unifiedDiff" checked /> Unified diff</label>
+      </div>
+      <div id="tree" class="scroll"></div>
+      <div id="treeStatus" class="status"></div>
+    </div>
+    <div id="pane-splitter" role="separator" aria-label="Resize class panel" aria-orientation="vertical"
+      aria-valuemin="220" aria-valuenow="25" aria-valuemax="60" tabindex="0"></div>
+    <div id="right-pane">
+      <div id="detail-head">
+        <span id="detailTitle">Select a class, method, or field</span>
+        <div id="diff-controls">
+          <span id="diffPos"></span>
+          <button id="diffPrev" title="Previous difference (Shift+F7)" disabled>&#9650;</button>
+          <button id="diffNext" title="Next difference (F7)" disabled>&#9660;</button>
+        </div>
+      </div>
+      <div id="detail" class="scroll"></div>
+    </div>
+  </div>
+
+  <dialog id="aboutDialog" aria-labelledby="aboutTitle">
+    <div class="about-dialog">
+      <header class="about-header">
+        <div>
+          <h1 id="aboutTitle">About APK Compare</h1>
+          <p>Technical information</p>
+        </div>
+        <button id="closeAbout" class="about-close" aria-label="Close">×</button>
+      </header>
+      <div id="aboutContent" class="about-content">
+        <section>
+          <h2>Application</h2>
+          <dl class="about-details">
+            <dt>Version</dt><dd id="aboutVersion">Loading…</dd>
+            <dt>Platform</dt><dd id="aboutPlatform">Loading…</dd>
+            <dt>Electron</dt><dd id="aboutElectron">Loading…</dd>
+            <dt>Chromium</dt><dd id="aboutChromium">Loading…</dd>
+            <dt>Node.js</dt><dd id="aboutNode">Loading…</dd>
+          </dl>
+        </section>
+        <section>
+          <h2>Supported input files</h2>
+          <p>APK, XAPK, APKS, APKM, ZIP, and DEX files. APK bundles and split APKs are read directly; no Android SDK or external decompiler is required.</p>
+        </section>
+        <section>
+          <h2>Comparison engine</h2>
+          <p>Compares DEX class, method, and field definitions, then disassembles method bytecode for normalized Smali comparison.</p>
+          <ul>
+            <li>Ignores debug metadata, comments, and no-operation instructions.</li>
+            <li>Normalizes register numbering and equivalent constant, branch, and invoke encodings.</li>
+            <li>Shows method changes as unified or side-by-side diffs.</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Implementation</h2>
+          <p>Web version of the desktop app — the same DEX parser, archive reader, comparison engine, and Smali formatter, ported to run in your browser. One deliberate fix: catch-handler list sizes are read as SLEB128, as the DEX spec requires (the desktop JS reads ULEB128; verified to give identical results).</p>
+        </section>
+      </div>
+      <footer class="about-footer">Made by ShuhaibNC</footer>
+    </div>
+  </dialog>
+
+  <script src="bridge.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
