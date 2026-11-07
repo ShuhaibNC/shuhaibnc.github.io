@@ -117,7 +117,7 @@ features:
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/><title>Compare</title></svg>
 
   - title: MyCampus Web
-    details: CEV Etlab portal client in your browser: attendance, timetable, results and profile
+    details: "CEV Etlab portal client in your browser: attendance, timetable, results and profile"
     link: /mycampus
     target: "_blank"
     icon: |
