@@ -33,6 +33,16 @@
   if (WORKER_URL) WORKER_URL = WORKER_URL.replace(/\/$/, '');
   var LIVE_ENABLED = workerUrlOk(WORKER_URL);
 
+  /* ---- decorative inline SVG icons (Lucide-style line icons) ----
+   * Reused by the JS-rendered empty states and the timetable heading.
+   * Static HTML carries its own copies. All are aria-hidden. */
+  var IC = {
+    calLine: '<span class="h-icon muted" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>',
+    gradCap: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>',
+    inbox: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
+    calH2: '<span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>'
+  };
+
   /* ================= themes ================= */
   var PREFS_KEY = 'shuhaib-site-prefs-v1';
   var MC_KEY = 'mycampus-prefs-v1';
@@ -245,11 +255,13 @@
   function showApp() {
     $('loginView').classList.add('hidden');
     $('appView').classList.remove('hidden');
+    $('navLogoutBtn').classList.remove('hidden');
     renderAll();
   }
   function showLogin() {
     $('appView').classList.add('hidden');
     $('loginView').classList.remove('hidden');
+    $('navLogoutBtn').classList.add('hidden');
   }
 
   var DEMO_FOOT = 'MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Live login works in the Android app · ';
@@ -283,10 +295,14 @@
 
   function setLoginBusy(busy) {
     var btn = $('loginForm').querySelector('button[type="submit"]');
-    if (btn) {
-      btn.disabled = busy;
-      btn.textContent = busy ? 'Signing in…' : (LIVE_ENABLED ? 'Sign in' : 'Sign in to demo');
-    }
+    if (!btn) return;
+    btn.disabled = busy;
+    /* Update only the label span: setting textContent on the button
+     * itself would wipe its log-in icon. */
+    var label = btn.querySelector('.btn-label');
+    var text = busy ? 'Signing in…' : (LIVE_ENABLED ? 'Sign in' : 'Sign in to demo');
+    if (label) label.textContent = text;
+    else btn.textContent = text;
   }
 
   function enterDemo(name) {
@@ -540,6 +556,7 @@
   });
   $('demoBtn').addEventListener('click', function () { enterDemo(''); });
   $('signOutBtn').addEventListener('click', function () { signOutToLogin(''); });
+  $('navLogoutBtn').addEventListener('click', function () { signOutToLogin(''); });
 
   /* ================= tabs ================= */
   var currentTab = 'home';
@@ -632,7 +649,7 @@
     $('todaySub').textContent = dayLabel + ' · ' + (codes.length ? codes.length + ' periods' : 'no classes scheduled');
     var box = $('todayBox');
     if (!codes.length) {
-      box.innerHTML = '<p class="muted">No classes today. Enjoy the weekend.</p>';
+      box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No classes today. Enjoy the weekend.</span></p>';
     } else {
       var html = '';
       codes.forEach(function (code, i) {
@@ -726,7 +743,7 @@
     var detail = $('weekDetail');
     var d = D.findDay(selectedDay);
     if (!d) {
-      detail.innerHTML = '<p class="muted">No classes recorded for this day.</p>';
+      detail.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No classes recorded for this day.</span></p>';
       return;
     }
     var rows = '';
@@ -739,7 +756,7 @@
         ' · ' + D.STATUS_WORDS[per.s] + '</span></div>';
     });
     if (!anyRow) {
-      detail.innerHTML = '<p class="muted">No classes recorded for this day' + (d.holiday ? ' (' + esc(d.holiday) + ').' : '.') + '</p>';
+      detail.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No classes recorded for this day' + (d.holiday ? ' (' + esc(d.holiday) + ').' : '.') + '</span></p>';
     } else {
       detail.innerHTML = '<p class="muted" style="margin-bottom:4px;">' + esc(d.weekday) + ', ' + esc(d.label) +
         (d.holiday ? ' · ' + esc(d.holiday) : '') + '</p>' + rows;
@@ -787,7 +804,7 @@
       $('attOverallHours').textContent = '';
       $('attOverallBar').style.width = '0%';
       $('attSemNote').textContent = liveMode ? 'No attendance data for this semester on the portal.' : 'No attendance data for this semester in demo.';
-      box.innerHTML = '<div class="empty-state"><h3>No data for Semester ' + attSem + '</h3><p>The MCA course has 4 semesters. Semesters 5-8 have no data' + (liveMode ? ' on the portal.' : ' in demo.') + '</p></div>';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No data for Semester ' + attSem + '</h3><p>The MCA course has 4 semesters. Semesters 5-8 have no data' + (liveMode ? ' on the portal.' : ' in demo.') + '</p></div>';
       return;
     }
     $('attSemNote').textContent = liveMode ? 'Live data from the portal.' : (attSem === 3 ? 'Overall about 95%, matching the verified Sep 2026 portal check.' : 'Demo figures for this semester.');
@@ -946,7 +963,7 @@
 
   /* ================= Timetable ================= */
   function renderTimetable() {
-    var html = '';
+    var html = '<h2>' + IC.calH2 + 'Weekly timetable</h2>';
     for (var i = 0; i < 5; i++) {
       var key = D.DAY_NAMES[i];
       var codes = D.TIMETABLE[key];
@@ -973,7 +990,7 @@
       var msg = sem === 3
         ? 'The portal shows "No sessional exams yet" for Semester 3.'
         : (liveMode ? 'No series marks for Semester ' + sem + ' on the portal.' : 'No verified series marks for Semester ' + sem + ' in demo.');
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">–</div><h3>No sessional exams yet</h3><p>' + msg + '</p><p style="margin-top:8px;">Series marks appear here once the college publishes them on the portal.</p></div>';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No sessional exams yet</h3><p>' + msg + '</p><p style="margin-top:8px;">Series marks appear here once the college publishes them on the portal.</p></div>';
       return;
     }
     var html = '';
@@ -1043,7 +1060,11 @@
   if (LIVE_ENABLED) {
     $('loginPass').placeholder = 'Your CEV Etlab password';
     var submitBtn = $('loginForm').querySelector('button[type="submit"]');
-    if (submitBtn) submitBtn.textContent = 'Sign in';
+    if (submitBtn) {
+      var submitLabel = submitBtn.querySelector('.btn-label');
+      if (submitLabel) submitLabel.textContent = 'Sign in';
+      else submitBtn.textContent = 'Sign in';
+    }
     var notice = $('demoNotice');
     if (notice) {
       notice.innerHTML = '<strong>Live login available.</strong> Sign in with your CEV Etlab username and password. Credentials go only to the MyCampus Worker, which logs in to cev.etlab.in for you; your password is not stored anywhere. Or explore the demo with sample data.';

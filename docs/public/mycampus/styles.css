@@ -295,6 +295,26 @@ p { margin: 0; }
 }
 .palette-btn:hover { color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); }
 
+/* ---------- Nav logout button (visible only while signed in) ---------- */
+.nav-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.nav-logout:hover { color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); border-color: var(--vp-c-brand-1); }
+.nav-logout svg { display: block; }
+
 /* ---------- Theme panel ---------- */
 .theme-panel {
   position: fixed;
@@ -461,9 +481,24 @@ main {
 /* The login card sits in .login-wrap, a flex column with a 16px gap
  * already, so its margin is dropped there to avoid a doubled 32px gap. */
 .login-wrap .card { margin-bottom: 0; }
-.card h2 { font-size: 18px; margin-bottom: 4px; }
+.card h2 { font-size: 18px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
 .card h3 { font-size: 15px; }
 .card .card-sub { color: var(--vp-c-text-2); font-size: 14px; margin-bottom: 12px; }
+
+/* ---------- Heading + inline icons ----------
+ * .h-icon is the shared decorative icon span: 20px line icons in the
+ * brand colour, aligned with the heading text. Buttons reuse it at
+ * 18px (inheriting the button's text colour); .muted tones it down. */
+.h-icon { display: inline-flex; align-items: center; justify-content: center; color: var(--vp-c-brand-1); flex-shrink: 0; }
+.h-icon svg { display: block; width: 20px; height: 20px; }
+.h-icon.muted { color: var(--vp-c-text-3); }
+.btn .h-icon { color: inherit; }
+.btn .h-icon svg { width: 18px; height: 18px; }
+.page-head h1 { display: flex; align-items: center; gap: 10px; }
+.page-head h1 .h-icon svg { width: 24px; height: 24px; }
+/* Inline "no data" line: icon + text on one row. */
+.empty-line { display: flex; align-items: center; gap: 8px; }
+.empty-line .h-icon svg { width: 16px; height: 16px; }
 .hero-card {
   background: var(--vp-c-bg-soft);
   border: 1px solid var(--vp-c-border);
@@ -528,6 +563,19 @@ main {
   width: 100%;
 }
 .field input:focus, .field select:focus { outline: 2px solid var(--vp-c-brand-1); outline-offset: 1px; }
+/* Inline icon inside a text field (login name / password). */
+.field .input-wrap { position: relative; }
+.field .input-wrap .field-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--vp-c-text-3);
+  pointer-events: none;
+}
+.field .input-wrap .field-icon svg { display: block; width: 18px; height: 18px; }
+.field .input-wrap input { padding-left: 40px; }
 .demo-notice {
   border: 1px solid var(--vp-c-border);
   border-left: 4px solid var(--vp-c-brand-1);
@@ -614,6 +662,7 @@ main {
 /* ---------- Week strip ---------- */
 .week-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .week-nav .week-label { font-weight: 600; font-size: 15px; }
+.month-label { display: inline-flex; align-items: center; gap: 8px; }
 .week-nav button {
   width: 32px; height: 32px;
   border-radius: 8px;
@@ -709,7 +758,8 @@ table.month-grid { border-collapse: collapse; width: 100%; min-width: 560px; fon
   padding: 32px 16px;
   color: var(--vp-c-text-2);
 }
-.empty-state .empty-icon { font-size: 32px; margin-bottom: 8px; color: var(--vp-c-text-3); }
+.empty-state .empty-icon { display: flex; justify-content: center; margin-bottom: 8px; color: var(--vp-c-text-3); }
+.empty-state .empty-icon svg { display: block; width: 40px; height: 40px; }
 .empty-state h3 { color: var(--vp-c-text-1); margin-bottom: 4px; }
 
 /* ---------- Profile ---------- */
@@ -769,6 +819,8 @@ footer.site-foot {
 @media (max-width: 719px) {
   .topnav { padding: 0 16px; gap: 8px; }
   .nav-links .nav-tab, .nav-links .nav-ext { display: none; }
+  .nav-logout-label { display: none; }
+  .nav-logout { padding: 0 10px; }
   .brand small { display: none; }
   .tabbar { display: flex; }
   main { padding: 16px 16px 96px; }

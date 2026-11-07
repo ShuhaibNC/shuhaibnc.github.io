@@ -49,6 +49,10 @@
         <path d="M12 22C6.5 21.5 4 17.5 5.5 13.5c.8-2.2 2.5-3.5 5-3.5 3.5 0 6 2 6.5 5.5.3 2-.5 4.5-2.5 6.5" />
       </svg>
     </button>
+    <button type="button" class="nav-logout hidden" id="navLogoutBtn" aria-label="Sign out" title="Sign out">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+      <span class="nav-logout-label">Sign out</span>
+    </button>
   </header>
 
   <div id="themePanel" class="theme-panel hidden" role="dialog" aria-label="Theme and customisation"></div>
@@ -68,15 +72,21 @@
       <form id="loginForm" autocomplete="off">
         <div class="field">
           <label for="loginName">Name or username</label>
-          <input id="loginName" type="text" placeholder="e.g. SHUHAIB N C" />
+          <div class="input-wrap">
+            <span class="field-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            <input id="loginName" type="text" placeholder="e.g. SHUHAIB N C" />
+          </div>
         </div>
         <div class="field">
           <label for="loginPass">Password</label>
-          <input id="loginPass" type="password" placeholder="Demo only, nothing is sent anywhere" />
+          <div class="input-wrap">
+            <span class="field-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <input id="loginPass" type="password" placeholder="Demo only, nothing is sent anywhere" />
+          </div>
         </div>
-        <button type="submit" class="btn btn-brand btn-block">Sign in to demo</button>
+        <button type="submit" class="btn btn-brand btn-block"><span class="h-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg></span><span class="btn-label">Sign in to demo</span></button>
         <div style="height:10px"></div>
-        <button type="button" class="btn btn-block" id="demoBtn">Explore demo</button>
+        <button type="button" class="btn btn-block" id="demoBtn"><span class="h-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg></span>Explore demo</button>
         <p id="loginError" class="login-error hidden" role="alert"></p>
       </form>
     </div>
@@ -123,23 +133,23 @@
               <p class="muted" style="margin-top:6px;">Tap a subject chart below or open Attendance for the full breakdown. <span class="demo-tag">Demo data</span></p>
             </div>
           </div>
-          <button type="button" class="btn" id="homeGoAttendance">View attendance</button>
+          <button type="button" class="btn" id="homeGoAttendance"><span class="h-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>View attendance</button>
         </div>
 
         <div class="card">
-          <h2>Today's classes</h2>
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>Today's classes</h2>
           <p class="card-sub" id="todaySub"></p>
           <div id="todayBox"></div>
         </div>
 
         <div class="card">
-          <h2>Subject attendance</h2>
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg></span>Subject attendance</h2>
           <p class="card-sub">Semester 3 · tap a row to open Attendance</p>
           <div id="chartBox"></div>
         </div>
 
         <div class="card">
-          <h2>Attendance by date</h2>
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></span>Attendance by date</h2>
           <p class="card-sub">Tap a day to see its periods</p>
           <div class="week-nav">
             <button type="button" id="weekPrev" aria-label="Previous week">&#8249;</button>
@@ -160,6 +170,7 @@
         </div>
         <div style="height:16px"></div>
         <div class="card">
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span>Subject-wise attendance</h2>
           <div class="sem-row">
             <div class="field">
               <label for="attSem">Semester</label>
@@ -177,7 +188,7 @@
         <div class="card">
           <div class="week-nav">
             <button type="button" id="monthPrev" aria-label="Previous month">&#8249;</button>
-            <span class="week-label" id="monthTitle">October 2026</span>
+            <span class="week-label month-label"><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></span><span id="monthTitle">October 2026</span></span>
             <button type="button" id="monthNext" aria-label="Next month">&#8250;</button>
           </div>
           <p class="card-sub">Day-wise grid · rows are days, columns are Period 1–7 · a blank cell is never an absence</p>
@@ -191,7 +202,7 @@
 
       <section id="tab-timetable" class="tab-page hidden">
         <div class="page-head">
-          <h1>Timetable</h1>
+          <h1><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>Timetable</h1>
           <p>Semester 3 · Monday to Friday · lunch 13:15 – 14:00 <span class="demo-tag">Demo data</span></p>
         </div>
         <div style="height:16px"></div>
@@ -200,7 +211,7 @@
 
       <section id="tab-results" class="tab-page hidden">
         <div class="page-head">
-          <h1>Series results</h1>
+          <h1><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span>Series results</h1>
           <p>Internal (sessional) exam marks <span class="demo-tag">Demo data</span></p>
         </div>
         <div style="height:16px"></div>
@@ -218,7 +229,7 @@
 
       <section id="tab-profile" class="tab-page hidden">
         <div class="page-head">
-          <h1>Profile</h1>
+          <h1><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Profile</h1>
           <p>Student details from the portal <span class="demo-tag">Demo data</span></p>
         </div>
         <div style="height:16px"></div>
@@ -234,15 +245,15 @@
           <dl id="profileKv"></dl>
         </div>
         <div class="card">
-          <h2>Appearance</h2>
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M12 22C6.5 21.5 4 17.5 5.5 13.5c.8-2.2 2.5-3.5 5-3.5 3.5 0 6 2 6.5 5.5.3 2-.5 4.5-2.5 6.5"/></svg></span>Appearance</h2>
           <p class="card-sub">Themes, accent, text size, density, corners, font and width, and the same choices follow you to the main site.</p>
-          <button type="button" class="btn" id="profileOpenThemes">Open theme picker</button>
+          <button type="button" class="btn" id="profileOpenThemes"><span class="h-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M12 22C6.5 21.5 4 17.5 5.5 13.5c.8-2.2 2.5-3.5 5-3.5 3.5 0 6 2 6.5 5.5.3 2-.5 4.5-2.5 6.5"/></svg></span>Open theme picker</button>
         </div>
         <div class="card">
-          <h2>About</h2>
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>About</h2>
           <p class="muted" id="aboutText">MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. This web version runs in demo mode with sample data; a browser cannot log in to cev.etlab.in, so live portal login works in the Android app only. Source: <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>.</p>
           <div class="profile-actions">
-            <button type="button" class="btn btn-brand" id="signOutBtn">Sign out</button>
+            <button type="button" class="btn btn-brand" id="signOutBtn"><span class="h-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></span>Sign out</button>
             <a class="btn" href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">Android app</a>
             <a class="btn" href="https://cev.etlab.in" target="_blank" rel="noopener">cev.etlab.in</a>
           </div>
