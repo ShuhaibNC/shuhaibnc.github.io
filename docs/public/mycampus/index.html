@@ -77,10 +77,11 @@
         <button type="submit" class="btn btn-brand btn-block">Sign in to demo</button>
         <div style="height:10px"></div>
         <button type="button" class="btn btn-block" id="demoBtn">Explore demo</button>
+        <p id="loginError" class="login-error hidden" role="alert"></p>
       </form>
     </div>
 
-    <div class="demo-notice">
+    <div class="demo-notice" id="demoNotice">
       <strong>Demo: sample data.</strong> A browser cannot log in to cev.etlab.in
       directly (no CORS, session cookies), and no credentials are ever sent to
       any proxy. This web version runs on sample data only. Live portal login
@@ -234,7 +235,7 @@
         </div>
         <div class="card">
           <h2>About</h2>
-          <p class="muted">MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. This web version runs in demo mode with sample data; a browser cannot log in to cev.etlab.in, so live portal login works in the Android app only. Source: <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>.</p>
+          <p class="muted" id="aboutText">MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. This web version runs in demo mode with sample data; a browser cannot log in to cev.etlab.in, so live portal login works in the Android app only. Source: <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>.</p>
           <div class="profile-actions">
             <button type="button" class="btn btn-brand" id="signOutBtn">Sign out</button>
             <a class="btn" href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">Android app</a>
@@ -243,7 +244,7 @@
         </div>
       </section>
     </main>
-    <footer class="site-foot">
+    <footer class="site-foot" id="siteFoot">
       MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Live login works in the Android app · <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>
     </footer>
   </div>

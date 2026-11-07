@@ -15,7 +15,35 @@ runs on **sample data only** and says so on the login screen and in the UI.
 The login form takes any name (or the "Explore demo" button) and opens the
 demo; nothing is typed, stored or sent anywhere except a session-only flag
 (`sessionStorage`) remembering that the demo was opened. **Live portal login
-works in the Android app only.**
+works in the Android app**, or through the Cloudflare Worker once it is
+deployed (see Live mode below).
+
+## Live mode (Cloudflare Worker)
+
+The demo above is the default because a browser cannot log in to
+cev.etlab.in directly. Live login is possible through a small backend
+that does the login server-side — the same flow as the Android app:
+
+- **Worker project:** `~/workspace/mycampus-worker/` (not deployed yet).
+  A single Cloudflare Worker (`src/index.js`, no framework) logs in to
+  the portal (GET `/user/login`, then POST the login form, following the
+  redirect manually with the cookie jar) and serves the portal data as
+  JSON: `POST /api/login`, `GET /api/profile`, `/api/attendance?sem=N`,
+  `/api/monthly`, `/api/timetable`, `/api/results?sem=N`.
+- **Sessions are stateless:** the Etlab cookie jar is encrypted with
+  AES-GCM under a `WORKER_SECRET` secret and returned as an opaque
+  token (12h expiry). Nothing is stored on the server. Credentials are
+  used once, inside the login handler, and never stored or logged.
+- **CORS is allow-listed** to `https://shuhaibnc.github.io` (plus
+  `http://localhost:*` for local dev). `/api/login` is throttled per IP.
+- **Enabling it:** deploy the Worker (see its README: `wrangler login`,
+  `wrangler secret put WORKER_SECRET`, `wrangler deploy`), then set the
+  `WORKER_URL` constant at the top of `app.js` to the deployed Worker
+  URL (HTTPS only). The login form then signs in to the real portal:
+  the token lives in `sessionStorage` only, a green **Live** badge
+  replaces **Demo** in the UI, and sign-out clears the token. With
+  `WORKER_URL` empty (the shipped default) the app stays in demo mode
+  exactly as described above.
 
 ## What is verified vs demo
 

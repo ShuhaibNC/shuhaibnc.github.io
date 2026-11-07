@@ -200,6 +200,18 @@ p { margin: 0; }
   font-size: 12px;
   font-weight: 700;
 }
+.live-tag {
+  background: rgba(34, 197, 94, 0.16);
+  color: #16a34a;
+}
+.login-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  font-size: 14px;
+}
 
 /* ---------- Top nav ---------- */
 .topnav {
@@ -570,7 +582,7 @@ main {
 }
 .tag-lab { background: rgba(34, 197, 94, 0.14); color: #22c55e; }
 .chart-row { display: grid; grid-template-columns: 150px 1fr 52px; gap: 12px; align-items: center; padding: 7px 0; }
-.chart-row .cname { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chart-row .cname { font-size: 14px; line-height: 1.35; }
 .chart-row .cpct { text-align: right; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
 .bar { height: 8px; border-radius: 999px; background: var(--vp-c-bg-soft); border: 1px solid var(--vp-c-divider); overflow: hidden; }
 .bar > span { display: block; height: 100%; background: var(--vp-c-brand-1); border-radius: 999px; }

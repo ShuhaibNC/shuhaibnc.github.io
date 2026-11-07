@@ -1,11 +1,37 @@
-/* MyCampus Web: app logic. Plain JS, no build step, no network calls.
- * Demo mode only: nothing is sent anywhere, nothing is stored except
- * a session flag and the visitor's own theme choices (localStorage). */
+/* MyCampus Web: app logic. Plain JS, no build step.
+ * Demo mode by default: nothing is sent anywhere, nothing is stored
+ * except a session flag and the visitor's own theme choices
+ * (localStorage). Set WORKER_URL below to the deployed Cloudflare
+ * Worker URL to enable live portal login; credentials then go only to
+ * that Worker, and the session token lives in sessionStorage. */
 'use strict';
 
 (function () {
   var D = MC_DATA;
   var $ = function (id) { return document.getElementById(id); };
+
+  /* ---- live mode (Cloudflare Worker) ----
+   * Set WORKER_URL to the deployed Worker URL (https://...) to enable
+   * real portal login. While it is '' the app is demo-only, exactly as
+   * today: nothing is sent anywhere. HTTP is refused except localhost.
+   * The Worker logs in to cev.etlab.in for the visitor; the token is
+   * kept in sessionStorage and cleared on sign out. */
+  var WORKER_URL = 'https://mycampus-worker.shuhaib.workers.dev';
+  var LIVE_TOKEN_KEY = 'mycampus-live-token';
+  var liveMode = false;
+  var liveToken = null;
+  var liveCache = {};
+
+  function workerUrlOk(u) {
+    if (!u) return false;
+    try {
+      var p = new URL(u);
+      return p.protocol === 'https:' ||
+        (p.protocol === 'http:' && (p.hostname === 'localhost' || p.hostname === '127.0.0.1'));
+    } catch (e) { return false; }
+  }
+  if (WORKER_URL) WORKER_URL = WORKER_URL.replace(/\/$/, '');
+  var LIVE_ENABLED = workerUrlOk(WORKER_URL);
 
   /* ================= themes ================= */
   var PREFS_KEY = 'shuhaib-site-prefs-v1';
@@ -212,7 +238,7 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') togglePanel(false); });
   $('profileOpenThemes').addEventListener('click', function () { togglePanel(true); });
 
-  /* ================= login ================= */
+  /* ================= login: demo + live (Worker) ================= */
   var SESSION_KEY = 'mycampus-demo-session';
   var displayName = D.PROFILE.name;
 
@@ -225,24 +251,281 @@
     $('appView').classList.add('hidden');
     $('loginView').classList.remove('hidden');
   }
+
+  var DEMO_FOOT = 'MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Live login works in the Android app · ';
+  var LIVE_FOOT = 'MyCampus Web 1.0 · Live data from cev.etlab.in via the MyCampus Worker · Signing out clears your session · ';
+  var DEMO_ABOUT = 'MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. This web version runs in demo mode with sample data; a browser cannot log in to cev.etlab.in, so live portal login works in the Android app only. Source: ';
+  var LIVE_ABOUT = 'MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. You are signed in to the live portal through the MyCampus Worker, which logs in to cev.etlab.in for you; your password was sent only to the Worker and is not stored. Source: ';
+
+  /* Swap every "Demo" badge for "Live" (and back), plus footer/About copy. */
+  function setModeBadge(live) {
+    document.querySelectorAll('.demo-tag').forEach(function (el) {
+      if (!el.dataset.demoText) el.dataset.demoText = el.textContent;
+      el.textContent = live ? el.dataset.demoText.replace('Demo', 'Live') : el.dataset.demoText;
+      el.classList.toggle('live-tag', live);
+    });
+    var foot = $('siteFoot');
+    if (foot && foot.firstChild && foot.firstChild.nodeType === 3) {
+      foot.firstChild.textContent = live ? LIVE_FOOT : DEMO_FOOT;
+    }
+    var about = $('aboutText');
+    if (about && about.firstChild && about.firstChild.nodeType === 3) {
+      about.firstChild.textContent = live ? LIVE_ABOUT : DEMO_ABOUT;
+    }
+  }
+
+  function showLoginError(msg) {
+    var el = $('loginError');
+    if (!el) return;
+    if (msg) { el.textContent = msg; el.classList.remove('hidden'); }
+    else { el.textContent = ''; el.classList.add('hidden'); }
+  }
+
+  function setLoginBusy(busy) {
+    var btn = $('loginForm').querySelector('button[type="submit"]');
+    if (btn) {
+      btn.disabled = busy;
+      btn.textContent = busy ? 'Signing in…' : (LIVE_ENABLED ? 'Sign in' : 'Sign in to demo');
+    }
+  }
+
   function enterDemo(name) {
+    liveMode = false;
+    liveToken = null;
+    liveCache = {};
+    D = MC_DATA;
     displayName = (name || '').trim() || D.PROFILE.name;
-    try { sessionStorage.setItem(SESSION_KEY, displayName); } catch (e) {}
+    try {
+      sessionStorage.setItem(SESSION_KEY, displayName);
+      sessionStorage.removeItem(LIVE_TOKEN_KEY);
+    } catch (e) {}
+    setModeBadge(false);
+    showLoginError('');
     showApp();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---- live mode (Cloudflare Worker) ---- */
+
+  function liveFetch(path, opts) {
+    opts = opts || {};
+    var headers = { 'Content-Type': 'application/json' };
+    if (liveToken) headers.Authorization = 'Bearer ' + liveToken;
+    return fetch(WORKER_URL + path, {
+      method: opts.method || 'GET',
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok) {
+          var err = new Error((data && data.error) || 'Request failed.');
+          err.status = res.status;
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+
+  function rowsFromAttendance(att) {
+    var rows = [];
+    Object.keys(att || {}).forEach(function (k) {
+      var s = att[k];
+      if (s && typeof s === 'object' && s.present_hours !== undefined) {
+        rows.push({
+          code: k,
+          present: parseInt(s.present_hours, 10) || 0,
+          total: parseInt(s.total_hours, 10) || 0
+        });
+      }
+    });
+    return rows;
+  }
+
+  function liveSlotType(codeOrName) {
+    if (/lab|project/i.test(MC_DATA.subjectName(codeOrName))) return 'lab';
+    return 'theory';
+  }
+
+  /* Build a MC_DATA-shaped object from Worker responses so every render
+   * function works unchanged in live mode. */
+  function buildLiveData(profileRes, attRes, monthlyRes, ttRes, resRes) {
+    var pd = (profileRes && profileRes.profile_details) || {};
+    var att = attRes || {};
+    var rows = rowsFromAttendance(att);
+
+    var monthParts = String((monthlyRes && monthlyRes.month) || '').split(' ');
+    var monthName = monthParts[0] || '';
+    var year = parseInt(monthParts[1], 10) || new Date().getFullYear();
+    var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
+    var monthIndex = MONTHS.indexOf(monthName);
+    if (monthIndex < 0) monthIndex = new Date().getMonth();
+
+    var monthly = {
+      month: monthlyRes.month || '',
+      year: year,
+      monthIndex: monthIndex,
+      days: (monthlyRes.days || []).map(function (day) {
+        var date = new Date(year, monthIndex, day.d);
+        var allHoliday = day.periods.length > 0 &&
+          day.periods.every(function (p) { return p.s === 'H' && !p.sub; });
+        return {
+          d: day.d,
+          label: day.d + ' ' + monthName + ' ' + year,
+          weekday: date.toLocaleDateString('en-GB', { weekday: 'long' }),
+          holiday: allHoliday ? 'Holiday' : '',
+          periods: day.periods
+        };
+      })
+    };
+
+    var tt = {};
+    var rawTt = ttRes || {};
+    MC_DATA.DAY_NAMES.forEach(function (dayKey) {
+      var dayObj = rawTt[dayKey] || {};
+      var slots = Object.keys(dayObj)
+        .map(function (k) { return { n: parseInt(k.replace('period-', ''), 10) || 0, slot: dayObj[k] }; })
+        .sort(function (a, b) { return a.n - b.n; })
+        .map(function (item) {
+          var name = (item.slot && item.slot.name) || '';
+          var code = /[0-9]{2}[A-Z]{2,}[0-9]+/.exec(name.toUpperCase());
+          return code ? code[0] : name;
+        });
+      tt[dayKey] = slots;
+    });
+
+    return {
+      PROFILE: {
+        name: pd.name || '',
+        roll: att.roll_no || '',
+        course: 'MCA',
+        semester: 3,
+        college: 'College of Engineering Vadakara (CEV)',
+        university: 'APJ Abdul Kalam Technological University (KTU)',
+        scheme: 'MCA 2020 scheme',
+        portal: 'https://cev.etlab.in',
+        dob: pd.dob || '',
+        admissionNo: pd.admission_no || '',
+        universityRegNo: pd.university_roll_no || ''
+      },
+      SUBJECTS: MC_DATA.SUBJECTS,
+      subjectName: function (code) { return MC_DATA.subjectName(code); },
+      ATTENDANCE: { 3: rows },
+      overallPct: function (sem) {
+        var r = this.ATTENDANCE[sem] || [];
+        var p = 0, t = 0;
+        r.forEach(function (row) { p += row.present; t += row.total; });
+        return t === 0 ? 0 : (p * 100 / t);
+      },
+      PERIOD_TIMES: MC_DATA.PERIOD_TIMES,
+      TIMETABLE: tt,
+      slotType: liveSlotType,
+      DAY_NAMES: MC_DATA.DAY_NAMES,
+      DAY_LABELS: MC_DATA.DAY_LABELS,
+      RESULTS: { 3: (resRes && resRes.series) || [] },
+      STATUS_COLORS: MC_DATA.STATUS_COLORS,
+      STATUS_WORDS: MC_DATA.STATUS_WORDS,
+      MONTHLY: monthly,
+      findDay: function (date) {
+        if (date.getFullYear() !== monthly.year || date.getMonth() !== monthly.monthIndex) return null;
+        var dom = date.getDate();
+        for (var i = 0; i < monthly.days.length; i++) {
+          if (monthly.days[i].d === dom) return monthly.days[i];
+        }
+        return null;
+      }
+    };
+  }
+
+  function loadLiveData() {
+    return Promise.all([
+      liveFetch('/api/profile'),
+      liveFetch('/api/attendance?sem=3'),
+      liveFetch('/api/monthly'),
+      liveFetch('/api/timetable'),
+      liveFetch('/api/results?sem=3')
+    ]).then(function (parts) {
+      D = buildLiveData(parts[0], parts[1], parts[2], parts[3], parts[4]);
+      displayName = D.PROFILE.name || displayName;
+      liveMode = true;
+      liveCache = { 3: { att: D.ATTENDANCE[3], res: D.RESULTS[3] } };
+      setModeBadge(true);
+    });
+  }
+
+  function enterLive(username, password) {
+    showLoginError('');
+    setLoginBusy(true);
+    liveFetch('/api/login', { method: 'POST', body: { username: username, password: password } })
+      .then(function (data) {
+        liveToken = data.token;
+        try { sessionStorage.setItem(LIVE_TOKEN_KEY, liveToken); } catch (e) {}
+        return loadLiveData();
+      })
+      .then(function () {
+        setLoginBusy(false);
+        showApp();
+        window.scrollTo(0, 0);
+      })
+      .catch(function (err) {
+        liveToken = null;
+        try { sessionStorage.removeItem(LIVE_TOKEN_KEY); } catch (e) {}
+        setLoginBusy(false);
+        showLoginError(err.status === 401
+          ? 'Invalid username or password. Check for typos, or explore the demo below.'
+          : (err.message || 'Could not reach the Worker. Check your connection, or explore the demo below.'));
+      });
+  }
+
+  /* Fetch one semester's attendance + results from the Worker (cached). */
+  function loadLiveSem(sem) {
+    if (liveCache[sem]) {
+      D.ATTENDANCE[sem] = liveCache[sem].att;
+      D.RESULTS[sem] = liveCache[sem].res;
+      return Promise.resolve();
+    }
+    return Promise.all([
+      liveFetch('/api/attendance?sem=' + sem),
+      liveFetch('/api/results?sem=' + sem)
+    ]).then(function (parts) {
+      var att = rowsFromAttendance(parts[0]);
+      var res = (parts[1] && parts[1].series) || [];
+      liveCache[sem] = { att: att, res: res };
+      D.ATTENDANCE[sem] = att;
+      D.RESULTS[sem] = res;
+    }).catch(function (err) {
+      if (err.status === 401) signOutToLogin('Session expired. Please sign in again.');
+      else {
+        D.ATTENDANCE[sem] = [];
+        D.RESULTS[sem] = [];
+      }
+    });
+  }
+
+  function signOutToLogin(msg) {
+    liveMode = false;
+    liveToken = null;
+    liveCache = {};
+    D = MC_DATA;
+    displayName = D.PROFILE.name;
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(LIVE_TOKEN_KEY);
+    } catch (e) {}
+    setModeBadge(false);
+    showLogin();
+    if (msg) showLoginError(msg);
     window.scrollTo(0, 0);
   }
 
   $('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    enterDemo($('loginName').value);
+    if (LIVE_ENABLED) enterLive($('loginName').value, $('loginPass').value);
+    else enterDemo($('loginName').value);
   });
   $('demoBtn').addEventListener('click', function () { enterDemo(''); });
-  $('signOutBtn').addEventListener('click', function () {
-    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
-    displayName = D.PROFILE.name;
-    showLogin();
-    window.scrollTo(0, 0);
-  });
+  $('signOutBtn').addEventListener('click', function () { signOutToLogin(''); });
 
   /* ================= tabs ================= */
   var currentTab = 'home';
@@ -468,11 +751,11 @@
       $('attOverallPct').textContent = '–';
       $('attOverallHours').textContent = '';
       $('attOverallBar').style.width = '0%';
-      $('attSemNote').textContent = 'No attendance data for this semester in demo.';
-      box.innerHTML = '<div class="empty-state"><h3>No data for Semester ' + attSem + '</h3><p>The MCA course has 4 semesters. Semesters 5-8 have no data in demo.</p></div>';
+      $('attSemNote').textContent = liveMode ? 'No attendance data for this semester on the portal.' : 'No attendance data for this semester in demo.';
+      box.innerHTML = '<div class="empty-state"><h3>No data for Semester ' + attSem + '</h3><p>The MCA course has 4 semesters. Semesters 5-8 have no data' + (liveMode ? ' on the portal.' : ' in demo.') + '</p></div>';
       return;
     }
-    $('attSemNote').textContent = attSem === 3 ? 'Overall about 95%, matching the verified Sep 2026 portal check.' : 'Demo figures for this semester.';
+    $('attSemNote').textContent = liveMode ? 'Live data from the portal.' : (attSem === 3 ? 'Overall about 95%, matching the verified Sep 2026 portal check.' : 'Demo figures for this semester.');
     var pTot = 0, tTot = 0;
     rows.forEach(function (r) { pTot += r.present; tTot += r.total; });
     var overall = pct(pTot, tTot);
@@ -523,7 +806,8 @@
 
   $('attSem').addEventListener('change', function () {
     attSem = parseInt($('attSem').value, 10);
-    renderAttendance();
+    if (liveMode) loadLiveSem(attSem).then(renderAttendance, function () {});
+    else renderAttendance();
   });
 
   /* ================= Timetable ================= */
@@ -553,7 +837,7 @@
     if (!groups.length) {
       var msg = sem === 3
         ? 'The portal shows "No sessional exams yet" for Semester 3.'
-        : 'No verified series marks for Semester ' + sem + ' in demo.';
+        : (liveMode ? 'No series marks for Semester ' + sem + ' on the portal.' : 'No verified series marks for Semester ' + sem + ' in demo.');
       box.innerHTML = '<div class="empty-state"><div class="empty-icon">–</div><h3>No sessional exams yet</h3><p>' + msg + '</p><p style="margin-top:8px;">Series marks appear here once the college publishes them on the portal.</p></div>';
       return;
     }
@@ -577,8 +861,12 @@
 
   $('resSem').addEventListener('change', function () {
     attSem = parseInt($('resSem').value, 10);
-    renderAttendance();
-    renderResults();
+    if (liveMode) {
+      loadLiveSem(attSem).then(function () { renderAttendance(); renderResults(); }, function () {});
+    } else {
+      renderAttendance();
+      renderResults();
+    }
   });
 
   /* ================= Profile ================= */
@@ -615,8 +903,29 @@
     switchTab(currentTab);
   }
 
+  /* ---- boot: live copy + session resume ---- */
+  if (LIVE_ENABLED) {
+    $('loginPass').placeholder = 'Your CEV Etlab password';
+    var submitBtn = $('loginForm').querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.textContent = 'Sign in';
+    var notice = $('demoNotice');
+    if (notice) {
+      notice.innerHTML = '<strong>Live login available.</strong> Sign in with your CEV Etlab username and password. Credentials go only to the MyCampus Worker, which logs in to cev.etlab.in for you; your password is not stored anywhere. Or explore the demo with sample data.';
+    }
+  }
+
   try {
+    var savedToken = LIVE_ENABLED ? sessionStorage.getItem(LIVE_TOKEN_KEY) : null;
     var saved = sessionStorage.getItem(SESSION_KEY);
-    if (saved) { displayName = saved; showApp(); }
+    if (savedToken) {
+      liveToken = savedToken;
+      loadLiveData().then(function () {
+        showApp();
+      }, function (err) {
+        liveToken = null;
+        try { sessionStorage.removeItem(LIVE_TOKEN_KEY); } catch (e) {}
+        if (err && err.status === 401) showLoginError('Session expired. Please sign in again.');
+      });
+    } else if (saved) { displayName = saved; showApp(); }
   } catch (e) { /* session storage unavailable: stay on login */ }
 })();
