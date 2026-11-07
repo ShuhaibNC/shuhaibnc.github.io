@@ -12,8 +12,8 @@ hero:
       text: About
       link: /about
     - theme: alt
-      text: Projects
-      link: /projects.html
+      text: Portfolio
+      link: /portfolio
       target: "_blank"
   image:
     src: /logo.png
