@@ -123,16 +123,116 @@ html[data-site-theme='paper'].dark {
   --vp-code-block-bg: #f3eee3;
 }
 
-/* ---------- Customisation: font size ---------- */
+/* ---------- Customisation: font size ----------
+   VitePress hardcodes px sizes on body, headings and components, so
+   changing the root font-size alone does nothing visible — override the
+   elements that actually set their own size. The html rules are kept
+   for anything sized in rem. */
 html[data-font-size='small'] {
   font-size: 15px;
 }
 html[data-font-size='large'] {
   font-size: 18px;
 }
+html[data-font-size='small'] body {
+  font-size: 15px;
+}
+html[data-font-size='large'] body {
+  font-size: 18px;
+}
+html[data-font-size='small'] .vp-doc h1 {
+  font-size: 26px;
+}
+html[data-font-size='large'] .vp-doc h1 {
+  font-size: 36px;
+}
+html[data-font-size='small'] .vp-doc h2 {
+  font-size: 21px;
+}
+html[data-font-size='large'] .vp-doc h2 {
+  font-size: 28px;
+}
+html[data-font-size='small'] .vp-doc h3 {
+  font-size: 18px;
+}
+html[data-font-size='large'] .vp-doc h3 {
+  font-size: 23px;
+}
+html[data-font-size='small'] .vp-doc h4 {
+  font-size: 16px;
+}
+html[data-font-size='large'] .vp-doc h4 {
+  font-size: 20px;
+}
+html[data-font-size='small'] .vp-doc blockquote > p {
+  font-size: 15px;
+}
+html[data-font-size='large'] .vp-doc blockquote > p {
+  font-size: 18px;
+}
+html[data-font-size='small'] .VPFeature .title {
+  font-size: 15px;
+}
+html[data-font-size='large'] .VPFeature .title {
+  font-size: 18px;
+}
+html[data-font-size='small'] .VPFeature .details,
+html[data-font-size='small'] .VPFeature .link-text-value {
+  font-size: 13px;
+}
+html[data-font-size='large'] .VPFeature .details,
+html[data-font-size='large'] .VPFeature .link-text-value {
+  font-size: 16px;
+}
+html[data-font-size='small'] .VPHero .name,
+html[data-font-size='small'] .VPHero .text {
+  font-size: 28px;
+}
+html[data-font-size='large'] .VPHero .name,
+html[data-font-size='large'] .VPHero .text {
+  font-size: 38px;
+}
+html[data-font-size='small'] .VPHero .tagline {
+  font-size: 16px;
+}
+html[data-font-size='large'] .VPHero .tagline {
+  font-size: 20px;
+}
+@media (min-width: 640px) {
+  html[data-font-size='small'] .VPHero .name,
+  html[data-font-size='small'] .VPHero .text {
+    font-size: 40px;
+  }
+  html[data-font-size='large'] .VPHero .name,
+  html[data-font-size='large'] .VPHero .text {
+    font-size: 56px;
+  }
+  html[data-font-size='small'] .VPHero .tagline {
+    font-size: 18px;
+  }
+  html[data-font-size='large'] .VPHero .tagline {
+    font-size: 22px;
+  }
+}
+@media (min-width: 960px) {
+  html[data-font-size='small'] .VPHero .name,
+  html[data-font-size='small'] .VPHero .text {
+    font-size: 48px;
+  }
+  html[data-font-size='large'] .VPHero .name,
+  html[data-font-size='large'] .VPHero .text {
+    font-size: 64px;
+  }
+  html[data-font-size='small'] .VPHero .tagline {
+    font-size: 20px;
+  }
+  html[data-font-size='large'] .VPHero .tagline {
+    font-size: 27px;
+  }
+}
 
 /* ---------- Customisation: density ---------- */
-html[data-density='compact'] .VPFeature {
+html[data-density='compact'] .VPFeature .box {
   padding: 16px;
 }
 html[data-density='compact'] .VPFeatures .items {
@@ -143,16 +243,31 @@ html[data-density='compact'] .VPHome .VPHomeHero {
   padding-bottom: 32px;
 }
 
-/* ---------- Customisation: corner radius ---------- */
+/* ---------- Customisation: corner radius ----------
+   VitePress component styles are Vue-scoped (extra [data-v-*] attribute,
+   so a bare .VPFeature rule loses). Prefixing with html[data-radius]
+   outranks them. */
 html[data-radius='sharp'] {
   --site-radius: 4px;
 }
 html[data-radius='rounded'] {
-  --site-radius: 20px;
+  --site-radius: 24px;
 }
-.VPFeature,
-.VPButton,
-.VPNavBarSearch .DocSearch-Button,
-.vp-doc div[class*='language-'] {
+html[data-radius='sharp'] .VPFeature,
+html[data-radius='rounded'] .VPFeature,
+html[data-radius='sharp'] .VPButton.medium,
+html[data-radius='rounded'] .VPButton.medium,
+html[data-radius='sharp'] .VPButton.big,
+html[data-radius='rounded'] .VPButton.big,
+html[data-radius='sharp'] .vp-doc div[class*='language-'],
+html[data-radius='rounded'] .vp-doc div[class*='language-'],
+html[data-radius='sharp'] .vp-doc .custom-block,
+html[data-radius='rounded'] .vp-doc .custom-block,
+html[data-radius='sharp'] .VPNavBarSearch .DocSearch-Button,
+html[data-radius='rounded'] .VPNavBarSearch .DocSearch-Button {
   border-radius: var(--site-radius);
+}
+html[data-radius='sharp'] .VPFeature .icon,
+html[data-radius='rounded'] .VPFeature .icon {
+  border-radius: calc(var(--site-radius) / 2);
 }
