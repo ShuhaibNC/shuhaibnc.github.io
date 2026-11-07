@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyCampus Web: CEV Etlab portal client</title>
+  <meta name="description" content="MyCampus Web: attendance, timetable, series results and profile for CEV MCA students, in your browser. Demo mode with sample data." />
+  <link rel="icon" href="/icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="/theme-init.js"></script>
+  <script>
+    /* MyCampus-only prefs (font family, content width) applied before
+     * first paint, from the separate 'mycampus-prefs-v1' key so the
+     * shared site key stays compatible with the main site. */
+    (function () {
+      try {
+        var p = JSON.parse(localStorage.getItem('mycampus-prefs-v1') || '{}') || {};
+        var root = document.documentElement;
+        root.dataset.mcFont = p.font || 'inter';
+        root.dataset.mcWidth = p.width || 'narrow';
+      } catch (e) { /* fall back to defaults */ }
+    })();
+  </script>
+</head>
+<body>
+  <header class="topnav">
+    <a class="brand" href="/mycampus/" aria-label="MyCampus Web home">
+      <span class="brand-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
+      </span>
+      <span>MyCampus <small>CEV Etlab portal client</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <button type="button" class="nav-tab" data-tab="home">Home</button>
+      <button type="button" class="nav-tab" data-tab="attendance">Attendance</button>
+      <button type="button" class="nav-tab" data-tab="timetable">Timetable</button>
+      <button type="button" class="nav-tab" data-tab="results">Results</button>
+      <button type="button" class="nav-tab" data-tab="profile">Profile</button>
+      <a class="nav-ext" href="/" target="_blank" rel="noopener">Home site</a>
+      <a class="nav-ext" href="https://shuhaibnc.github.io/MCA" target="_blank" rel="noopener">MCA Hub</a>
+      <a class="nav-ext" href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <button type="button" class="palette-btn" id="paletteBtn" aria-label="Theme and customisation" title="Theme and customisation" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none" />
+        <circle cx="16" cy="10" r="1" fill="currentColor" stroke="none" />
+        <path d="M12 22C6.5 21.5 4 17.5 5.5 13.5c.8-2.2 2.5-3.5 5-3.5 3.5 0 6 2 6.5 5.5.3 2-.5 4.5-2.5 6.5" />
+      </svg>
+    </button>
+  </header>
+
+  <div id="themePanel" class="theme-panel hidden" role="dialog" aria-label="Theme and customisation"></div>
+
+  <!-- ============ Login ============ -->
+  <div id="loginView" class="login-wrap">
+    <div class="login-hero">
+      <div class="logo-mark" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
+      </div>
+      <h1>My<span>Campus</span> Web</h1>
+      <p class="tagline">Your CEV Etlab portal: attendance, timetable, results and profile, in the browser.</p>
+      <p style="margin-top:10px;"><span class="demo-tag">Demo</span></p>
+    </div>
+
+    <div class="card">
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="loginName">Name or username</label>
+          <input id="loginName" type="text" placeholder="e.g. SHUHAIB N C" />
+        </div>
+        <div class="field">
+          <label for="loginPass">Password</label>
+          <input id="loginPass" type="password" placeholder="Demo only, nothing is sent anywhere" />
+        </div>
+        <button type="submit" class="btn btn-brand btn-block">Sign in to demo</button>
+        <div style="height:10px"></div>
+        <button type="button" class="btn btn-block" id="demoBtn">Explore demo</button>
+      </form>
+    </div>
+
+    <div class="demo-notice">
+      <strong>Demo: sample data.</strong> A browser cannot log in to cev.etlab.in
+      directly (no CORS, session cookies), and no credentials are ever sent to
+      any proxy. This web version runs on sample data only. Live portal login
+      works in the <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">Android app</a>.
+      Nothing you type here is stored or sent anywhere.
+    </div>
+
+    <div class="login-links">
+      <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">Android app on GitHub</a>
+      <a href="https://cev.etlab.in" target="_blank" rel="noopener">cev.etlab.in portal</a>
+      <a href="https://shuhaibnc.github.io/MCA" target="_blank" rel="noopener">MCA Notes Hub</a>
+    </div>
+  </div>
+
+  <!-- ============ App ============ -->
+  <div id="appView" class="hidden">
+    <main id="main">
+      <section id="tab-home" class="tab-page">
+        <div class="page-head">
+          <h1 id="homeGreet">Good day</h1>
+          <p id="homeDate"></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card home-hero">
+          <div class="ring-wrap">
+            <div class="ring" role="img" aria-label="Overall attendance">
+              <svg width="104" height="104" viewBox="0 0 104 104">
+                <circle cx="52" cy="52" r="44" fill="none" stroke="var(--vp-c-bg-soft)" stroke-width="10" />
+                <circle id="ringFg" cx="52" cy="52" r="44" fill="none" stroke="var(--vp-c-brand-1)" stroke-width="10" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5" />
+              </svg>
+              <div class="ring-center">
+                <span class="ring-pct" id="ringPct">–</span>
+                <span class="ring-label">attendance</span>
+              </div>
+            </div>
+            <div class="ring-side">
+              <div class="big" id="ringSub">Semester 3 overall</div>
+              <p class="muted" id="ringHours"></p>
+              <p class="muted" style="margin-top:6px;">Tap a subject chart below or open Attendance for the full breakdown. <span class="demo-tag">Demo data</span></p>
+            </div>
+          </div>
+          <button type="button" class="btn" id="homeGoAttendance">View attendance</button>
+        </div>
+
+        <div class="card">
+          <h2>Today's classes</h2>
+          <p class="card-sub" id="todaySub"></p>
+          <div id="todayBox"></div>
+        </div>
+
+        <div class="card">
+          <h2>Subject attendance</h2>
+          <p class="card-sub">Semester 3 · tap a row to open Attendance</p>
+          <div id="chartBox"></div>
+        </div>
+
+        <div class="card">
+          <h2>Attendance by date</h2>
+          <p class="card-sub">October 2026 · tap a day to see its periods</p>
+          <div class="week-nav">
+            <button type="button" id="weekPrev" aria-label="Previous week">&#8249;</button>
+            <span class="week-label" id="weekLabel"></span>
+            <button type="button" id="weekNext" aria-label="Next week">&#8250;</button>
+          </div>
+          <div class="week-strip" id="weekStrip"></div>
+          <div id="weekDetail" style="margin-top:8px;"></div>
+        </div>
+
+        <div class="quick-grid" id="quickGrid"></div>
+      </section>
+
+      <section id="tab-attendance" class="tab-page hidden">
+        <div class="page-head">
+          <h1>Attendance</h1>
+          <p>Subject-wise attendance from the portal <span class="demo-tag">Demo data</span></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card">
+          <div class="sem-row">
+            <div class="field">
+              <label for="attSem">Semester</label>
+              <select id="attSem"></select>
+            </div>
+            <span class="muted" id="attSemNote"></span>
+          </div>
+          <div class="overall-line">
+            <span class="big-pct" id="attOverallPct">–</span>
+            <span class="muted" id="attOverallHours"></span>
+          </div>
+          <div class="bar"><span id="attOverallBar" style="width:0%"></span></div>
+          <div id="attSubjects" style="margin-top:8px;"></div>
+        </div>
+        <div class="card">
+          <h2 id="monthTitle">October 2026</h2>
+          <p class="card-sub">Day-wise grid · rows are days, columns are Period 1–7 · a blank cell is never an absence</p>
+          <div class="month-grid-wrap">
+            <table class="month-grid" id="monthGrid"></table>
+          </div>
+          <div class="legend" id="monthLegend"></div>
+        </div>
+      </section>
+
+      <section id="tab-timetable" class="tab-page hidden">
+        <div class="page-head">
+          <h1>Timetable</h1>
+          <p>Semester 3 · Monday to Friday · lunch 13:15 – 14:00 <span class="demo-tag">Demo data</span></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card" id="ttBox"></div>
+      </section>
+
+      <section id="tab-results" class="tab-page hidden">
+        <div class="page-head">
+          <h1>Series results</h1>
+          <p>Internal (sessional) exam marks <span class="demo-tag">Demo data</span></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card">
+          <div class="sem-row">
+            <div class="field">
+              <label for="resSem">Semester</label>
+              <select id="resSem"></select>
+            </div>
+            <span class="muted">Marks are grouped by series exam, as on the portal.</span>
+          </div>
+          <div id="resultsBox" style="margin-top:8px;"></div>
+        </div>
+      </section>
+
+      <section id="tab-profile" class="tab-page hidden">
+        <div class="page-head">
+          <h1>Profile</h1>
+          <p>Student details from the portal <span class="demo-tag">Demo data</span></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card">
+          <div class="profile-head">
+            <div class="avatar" id="profileAvatar">SN</div>
+            <div>
+              <h2 id="profileName">SHUHAIB N C</h2>
+              <p class="muted" id="profileSub">MCA · Semester 3 · Roll 26M018</p>
+            </div>
+          </div>
+          <div style="height:16px"></div>
+          <dl id="profileKv"></dl>
+        </div>
+        <div class="card">
+          <h2>Appearance</h2>
+          <p class="card-sub">Themes, accent, text size, density, corners, font and width, and the same choices follow you to the main site.</p>
+          <button type="button" class="btn" id="profileOpenThemes">Open theme picker</button>
+        </div>
+        <div class="card">
+          <h2>About</h2>
+          <p class="muted">MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. This web version runs in demo mode with sample data; a browser cannot log in to cev.etlab.in, so live portal login works in the Android app only. Source: <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>.</p>
+          <div class="profile-actions">
+            <button type="button" class="btn btn-brand" id="signOutBtn">Sign out</button>
+            <a class="btn" href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">Android app</a>
+            <a class="btn" href="https://cev.etlab.in" target="_blank" rel="noopener">cev.etlab.in</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-foot">
+      MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Live login works in the Android app · <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>
+    </footer>
+  </div>
+
+  <!-- ============ Bottom tab bar (mobile) ============ -->
+  <nav class="tabbar" id="tabbar" aria-label="Sections">
+    <button type="button" data-tab="home" class="active">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+      Home
+    </button>
+    <button type="button" data-tab="attendance">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+      Attendance
+    </button>
+    <button type="button" data-tab="timetable">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+      Timetable
+    </button>
+    <button type="button" data-tab="results">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
+      Results
+    </button>
+    <button type="button" data-tab="profile">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </button>
+  </nav>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

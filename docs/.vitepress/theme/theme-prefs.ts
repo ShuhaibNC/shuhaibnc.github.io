@@ -41,7 +41,13 @@ export const THEMES: ThemeDef[] = [
   { id: 'midnight', name: 'Midnight', desc: 'Deep navy dark', swatch: ['#0a1128', '#7cb3ff'] },
   { id: 'forest', name: 'Forest', desc: 'Deep green dark', swatch: ['#0a1a12', '#4ade80'] },
   { id: 'mocha', name: 'Catppuccin Mocha', desc: 'Warm dark, mauve accent', swatch: ['#1e1e2e', '#cba6f7'] },
-  { id: 'paper', name: 'Paper', desc: 'Warm light, amber accent', swatch: ['#faf7f0', '#b45309'] }
+  { id: 'paper', name: 'Paper', desc: 'Warm light, amber accent', swatch: ['#faf7f0', '#b45309'] },
+  { id: 'nord', name: 'Nord', desc: 'Cool arctic dark', swatch: ['#2e3440', '#88c0d0'] },
+  { id: 'dracula', name: 'Dracula', desc: 'Dark purple, pink accent', swatch: ['#282a36', '#ff79c6'] },
+  { id: 'solarized', name: 'Solarized Dark', desc: 'Classic low-contrast dark', swatch: ['#002b36', '#268bd2'] },
+  { id: 'rosepine', name: 'Rose Pine', desc: 'Muted plum dark', swatch: ['#191724', '#ebbcba'] },
+  { id: 'gruvbox', name: 'Gruvbox', desc: 'Warm retro dark', swatch: ['#282828', '#fabd2f'] },
+  { id: 'ocean', name: 'Ocean', desc: 'Deep blue dark', swatch: ['#0b1e33', '#38bdf8'] }
 ]
 
 export interface AccentDef {
