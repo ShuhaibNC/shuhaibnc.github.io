@@ -5,6 +5,20 @@
 > Personal knowledge base, cybersecurity notes, project docs, and curated resources.  
 > **Live Site:** [shuhaibnc.github.io](https://shuhaibnc.github.io)
 
+## Themes
+
+The palette button in the top bar opens the theme picker: **Default** (the
+current look — this stays the default for every visitor), **AMOLED**,
+**Midnight**, **Forest**, **Catppuccin Mocha**, and **Paper**, plus accent
+colour, text size, density, and corner radius. Choices are saved in the
+browser (`localStorage`, key `shuhaib-site-prefs-v1`) and applied before
+first paint by `docs/public/theme-init.js`, so there is no flash. The same
+choice follows the visitor to `/patches/`, which has its own theme bar with
+the same themes (its Default is the existing dark `#121212` look). Theme
+definitions live in `docs/.vitepress/theme/themes.css` (main site) and in
+`~/workspace/morphe-patches-site/build-patches-page.py` (patches page —
+edit the generator, not the built HTML).
+
 ---
 
 ## 🗺️ Table of Contents

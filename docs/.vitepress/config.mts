@@ -10,6 +10,8 @@ export default defineConfig({
     hostname: 'https://shuhaibnc.github.io'
   },
   head: [
+    // Theme init first: applies a saved theme before first paint (no flash).
+    ['script', { src: '/theme-init.js' }],
     ['meta', { name: 'theme-color', content: '#7bc5e4' }],
     ['meta', { name: 'og:type', content: 'website' }],
     ['meta', { name: 'og:locale', content: 'en' }],

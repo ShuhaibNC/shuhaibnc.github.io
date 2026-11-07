@@ -1,0 +1,158 @@
+/* Site themes + customisation for shuhaibnc.github.io.
+ *
+ * "default" is deliberately empty: with no data-site-theme overrides the
+ * site looks exactly as it always did (VitePress default, light/dark
+ * following the built-in toggle). Every other theme is scoped to
+ * html[data-site-theme="<id>"] so it only applies when the visitor picks
+ * it, and the choice is saved in localStorage (see theme-prefs.ts and
+ * public/theme-init.js). Theme selectors outrank VitePress's .dark rules
+ * (html + attribute beats a lone class), so a picked theme holds in
+ * either light or dark mode; Paper re-lights even .dark the same way.
+ */
+
+:root {
+  --site-radius: 12px;
+}
+
+/* ---------- AMOLED: pure black ---------- */
+html[data-site-theme='amoled'] {
+  color-scheme: dark;
+  --vp-c-bg: #000000;
+  --vp-c-bg-alt: #0a0a0a;
+  --vp-c-bg-elv: #111111;
+  --vp-c-bg-soft: #0d0d0d;
+  --vp-c-border: #262626;
+  --vp-c-divider: #262626;
+  --vp-c-gutter: #333333;
+  --vp-c-text-1: #f2f2f2;
+  --vp-c-text-2: #b3b3b3;
+  --vp-c-text-3: #808080;
+  --vp-c-brand-1: #64b5f6;
+  --vp-c-brand-2: #42a5f5;
+  --vp-c-brand-3: #1e88e5;
+  --vp-c-brand-soft: rgba(100, 181, 246, 0.14);
+  --vp-code-bg: #0a0a0a;
+  --vp-code-block-bg: #0a0a0a;
+}
+
+/* ---------- Midnight: deep navy ---------- */
+html[data-site-theme='midnight'] {
+  color-scheme: dark;
+  --vp-c-bg: #0a1128;
+  --vp-c-bg-alt: #0d1530;
+  --vp-c-bg-elv: #111c3d;
+  --vp-c-bg-soft: #0e1734;
+  --vp-c-border: #1e2a52;
+  --vp-c-divider: #1e2a52;
+  --vp-c-gutter: #2a3a68;
+  --vp-c-text-1: #e6ebf5;
+  --vp-c-text-2: #aab6d3;
+  --vp-c-text-3: #7c8aa8;
+  --vp-c-brand-1: #7cb3ff;
+  --vp-c-brand-2: #5b9dff;
+  --vp-c-brand-3: #3d84f0;
+  --vp-c-brand-soft: rgba(124, 179, 255, 0.14);
+  --vp-code-bg: #0d1530;
+  --vp-code-block-bg: #0d1530;
+}
+
+/* ---------- Forest: deep green ---------- */
+html[data-site-theme='forest'] {
+  color-scheme: dark;
+  --vp-c-bg: #0a1a12;
+  --vp-c-bg-alt: #0d2118;
+  --vp-c-bg-elv: #12291d;
+  --vp-c-bg-soft: #0e241a;
+  --vp-c-border: #1e3d2c;
+  --vp-c-divider: #1e3d2c;
+  --vp-c-gutter: #2a5240;
+  --vp-c-text-1: #e6f2ea;
+  --vp-c-text-2: #a9c4b2;
+  --vp-c-text-3: #7a9a86;
+  --vp-c-brand-1: #4ade80;
+  --vp-c-brand-2: #22c55e;
+  --vp-c-brand-3: #16a34a;
+  --vp-c-brand-soft: rgba(74, 222, 128, 0.14);
+  --vp-code-bg: #0d2118;
+  --vp-code-block-bg: #0d2118;
+}
+
+/* ---------- Catppuccin Mocha (mauve) ----------
+   Values from the already-installed @catppuccin/vitepress mocha/mauve
+   theme, re-scoped here so it can be picked at runtime instead of
+   baked in at build time. */
+html[data-site-theme='mocha'] {
+  color-scheme: dark;
+  --vp-c-bg: #1e1e2e;
+  --vp-c-bg-alt: #181825;
+  --vp-c-bg-elv: #11111b;
+  --vp-c-bg-soft: #181825;
+  --vp-c-border: #313244;
+  --vp-c-divider: #313244;
+  --vp-c-gutter: #45475a;
+  --vp-c-text-1: #cdd6f4;
+  --vp-c-text-2: #bac2de;
+  --vp-c-text-3: #a6adc8;
+  --vp-c-brand-1: #cba6f7;
+  --vp-c-brand-2: #b48cf5;
+  --vp-c-brand-3: #9d6ff0;
+  --vp-c-brand-soft: rgba(203, 166, 247, 0.14);
+  --vp-code-bg: #181825;
+  --vp-code-block-bg: #181825;
+}
+
+/* ---------- Paper: warm light (forces light even in dark mode) ---------- */
+html[data-site-theme='paper'],
+html[data-site-theme='paper'].dark {
+  color-scheme: light;
+  --vp-c-bg: #faf7f0;
+  --vp-c-bg-alt: #f3eee3;
+  --vp-c-bg-elv: #fffdf7;
+  --vp-c-bg-soft: #f3eee3;
+  --vp-c-border: #ddd5c2;
+  --vp-c-divider: #ddd5c2;
+  --vp-c-gutter: #cfc5ac;
+  --vp-c-text-1: #2b2620;
+  --vp-c-text-2: #57503f;
+  --vp-c-text-3: #7d7462;
+  --vp-c-brand-1: #b45309;
+  --vp-c-brand-2: #92400e;
+  --vp-c-brand-3: #78350f;
+  --vp-c-brand-soft: rgba(180, 83, 9, 0.14);
+  --vp-code-bg: #f3eee3;
+  --vp-code-block-bg: #f3eee3;
+}
+
+/* ---------- Customisation: font size ---------- */
+html[data-font-size='small'] {
+  font-size: 15px;
+}
+html[data-font-size='large'] {
+  font-size: 18px;
+}
+
+/* ---------- Customisation: density ---------- */
+html[data-density='compact'] .VPFeature {
+  padding: 16px;
+}
+html[data-density='compact'] .VPFeatures .items {
+  gap: 12px;
+}
+html[data-density='compact'] .VPHome .VPHomeHero {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+/* ---------- Customisation: corner radius ---------- */
+html[data-radius='sharp'] {
+  --site-radius: 4px;
+}
+html[data-radius='rounded'] {
+  --site-radius: 20px;
+}
+.VPFeature,
+.VPButton,
+.VPNavBarSearch .DocSearch-Button,
+.vp-doc div[class*='language-'] {
+  border-radius: var(--site-radius);
+}
