@@ -105,7 +105,6 @@ select{padding:11px;border-radius:10px;border:1px solid var(--line);background:v
 .pdesc{color:var(--muted);font-size:13px;margin-top:2px}
 .popts{font-size:12px;color:var(--muted);margin-top:4px}
 .popts span{background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin-right:4px}
-.default-tag{font-size:11px;color:var(--green);font-weight:700;margin-left:6px}
 h2.sec{font-size:20px;margin:32px 0 12px}
 footer{color:var(--muted);font-size:13px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
 .empty{color:var(--muted);text-align:center;padding:40px 0}
@@ -253,7 +252,7 @@ function catOf(p){
 var DATA = null, CAT = "all";
 function patchHTML(p){
   var opts = (p.options||[]).length ? '<div class="popts">Options: ' + p.options.map(function(o){return "<span>"+esc(o)+"</span>";}).join("") + "</div>" : "";
-  return '<li><div class="pname">'+esc(p.name)+(p["default"]?'<span class="default-tag">ON BY DEFAULT</span>':"")+'</div>'
+  return '<li><div class="pname">'+esc(p.name)+'</div>'
     + '<div class="pdesc">'+esc(p.desc)+'</div>' + opts + '</li>';
 }
 function cardHTML(a, idx){
