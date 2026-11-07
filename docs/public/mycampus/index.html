@@ -140,7 +140,7 @@
 
         <div class="card">
           <h2>Attendance by date</h2>
-          <p class="card-sub">October 2026 · tap a day to see its periods</p>
+          <p class="card-sub">Tap a day to see its periods</p>
           <div class="week-nav">
             <button type="button" id="weekPrev" aria-label="Previous week">&#8249;</button>
             <span class="week-label" id="weekLabel"></span>
@@ -175,12 +175,17 @@
           <div id="attSubjects" style="margin-top:8px;"></div>
         </div>
         <div class="card">
-          <h2 id="monthTitle">October 2026</h2>
+          <div class="week-nav">
+            <button type="button" id="monthPrev" aria-label="Previous month">&#8249;</button>
+            <span class="week-label" id="monthTitle">October 2026</span>
+            <button type="button" id="monthNext" aria-label="Next month">&#8250;</button>
+          </div>
           <p class="card-sub">Day-wise grid · rows are days, columns are Period 1–7 · a blank cell is never an absence</p>
           <div class="month-grid-wrap">
             <table class="month-grid" id="monthGrid"></table>
           </div>
           <div class="legend" id="monthLegend"></div>
+          <p class="muted hidden" id="monthNote" style="margin-top:8px;"></p>
         </div>
       </section>
 

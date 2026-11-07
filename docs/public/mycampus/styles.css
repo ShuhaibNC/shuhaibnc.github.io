@@ -456,7 +456,11 @@ main {
   border: 1px solid var(--vp-c-border);
   border-radius: var(--site-radius);
   padding: 20px;
+  margin-bottom: 16px;
 }
+/* The login card sits in .login-wrap, a flex column with a 16px gap
+ * already, so its margin is dropped there to avoid a doubled 32px gap. */
+.login-wrap .card { margin-bottom: 0; }
 .card h2 { font-size: 18px; margin-bottom: 4px; }
 .card h3 { font-size: 15px; }
 .card .card-sub { color: var(--vp-c-text-2); font-size: 14px; margin-bottom: 12px; }
@@ -619,6 +623,7 @@ main {
   font-size: 16px;
   cursor: pointer;
 }
+.week-nav button:disabled { opacity: 0.4; cursor: default; }
 .week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .week-day {
   display: flex;

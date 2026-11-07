@@ -181,9 +181,10 @@ var MC_DATA = (function () {
     4: []
   };
 
-  /* ---------------- monthly attendance: October 2026 ----------------
-   * Deterministic (seeded) demo grid built from the timetable above.
+  /* ---------------- monthly attendance: Aug–Nov 2026 (Sem 3) ----------------
+   * Deterministic (seeded) demo grids built from the timetable above.
    * Sundays and 2 Oct (Gandhi Jayanti) are holidays: blank cells.
+   * Demo data ends 7 Nov 2026: later November days are blank N/A cells.
    *
    * Blank-cell rule (from Android b24): a cell with no visible text can
    * NEVER read as Absent. Empty cells are N/A (grey) or Holiday (light),
@@ -207,19 +208,30 @@ var MC_DATA = (function () {
     };
   }
 
-  function buildMonthly() {
-    var year = 2026, month = 9; /* October (0-based) */
-    var daysInMonth = 31;
-    var holidays = { 2: 'Gandhi Jayanti' };
-    var rand = mulberry32(202610);
+  var MONTH_FULL = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  var MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function buildMonthly(year, monthIndex) {
+    var daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    var holidays = (year === 2026 && monthIndex === 9) ? { 2: 'Gandhi Jayanti' } : {};
+    /* Sem 3 demo data ends 7 Nov 2026: later days are blank N/A cells
+     * with no subject, never fake Present. */
+    var cutoff = (year === 2026 && monthIndex === 10) ? 7 : daysInMonth;
+    var rand = mulberry32(year * 100 + (monthIndex + 1));
     var days = [];
     for (var d = 1; d <= daysInMonth; d++) {
-      var date = new Date(year, month, d);
+      var date = new Date(year, monthIndex, d);
       var dow = (date.getDay() + 6) % 7; /* Mon=0 .. Sun=6 */
       var periods = [];
       var isHoliday = (dow === 6) || !!holidays[d];
+      var afterCutoff = d > cutoff;
       for (var p = 1; p <= 7; p++) {
-        if (isHoliday) {
+        if (afterCutoff) {
+          /* Past the demo cutoff: blank cell, N/A, never a status. */
+          periods.push({ p: p, s: 'N', sub: '' });
+        } else if (isHoliday) {
           /* Holiday: blank cell, never Absent. */
           periods.push({ p: p, s: 'H', sub: '' });
         } else {
@@ -236,24 +248,37 @@ var MC_DATA = (function () {
       }
       days.push({
         d: d,
-        label: d + ' Oct 2026',
+        label: d + ' ' + MONTH_SHORT[monthIndex] + ' ' + year,
         weekday: DAY_LABELS[dow],
-        holiday: isHoliday ? (holidays[d] || 'Sunday') : '',
+        holiday: afterCutoff ? '' : (isHoliday ? (holidays[d] || 'Sunday') : ''),
         periods: periods
       });
     }
-    return { month: 'October 2026', year: year, monthIndex: month, days: days };
+    return { month: MONTH_FULL[monthIndex] + ' ' + year, year: year, monthIndex: monthIndex, days: days };
   }
 
-  var MONTHLY = buildMonthly();
+  var MONTHS = {
+    '2026-08': buildMonthly(2026, 7),
+    '2026-09': buildMonthly(2026, 8),
+    '2026-10': buildMonthly(2026, 9),
+    '2026-11': buildMonthly(2026, 10)
+  };
+  var MONTH_ORDER = ['2026-08', '2026-09', '2026-10', '2026-11'];
+  /* Latest month, kept for compat with code that reads a single month. */
+  var MONTHLY = MONTHS['2026-11'];
+
+  function monthKeyOfDate(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+  }
 
   function findDay(date) {
-    /* Month must match too: days spilling over a month boundary never
-     * borrow another day's data (same rule as HomeFragment.findDay). */
-    if (date.getFullYear() !== MONTHLY.year || date.getMonth() !== MONTHLY.monthIndex) return null;
+    /* The month must match too: days never borrow another month's data
+     * (same rule as HomeFragment.findDay). */
+    var m = MONTHS[monthKeyOfDate(date)];
+    if (!m) return null;
     var dom = date.getDate();
-    for (var i = 0; i < MONTHLY.days.length; i++) {
-      if (MONTHLY.days[i].d === dom) return MONTHLY.days[i];
+    for (var i = 0; i < m.days.length; i++) {
+      if (m.days[i].d === dom) return m.days[i];
     }
     return null;
   }
@@ -272,6 +297,8 @@ var MC_DATA = (function () {
     RESULTS: RESULTS,
     STATUS_COLORS: STATUS_COLORS,
     STATUS_WORDS: STATUS_WORDS,
+    MONTHS: MONTHS,
+    MONTH_ORDER: MONTH_ORDER,
     MONTHLY: MONTHLY,
     findDay: findDay
   };

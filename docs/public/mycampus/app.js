@@ -347,26 +347,22 @@
     return 'theory';
   }
 
-  /* Build a MC_DATA-shaped object from Worker responses so every render
-   * function works unchanged in live mode. */
-  function buildLiveData(profileRes, attRes, monthlyRes, ttRes, resRes) {
-    var pd = (profileRes && profileRes.profile_details) || {};
-    var att = attRes || {};
-    var rows = rowsFromAttendance(att);
-
+  /* Adapt a Worker monthly response ({month, days, requestedMonth?,
+   * servedMonth?}) into the MC_DATA monthly shape. Shared by the
+   * initial live load and month navigation. */
+  function adaptMonthly(monthlyRes) {
     var monthParts = String((monthlyRes && monthlyRes.month) || '').split(' ');
     var monthName = monthParts[0] || '';
     var year = parseInt(monthParts[1], 10) || new Date().getFullYear();
-    var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+    var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'];
-    var monthIndex = MONTHS.indexOf(monthName);
+    var monthIndex = MONTH_NAMES.indexOf(monthName);
     if (monthIndex < 0) monthIndex = new Date().getMonth();
-
-    var monthly = {
-      month: monthlyRes.month || '',
+    return {
+      month: (monthlyRes && monthlyRes.month) || '',
       year: year,
       monthIndex: monthIndex,
-      days: (monthlyRes.days || []).map(function (day) {
+      days: ((monthlyRes && monthlyRes.days) || []).map(function (day) {
         var date = new Date(year, monthIndex, day.d);
         var allHoliday = day.periods.length > 0 &&
           day.periods.every(function (p) { return p.s === 'H' && !p.sub; });
@@ -377,8 +373,23 @@
           holiday: allHoliday ? 'Holiday' : '',
           periods: day.periods
         };
-      })
+      }),
+      requestedMonth: (monthlyRes && monthlyRes.requestedMonth) || '',
+      servedMonth: (monthlyRes && monthlyRes.servedMonth) || ''
     };
+  }
+
+  /* Build a MC_DATA-shaped object from Worker responses so every render
+   * function works unchanged in live mode. */
+  function buildLiveData(profileRes, attRes, monthlyRes, ttRes, resRes) {
+    var pd = (profileRes && profileRes.profile_details) || {};
+    var att = attRes || {};
+    var rows = rowsFromAttendance(att);
+
+    var monthly = adaptMonthly(monthlyRes);
+    var initialMonthKey = monthKeyOf(monthly.year, monthly.monthIndex);
+    var liveMonths = {};
+    liveMonths[initialMonthKey] = monthly;
 
     var tt = {};
     var rawTt = ttRes || {};
@@ -427,11 +438,14 @@
       STATUS_COLORS: MC_DATA.STATUS_COLORS,
       STATUS_WORDS: MC_DATA.STATUS_WORDS,
       MONTHLY: monthly,
+      MONTHS: liveMonths,
+      MONTH_ORDER: [initialMonthKey],
       findDay: function (date) {
-        if (date.getFullYear() !== monthly.year || date.getMonth() !== monthly.monthIndex) return null;
+        var m = liveMonths[monthKeyOf(date.getFullYear(), date.getMonth())];
+        if (!m) return null;
         var dom = date.getDate();
-        for (var i = 0; i < monthly.days.length; i++) {
-          if (monthly.days[i].d === dom) return monthly.days[i];
+        for (var i = 0; i < m.days.length; i++) {
+          if (m.days[i].d === dom) return m.days[i];
         }
         return null;
       }
@@ -547,6 +561,19 @@
   /* ================= helpers ================= */
   function fmtDate(d) {
     return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  /* 'YYYY-MM' key for a (year, 0-based monthIndex) pair. */
+  function monthKeyOf(year, monthIndex) {
+    return year + '-' + String(monthIndex + 1).padStart(2, '0');
+  }
+  /* '2026-10' -> 'October 2026', for the live month-fallback note. */
+  function monthNameOfKey(key) {
+    var parts = String(key || '').split('-');
+    var names = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
+    var mi = parseInt(parts[1], 10) - 1;
+    if (parts.length !== 2 || mi < 0 || mi > 11) return key;
+    return names[mi] + ' ' + parts[0];
   }
   function pct(present, total) {
     return total === 0 ? 0 : (present * 100 / total);
@@ -733,6 +760,15 @@
 
   /* ================= Attendance ================= */
   var attSem = 3;
+  /* Results has its OWN semester state: the two pickers must never
+   * bleed into each other (both default to 3 independently). */
+  var resSemVal = 3;
+  /* Monthly grid state: monthKeys is the ordered list of available
+   * months ('YYYY-MM'), monthKey the displayed one, monthNotice a
+   * short note under the grid (live fallback only). */
+  var monthKeys = [];
+  var monthKey = '';
+  var monthNotice = '';
 
   function fillSemSelect(sel, current) {
     var html = '';
@@ -744,7 +780,6 @@
 
   function renderAttendance() {
     fillSemSelect($('attSem'), attSem);
-    fillSemSelect($('resSem'), attSem);
     var rows = D.ATTENDANCE[attSem];
     var box = $('attSubjects');
     if (!rows || !rows.length) {
@@ -775,13 +810,44 @@
     renderMonthly();
   }
 
+  /* Monthly grid state: monthKeys is D.MONTH_ORDER, monthKey the
+   * displayed month. Defaults to the latest available month. */
+  function ensureMonthState() {
+    var order = (D.MONTH_ORDER || []).slice();
+    if (!order.length) { monthKeys = []; monthKey = ''; return; }
+    monthKeys = order;
+    if (!monthKey || monthKeys.indexOf(monthKey) < 0) monthKey = monthKeys[monthKeys.length - 1];
+  }
+
+  function getDisplayedMonth() {
+    if (D.MONTHS && monthKey && D.MONTHS[monthKey]) return D.MONTHS[monthKey];
+    return D.MONTHLY;
+  }
+
   function renderMonthly() {
-    $('monthTitle').textContent = D.MONTHLY.month;
+    ensureMonthState();
+    var m = getDisplayedMonth();
     var grid = $('monthGrid');
+    var legend = $('monthLegend');
+    var note = $('monthNote');
+    if (!m) {
+      $('monthTitle').textContent = 'Attendance by date';
+      grid.innerHTML = '';
+      legend.innerHTML = '';
+      if (note) { note.textContent = ''; note.classList.add('hidden'); }
+      return;
+    }
+    $('monthTitle').textContent = m.month;
+    var idx = monthKeys.indexOf(monthKey);
+    /* Demo months are bounded by MONTH_ORDER. In live mode the portal
+     * may hold earlier months, so Prev stays enabled there; Next is
+     * disabled at the latest known month in both modes. */
+    $('monthPrev').disabled = liveMode ? false : idx <= 0;
+    $('monthNext').disabled = idx < 0 || idx >= monthKeys.length - 1;
     var html = '<thead><tr><th>Day</th>';
     for (var p = 1; p <= 7; p++) html += '<th>Period ' + p + '</th>';
     html += '</tr></thead><tbody>';
-    D.MONTHLY.days.forEach(function (day) {
+    m.days.forEach(function (day) {
       html += '<tr><td class="day-col">' + day.d + ' ' + day.weekday.slice(0, 3) + '</td>';
       day.periods.forEach(function (per) {
         if (!per.sub) {
@@ -797,12 +863,80 @@
     html += '</tbody>';
     grid.innerHTML = html;
 
-    var legend = '';
+    var lg = '';
     ['P', 'A', 'L', 'N', 'H', 'D', 'O', 'S', 'V'].forEach(function (s) {
-      legend += '<span class="lg"><span class="sw" style="background:' + D.STATUS_COLORS[s] + '"></span>' + s + ' ' + D.STATUS_WORDS[s] + '</span>';
+      lg += '<span class="lg"><span class="sw" style="background:' + D.STATUS_COLORS[s] + '"></span>' + s + ' ' + D.STATUS_WORDS[s] + '</span>';
     });
-    $('monthLegend').innerHTML = legend;
+    legend.innerHTML = lg;
+
+    if (note) {
+      if (monthNotice) { note.textContent = monthNotice; note.classList.remove('hidden'); }
+      else { note.textContent = ''; note.classList.add('hidden'); }
+    }
   }
+
+  /* Fetch one live month from the Worker and cache it in D.MONTHS.
+   * If the portal cannot serve the requested month, keep showing the
+   * current month and say which month the portal actually returned. */
+  function loadLiveMonth(key) {
+    if (D.MONTHS && D.MONTHS[key]) {
+      monthKey = key;
+      monthNotice = '';
+      renderMonthly();
+      return;
+    }
+    liveFetch('/api/monthly?month=' + key).then(function (res) {
+      var adapted = adaptMonthly(res);
+      var served = res.servedMonth || monthKeyOf(adapted.year, adapted.monthIndex);
+      if (served !== key) {
+        monthNotice = 'Portal returned ' + monthNameOfKey(served) + '; previous months may not be selectable on the portal.';
+        if (!D.MONTHS) D.MONTHS = {};
+        if (!D.MONTH_ORDER) D.MONTH_ORDER = [];
+        if (!D.MONTHS[served]) {
+          D.MONTHS[served] = adapted;
+          if (D.MONTH_ORDER.indexOf(served) < 0) {
+            D.MONTH_ORDER.push(served);
+            D.MONTH_ORDER.sort();
+          }
+        }
+        renderMonthly();
+        return;
+      }
+      if (!D.MONTHS) D.MONTHS = {};
+      if (!D.MONTH_ORDER) D.MONTH_ORDER = [];
+      D.MONTHS[key] = adapted;
+      if (D.MONTH_ORDER.indexOf(key) < 0) {
+        D.MONTH_ORDER.push(key);
+        D.MONTH_ORDER.sort();
+      }
+      monthKey = key;
+      monthNotice = '';
+      renderMonthly();
+    }).catch(function (err) {
+      if (err && err.status === 401) { signOutToLogin('Session expired. Please sign in again.'); return; }
+      monthNotice = 'Could not load that month. Showing the latest available month.';
+      renderMonthly();
+    });
+  }
+
+  function shiftMonth(delta) {
+    if (!monthKey) return;
+    var parts = monthKey.split('-');
+    var y = parseInt(parts[0], 10);
+    var mi = parseInt(parts[1], 10) - 1 + delta;
+    while (mi < 0) { mi += 12; y -= 1; }
+    while (mi > 11) { mi -= 12; y += 1; }
+    var key = y + '-' + String(mi + 1).padStart(2, '0');
+    if (liveMode) { loadLiveMonth(key); return; }
+    if (monthKeys.indexOf(key) >= 0) {
+      monthKey = key;
+      monthNotice = '';
+      renderMonthly();
+    }
+  }
+
+  $('monthPrev').addEventListener('click', function () { shiftMonth(-1); });
+  $('monthNext').addEventListener('click', function () { shiftMonth(1); });
 
   $('attSem').addEventListener('change', function () {
     attSem = parseInt($('attSem').value, 10);
@@ -831,7 +965,8 @@
 
   /* ================= Results ================= */
   function renderResults() {
-    var sem = parseInt($('resSem').value, 10) || attSem;
+    fillSemSelect($('resSem'), resSemVal);
+    var sem = resSemVal;
     var groups = D.RESULTS[sem] || [];
     var box = $('resultsBox');
     if (!groups.length) {
@@ -860,11 +995,12 @@
   }
 
   $('resSem').addEventListener('change', function () {
-    attSem = parseInt($('resSem').value, 10);
+    /* Results keeps its own semester: changing it must not touch
+     * the Attendance picker or re-render Attendance. */
+    resSemVal = parseInt($('resSem').value, 10);
     if (liveMode) {
-      loadLiveSem(attSem).then(function () { renderAttendance(); renderResults(); }, function () {});
+      loadLiveSem(resSemVal).then(renderResults, function () {});
     } else {
-      renderAttendance();
       renderResults();
     }
   });
