@@ -1065,10 +1065,6 @@
       if (submitLabel) submitLabel.textContent = 'Sign in';
       else submitBtn.textContent = 'Sign in';
     }
-    var notice = $('demoNotice');
-    if (notice) {
-      notice.innerHTML = '<strong>Live login available.</strong> Sign in with your CEV Etlab username and password. Credentials go only to the MyCampus Worker, which logs in to cev.etlab.in for you; your password is not stored anywhere. Or explore the demo with sample data.';
-    }
   }
 
   try {

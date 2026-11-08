@@ -260,6 +260,9 @@ p { margin: 0; }
   margin-left: auto;
 }
 .nav-links a, .nav-links button.nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 12px;
   border-radius: 8px;
   color: var(--vp-c-text-2);
