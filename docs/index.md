@@ -15,6 +15,10 @@ hero:
       text: Portfolio
       link: /portfolio
       target: "_blank"
+    - theme: alt
+      text: Donate
+      link: https://buymeacoffee.com/shuhaibnc
+      target: "_blank"
   image:
     src: /logo.png
     alt: ShuhaibNC
