@@ -33,7 +33,7 @@ features:
       Some Files To Test Your Internet Speed
 
   - title: MCA Notes Hub
-    details: KTU MCA study resources — notes, question papers & lab programs
+    details: "KTU MCA study resources: notes, question papers and lab programs"
     link: https://shuhaibnc.github.io/MCA
     target: "_blank"
     icon: |
@@ -61,14 +61,14 @@ features:
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15h16l-2.5 5h-11z"/><path d="M12 15V6"/><path d="M12 6l6.5 9H12z"/><path d="M2 22.5c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/><title>Ocean</title></svg>
 
   - title: Morphe Patches
-    details: Browse all 32 patches across 20 apps — search, filter and add to Morphe Manager
+    details: Browse all 32 patches across 20 apps, search, filter and add to Morphe Manager
     link: /patches
     target: "_blank"
     icon: |
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><title>Patches</title></svg>
 
   - title: Dex Compare
-    details: Compare APK and DEX files in your browser — class, method and field diffs
+    details: "Compare APK and DEX files in your browser: class, method and field diffs"
     link: /dexcompare
     target: "_blank"
     icon: |
