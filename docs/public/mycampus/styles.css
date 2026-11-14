@@ -326,6 +326,7 @@ p { margin: 0; }
   width: 340px;
   max-width: calc(100vw - 32px);
   max-height: calc(100vh - 90px);
+  max-height: calc(100dvh - 90px);
   overflow-y: auto;
   padding: 16px;
   border: 1px solid var(--vp-c-divider);
@@ -732,11 +733,21 @@ main {
 }
 
 /* ---------- Monthly grid ---------- */
-.month-grid-wrap { overflow-x: auto; margin-top: 12px; }
+.month-grid-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
 table.month-grid { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 13px; }
 .month-grid th, .month-grid td { border: 1px solid var(--vp-c-divider); padding: 5px 4px; text-align: center; }
 .month-grid th { background: var(--vp-c-bg-soft); color: var(--vp-c-text-2); font-weight: 600; white-space: nowrap; }
 .month-grid td.day-col { font-weight: 600; white-space: nowrap; background: var(--vp-c-bg-soft); }
+/* Sticky first (day) column: the day stays visible while the grid is
+ * scrolled sideways on phones. Both cells already have an opaque
+ * background (var(--vp-c-bg-soft)); the shadow marks the seam. */
+.month-grid th:first-child { position: sticky; left: 0; z-index: 2; box-shadow: 1px 0 0 var(--vp-c-divider); }
+.month-grid td.day-col { position: sticky; left: 0; z-index: 1; box-shadow: 1px 0 0 var(--vp-c-divider); }
 .month-grid td.cell { font-weight: 600; font-size: 12px; }
 .month-grid td.cell.empty { background: var(--vp-c-bg-soft); color: var(--vp-c-text-3); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; font-size: 13px; color: var(--vp-c-text-2); }
@@ -797,7 +808,7 @@ footer.site-foot {
   position: fixed;
   left: 0; right: 0; bottom: 0;
   z-index: 50;
-  height: var(--tabbar-height);
+  height: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
   background: var(--vp-c-bg);
   border-top: 1px solid var(--vp-c-divider);
   padding-bottom: env(safe-area-inset-bottom);
@@ -821,18 +832,115 @@ footer.site-foot {
 
 @media (max-width: 719px) {
   .topnav { padding: 0 16px; gap: 8px; }
-  .nav-links .nav-tab, .nav-links .nav-ext { display: none; }
+  .nav-links button.nav-tab, .nav-links a.nav-ext { display: none; }
   .nav-logout-label { display: none; }
   .nav-logout { padding: 0 10px; }
   .brand small { display: none; }
   .tabbar { display: flex; }
-  main { padding: 16px 16px 96px; }
-  .login-wrap { margin-top: 24px; }
+  main { padding: 16px 16px calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .login-wrap { margin-top: 24px; padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  footer.site-foot { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
   .login-hero h1 { font-size: 32px; }
   .chart-row { grid-template-columns: 110px 1fr 48px; }
   .kv { grid-template-columns: 120px 1fr; }
-  .theme-panel { top: auto; bottom: calc(var(--tabbar-height) + 10px); right: 8px; left: 8px; width: auto; }
+  .theme-panel {
+    top: auto;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 10px);
+    right: 8px; left: 8px; width: auto;
+    max-height: calc(100vh - var(--tabbar-height) - env(safe-area-inset-bottom, 0px) - 24px);
+    max-height: calc(100dvh - var(--tabbar-height) - env(safe-area-inset-bottom, 0px) - 24px);
+  }
 }
 @media (min-width: 720px) {
   .tabbar { display: none; }
+}
+
+/* ==========================================================================
+ * Responsive: phones and tablets.
+ * No colours or tokens change here; desktop (1280px+) is untouched.
+ * Width arithmetic (14px nav text, ~7px/char; icon 16px; item padding
+ * 8px 12px; topnav padding 24px + 3 x 16px gaps = 96px):
+ *   brand ~178px (icon 36 + gap 10 + "CEV Etlab portal client" small)
+ *   5 labelled tabs ~505px, 3 external links ~308px, palette 36px,
+ *   logout with label ~106px, icon-only logout ~38px.
+ *   Full nav needs ~1225px; 5 labelled tabs need ~921px; icon-only
+ *   tabs + brand + palette + icon-only logout need ~545px.
+ * Hence: tabs go icon-only at 720-1023px, externals hide below 1280px.
+ * ========================================================================== */
+
+/* ---------- Grid/flex children must be allowed to shrink ----------
+ * Without min-width: 0 a grid/flex child refuses to shrink below its
+ * content width and forces the page (or its card) wider than the screen. */
+.chart-row > *, .quick-card, .class-row .subj, .kv dd,
+.subj-row .subj-name, .week-day, .profile-head > div,
+.day-detail-row > span, .nav-links { min-width: 0; }
+/* Long names/values wrap instead of clipping the bar or percentage. */
+.chart-row .cname { overflow-wrap: break-word; }
+.chart-row .cpct { white-space: nowrap; }
+.class-row .subj { overflow-wrap: break-word; }
+.subj-row .subj-pct { white-space: nowrap; }
+.kv dd { overflow-wrap: anywhere; }
+.page-head h1 span:last-child { min-width: 0; overflow-wrap: break-word; }
+
+/* ---------- Touch targets + iOS input zoom (phones and tablets) ---------- */
+@media (max-width: 1023px) {
+  /* iOS Safari zooms into any focused input below 16px; 15px -> 16px. */
+  .field input, .field select { font-size: 16px; }
+  .week-nav button { width: 40px; height: 40px; }
+  .palette-btn { width: 40px; height: 40px; }
+  .nav-logout { height: 40px; }
+  .seg-row button { min-height: 40px; }
+  .accent-swatch, .accent-custom { width: 36px; height: 36px; }
+  .theme-reset { min-height: 40px; }
+}
+
+/* ---------- Top nav, narrow tablets (720-1023px) ----------
+ * Labelled tabs + externals need ~1225px; icon-only tabs need ~545px,
+ * so the tabs go icon-only (font-size: 0 keeps the label for screen
+ * readers) and the external links hide until the desktop range. */
+@media (min-width: 720px) and (max-width: 1023px) {
+  .nav-links .nav-ext { display: none; }
+  .nav-links button.nav-tab { font-size: 0; padding: 8px 10px; }
+  .nav-logout-label { display: none; }
+  .nav-logout { padding: 0 10px; }
+}
+
+/* ---------- Top nav, small desktops (1024-1279px) ----------
+ * 5 labelled tabs fit (~921px) but the 3 external links do not
+ * (~1225px with them), so the externals stay hidden until 1280px. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .nav-links .nav-ext { display: none; }
+}
+
+/* ---------- Today's-classes / timetable rows (<=560px) ----------
+ * Time (118px) + subject + tag + code needs ~455px; it overflows below
+ * ~560px, so the time moves onto its own line and the rest wraps. */
+@media (max-width: 560px) {
+  .class-row { flex-wrap: wrap; row-gap: 2px; }
+  .class-row .time { flex-basis: 100%; min-width: 0; }
+}
+
+/* ---------- Very narrow phones (<=480px) ---------- */
+@media (max-width: 480px) {
+  main { padding: 16px 12px calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .card { padding: 16px; }
+  .page-head h1 { font-size: 24px; }
+  .page-head h1 .h-icon svg { width: 20px; height: 20px; }
+  /* Home hero: ring block centred, button full width. */
+  .home-hero { flex-direction: column; align-items: stretch; }
+  .ring-wrap { justify-content: center; }
+  .ring-side { text-align: center; }
+  .home-hero .btn { width: 100%; }
+  /* Profile key/values: label above value instead of a squeezed column. */
+  .kv { grid-template-columns: 1fr; gap: 2px 0; }
+  .kv dt { font-size: 13px; }
+  /* Subject chart: narrower name column so the bar keeps room. */
+  .chart-row { grid-template-columns: 96px 1fr 44px; gap: 8px; }
+  /* Login: tighter side padding, hero keeps its own spacing. */
+  .login-wrap { padding: 0 16px calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .login-hero { padding: 24px 0 8px; }
+  .theme-grid { gap: 6px; }
+  .week-strip { gap: 2px; }
+  .profile-head { gap: 12px; }
+  .avatar { width: 56px; height: 56px; font-size: 22px; }
 }
