@@ -798,6 +798,8 @@ table.month-grid { border-collapse: collapse; width: 100%; min-width: 560px; fon
   flex-shrink: 0;
 }
 .profile-head h2 { font-size: 22px; }
+.profile-sec { font-size: 16px; margin: 20px 0 2px; }
+.profile-sec:first-child { margin-top: 0; }
 .kv { display: grid; grid-template-columns: 160px 1fr; gap: 6px 12px; padding: 6px 0; font-size: 15px; }
 .kv dt { color: var(--vp-c-text-2); }
 .kv dd { margin: 0; font-weight: 600; }

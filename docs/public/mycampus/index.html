@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MyCampus Web: CEV Etlab portal client</title>
+  <title>MyCampus Web: CEV Etlab student API client</title>
   <meta name="description" content="MyCampus Web: attendance, timetable, series results and profile for CEV MCA students, in your browser. Demo mode with sample data." />
   <link rel="icon" href="/icon.png" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,7 +28,7 @@
       <span class="brand-icon" aria-hidden="true">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
       </span>
-      <span>MyCampus <small>CEV Etlab portal client</small></span>
+      <span>MyCampus <small>CEV Etlab student API client</small></span>
     </a>
     <nav class="nav-links" aria-label="Sections">
       <button type="button" class="nav-tab" data-tab="home"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Home</button>
@@ -186,7 +186,7 @@
       <section id="tab-attendance" class="tab-page hidden">
         <div class="page-head">
           <h1><span class="h-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></span>Attendance</h1>
-          <p>Subject-wise attendance from the portal <span class="demo-tag">Demo data</span></p>
+          <p>Subject-wise attendance from the student API <span class="demo-tag">Demo data</span></p>
         </div>
         <div style="height:16px"></div>
         <div class="card">
@@ -223,10 +223,17 @@
       <section id="tab-timetable" class="tab-page hidden">
         <div class="page-head">
           <h1><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>Timetable</h1>
-          <p>Semester 3 · Monday to Friday · lunch 13:15 – 14:00 <span class="demo-tag">Demo data</span></p>
+          <p id="ttSub">Semester 3 · Monday to Friday · lunch 13:15 – 14:00 <span class="demo-tag">Demo data</span></p>
         </div>
         <div style="height:16px"></div>
-        <div class="card" id="ttBox"></div>
+        <div class="card">
+          <div class="week-nav">
+            <button type="button" id="ttWeekPrev" aria-label="Previous week">&#8249;</button>
+            <span class="week-label" id="ttWeekLabel"></span>
+            <button type="button" id="ttWeekNext" aria-label="Next week">&#8250;</button>
+          </div>
+          <div id="ttBox"></div>
+        </div>
       </section>
 
       <section id="tab-results" class="tab-page hidden">
@@ -241,7 +248,7 @@
               <label for="resSem">Semester</label>
               <select id="resSem"></select>
             </div>
-            <span class="muted">Marks are grouped by series exam, as on the portal.</span>
+            <span class="muted">Marks are grouped by series exam.</span>
           </div>
           <div id="resultsBox" style="margin-top:8px;"></div>
         </div>
@@ -255,7 +262,7 @@
       <section id="tab-notices" class="tab-page hidden">
         <div class="page-head">
           <h1><span class="h-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>Notices</h1>
-          <p>Notices and circulars from the portal <span class="demo-tag">Demo data</span></p>
+          <p>Notices and circulars from the student API <span class="demo-tag">Demo data</span></p>
         </div>
         <div style="height:16px"></div>
         <div class="card">
@@ -331,7 +338,7 @@
       <section id="tab-profile" class="tab-page hidden">
         <div class="page-head">
           <h1><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Profile</h1>
-          <p>Student details from the portal <span class="demo-tag">Demo data</span></p>
+          <p>Student details from the student API <span class="demo-tag">Demo data</span></p>
         </div>
         <div style="height:16px"></div>
         <div class="card">
@@ -343,7 +350,7 @@
             </div>
           </div>
           <div style="height:16px"></div>
-          <dl id="profileKv"></dl>
+          <div id="profileKv"></div>
         </div>
         <div class="card">
           <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M12 22C6.5 21.5 4 17.5 5.5 13.5c.8-2.2 2.5-3.5 5-3.5 3.5 0 6 2 6.5 5.5.3 2-.5 4.5-2.5 6.5"/></svg></span>Appearance</h2>
@@ -352,7 +359,7 @@
         </div>
         <div class="card">
           <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>About</h2>
-          <p class="muted" id="aboutText">MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. This web version runs in demo mode with sample data; a browser cannot log in to cev.etlab.in, so live portal login works in the Android app only. Source: <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>.</p>
+          <p class="muted" id="aboutText">MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab student API. This web version runs in demo mode with sample data; sign in for live data from the student API through the MyCampus Worker. Source: <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>.</p>
           <div class="profile-actions">
             <button type="button" class="btn btn-brand" id="signOutBtn"><span class="h-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></span>Sign out</button>
             <a class="btn" href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">Android app</a>
@@ -362,7 +369,7 @@
       </section>
     </main>
     <footer class="site-foot" id="siteFoot">
-      MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Live login works in the Android app · <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>
+      MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Sign in for live data from the Etlab student API · <a href="https://github.com/ShuhaibNC/MyCampus" target="_blank" rel="noopener">github.com/ShuhaibNC/MyCampus</a>
     </footer>
   </div>
 

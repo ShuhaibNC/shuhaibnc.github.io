@@ -2,7 +2,7 @@
  * Demo mode by default: nothing is sent anywhere, nothing is stored
  * except a session flag and the visitor's own theme choices
  * (localStorage). Set WORKER_URL below to the deployed Cloudflare
- * Worker URL to enable live portal login; credentials then go only to
+ * Worker URL to enable live login; credentials then go only to
  * that Worker, and the session token lives in sessionStorage. */
 'use strict';
 
@@ -12,10 +12,10 @@
 
   /* ---- live mode (Cloudflare Worker) ----
    * Set WORKER_URL to the deployed Worker URL (https://...) to enable
-   * real portal login. While it is '' the app is demo-only, exactly as
+   * real login. While it is '' the app is demo-only, exactly as
    * today: nothing is sent anywhere. HTTP is refused except localhost.
-   * The Worker logs in to cev.etlab.in for the visitor; the token is
-   * kept in sessionStorage and cleared on sign out. */
+   * The Worker logs in to the Etlab student API for the visitor; the
+   * token is kept in sessionStorage and cleared on sign out. */
   var WORKER_URL = 'https://mycampus-worker.shuhaib.workers.dev';
   var LIVE_TOKEN_KEY = 'mycampus-live-token';
   var liveMode = false;
@@ -30,6 +30,20 @@
   }
   var liveExtra = freshLiveExtra();
 
+  /* Live timetable cache: monthKey ('YYYY-MM') -> the Worker's
+   * /api/timetable response {month, days: {date: [entries]}}. The
+   * student API is month-based, so the Timetable tab renders a week
+   * view from these months instead of the old CSV week grid. */
+  var liveTtMonths = {};
+  var ttFetchState = {}; // monthKey -> 'loading' | 'failed' (prevents refetch loops)
+  var ttWeekMonday = mondayOf(new Date());
+
+  function mondayOf(date) {
+    var d = new Date(date);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
   function workerUrlOk(u) {
     if (!u) return false;
     try {
@@ -274,10 +288,10 @@
     document.body.classList.add('signed-out');
   }
 
-  var DEMO_FOOT = 'MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Live login works in the Android app · ';
-  var LIVE_FOOT = 'MyCampus Web 1.0 · Live data from cev.etlab.in via the MyCampus Worker · Signing out clears your session · ';
-  var DEMO_ABOUT = 'MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. This web version runs in demo mode with sample data; a browser cannot log in to cev.etlab.in, so live portal login works in the Android app only. Source: ';
-  var LIVE_ABOUT = 'MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab portal. You are signed in to the live portal through the MyCampus Worker, which logs in to cev.etlab.in for you; your password was sent only to the Worker and is not stored. Source: ';
+  var DEMO_FOOT = 'MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Sign in for live data from the Etlab student API · ';
+  var LIVE_FOOT = 'MyCampus Web 1.0 · Live data from the Etlab student API via the MyCampus Worker · Signing out clears your session · ';
+  var DEMO_ABOUT = 'MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab student API. This web version runs in demo mode with sample data; sign in for live data from the student API through the MyCampus Worker. Source: ';
+  var LIVE_ABOUT = 'MyCampus Web 1.0 is a browser port of the MyCampus Android app, a direct client for the CEV Etlab student API. You are signed in to the student API through the MyCampus Worker, which logs in to api.students.etlab.app for you; your password was sent only to the Worker and is not stored. Source: ';
 
   /* Swap every "Demo" badge for "Live" (and back), plus footer/About copy. */
   function setModeBadge(live) {
@@ -320,6 +334,9 @@
     liveToken = null;
     liveCache = {};
     liveExtra = freshLiveExtra();
+    liveTtMonths = {};
+    ttFetchState = {};
+    ttWeekMonday = mondayOf(new Date());
     D = MC_DATA;
     displayName = (name || '').trim() || D.PROFILE.name;
     try {
@@ -347,6 +364,10 @@
         if (!res.ok) {
           var err = new Error((data && data.error) || 'Request failed.');
           err.status = res.status;
+          /* The Worker returns SESSION_EXPIRED when the student API
+           * rejects the token; callers use it to show the login
+           * screen instead of an "invalid password" error. */
+          if (data && data.error) err.code = data.error;
           throw err;
         }
         return data;
@@ -415,8 +436,11 @@
   }
 
   /* Build a MC_DATA-shaped object from Worker responses so every render
-   * function works unchanged in live mode. */
-  function buildLiveData(profileRes, attRes, monthlyRes, ttRes, resRes) {
+   * function works unchanged in live mode. The timetable is NOT built
+   * here any more: the student API is month-based, so live timetable
+   * months live in liveTtMonths and renderTimetable renders a week
+   * view from them. */
+  function buildLiveData(profileRes, attRes, monthlyRes, resRes) {
     var pd = (profileRes && profileRes.profile_details) || {};
     var att = attRes || {};
     var rows = rowsFromAttendance(att);
@@ -426,38 +450,52 @@
     var liveMonths = {};
     liveMonths[initialMonthKey] = monthly;
 
-    var tt = {};
-    var rawTt = ttRes || {};
-    MC_DATA.DAY_NAMES.forEach(function (dayKey) {
-      var dayObj = rawTt[dayKey] || {};
-      var slots = Object.keys(dayObj)
-        .map(function (k) { return { n: parseInt(k.replace('period-', ''), 10) || 0, slot: dayObj[k] }; })
-        .sort(function (a, b) { return a.n - b.n; })
-        .map(function (item) {
-          var name = (item.slot && item.slot.name) || '';
-          var code = /[0-9]{2}[A-Z]{2,}[0-9]+/.exec(name.toUpperCase());
-          return code ? code[0] : name;
-        });
-      tt[dayKey] = slots;
-    });
+    /* Attendance/results are keyed by the semester they were fetched
+     * for (attSem / resSemVal, set from the login response). */
+    var liveAtt = {};
+    liveAtt[attSem] = rows;
+    var liveRes = {};
+    liveRes[resSemVal] = (resRes && resRes.series) || [];
 
     return {
       PROFILE: {
         name: pd.name || '',
-        roll: att.roll_no || '',
-        course: 'MCA',
-        semester: 3,
+        roll: pd.roll_no || att.roll_no || '',
+        course: pd.course || 'MCA',
+        semester: pd.curnt_sem || attSem || 3,
         college: 'College of Engineering Vadakara (CEV)',
         university: 'APJ Abdul Kalam Technological University (KTU)',
         scheme: 'MCA 2020 scheme',
         portal: 'https://cev.etlab.in',
         dob: pd.dob || '',
         admissionNo: pd.admission_no || '',
-        universityRegNo: pd.university_roll_no || ''
+        universityRegNo: pd.university_roll_no || '',
+        /* Full profile (the Profile tab renders all of it). */
+        studentId: pd.student_id || '',
+        registerNo: pd.register_no || '',
+        curntSem: pd.curnt_sem || null,
+        semId: pd.sem_id || null,
+        batchId: pd.batch_id || '',
+        status: pd.status || '',
+        isHostler: (pd.is_hostler === undefined || pd.is_hostler === null) ? null : !!pd.is_hostler,
+        gender: pd.gender || '',
+        email: pd.email || '',
+        phone: pd.phone || '',
+        url: pd.url || '',
+        photoUrl: pd.photo_url || '',
+        hasUniversityExam: (pd.has_university_exam === undefined || pd.has_university_exam === null) ? null : !!pd.has_university_exam,
+        hasEndSemResults: (pd.has_end_sem_results === undefined || pd.has_end_sem_results === null) ? null : !!pd.has_end_sem_results,
+        hasKtuResults: (pd.has_ktu_results === undefined || pd.has_ktu_results === null) ? null : !!pd.has_ktu_results,
+        features: pd.features || {},
+        bankDetails: pd.bank_details || null,
+        providers: pd.providers || [],
+        attendanceSummary: pd.attendance || {},
+        pendingSurveyBlock: pd.pending_survey_block || {},
+        portfolio: pd.portfolio || {}
       },
       SUBJECTS: MC_DATA.SUBJECTS,
       subjectName: function (code) { return MC_DATA.subjectName(code); },
-      ATTENDANCE: { 3: rows },
+      ATTENDANCE: liveAtt,
       overallPct: function (sem) {
         var r = this.ATTENDANCE[sem] || [];
         var p = 0, t = 0;
@@ -465,11 +503,13 @@
         return t === 0 ? 0 : (p * 100 / t);
       },
       PERIOD_TIMES: MC_DATA.PERIOD_TIMES,
-      TIMETABLE: tt,
+      /* Live timetable is month-based (liveTtMonths); the week
+       * template is demo-only and is not used in live mode. */
+      TIMETABLE: {},
       slotType: liveSlotType,
       DAY_NAMES: MC_DATA.DAY_NAMES,
       DAY_LABELS: MC_DATA.DAY_LABELS,
-      RESULTS: { 3: (resRes && resRes.series) || [] },
+      RESULTS: liveRes,
       STATUS_COLORS: MC_DATA.STATUS_COLORS,
       STATUS_WORDS: MC_DATA.STATUS_WORDS,
       MONTHLY: monthly,
@@ -488,17 +528,25 @@
   }
 
   function loadLiveData() {
+    var now = new Date();
+    var thisMonth = monthKeyOf(now.getFullYear(), now.getMonth());
+    /* Profile, attendance and results are essential: a failure there
+     * fails the sign-in. Monthly and timetable are month-dependent
+     * and may legitimately be empty, so they are safe-fetched — a
+     * failure only means that section shows an empty state. */
     return Promise.all([
       liveFetch('/api/profile'),
-      liveFetch('/api/attendance?sem=3'),
-      liveFetch('/api/monthly'),
-      liveFetch('/api/timetable'),
-      liveFetch('/api/results?sem=3')
+      liveFetch('/api/attendance?sem=' + attSem),
+      safeLiveFetch('/api/monthly'),
+      safeLiveFetch('/api/timetable?month=' + thisMonth),
+      liveFetch('/api/results?sem=' + resSemVal)
     ]).then(function (parts) {
-      D = buildLiveData(parts[0], parts[1], parts[2], parts[3], parts[4]);
+      D = buildLiveData(parts[0], parts[1], parts[2], parts[4]);
+      if (parts[3]) liveTtMonths[thisMonth] = parts[3];
       displayName = D.PROFILE.name || displayName;
       liveMode = true;
-      liveCache = { 3: { att: D.ATTENDANCE[3], res: D.RESULTS[3] } };
+      liveCache = {};
+      liveCache[attSem] = { att: D.ATTENDANCE[attSem], res: D.RESULTS[resSemVal] };
       setModeBadge(true);
       /* New Etlab-API routes: each is safe-fetched, so a 502 or an
        * empty response only means that section falls back to demo. */
@@ -508,11 +556,11 @@
         safeLiveFetch('/api/circulars'),
         safeLiveFetch('/api/fees'),
         safeLiveFetch('/api/dues'),
-        safeLiveFetch('/api/subjects?sem=3'),
-        safeLiveFetch('/api/exams?sem=3'),
-        safeLiveFetch('/api/assignments?sem=3'),
-        safeLiveFetch('/api/evaluations?sem=3'),
-        safeLiveFetch('/api/university-results?sem=3')
+        safeLiveFetch('/api/subjects?sem=' + attSem),
+        safeLiveFetch('/api/exams?sem=' + examSemVal),
+        safeLiveFetch('/api/assignments?sem=' + assignSemVal),
+        safeLiveFetch('/api/evaluations?sem=' + assignSemVal),
+        safeLiveFetch('/api/university-results?sem=' + resSemVal)
       ]);
     }).then(function (extra) {
       if (!extra) return;
@@ -521,11 +569,11 @@
       liveExtra.circulars = extra[2] && extra[2].items ? extra[2].items : null;
       liveExtra.fees = extra[3] || null;
       liveExtra.dues = extra[4] && extra[4].items ? extra[4].items : null;
-      if (extra[5] && extra[5].items) storeSubjects(3, extra[5].items);
-      if (extra[6] && extra[6].items) liveExtra.exams[3] = extra[6].items;
-      if (extra[7] && extra[7].items) liveExtra.assignments[3] = extra[7].items;
-      if (extra[8] && extra[8].items) liveExtra.evaluations[3] = extra[8].items;
-      if (extra[9]) liveExtra.uni[3] = extra[9];
+      if (extra[5] && extra[5].items) storeSubjects(attSem, extra[5].items);
+      if (extra[6] && extra[6].items) liveExtra.exams[examSemVal] = extra[6].items;
+      if (extra[7] && extra[7].items) liveExtra.assignments[assignSemVal] = extra[7].items;
+      if (extra[8] && extra[8].items) liveExtra.evaluations[assignSemVal] = extra[8].items;
+      if (extra[9]) liveExtra.uni[resSemVal] = extra[9];
     });
   }
 
@@ -571,6 +619,14 @@
       .then(function (data) {
         liveToken = data.token;
         try { sessionStorage.setItem(LIVE_TOKEN_KEY, liveToken); } catch (e) {}
+        /* The login response carries the student's semester: use it
+         * for every semester picker instead of the default 3. */
+        if (typeof data.sem_id === 'number' && data.sem_id >= 1 && data.sem_id <= 8) {
+          attSem = data.sem_id;
+          resSemVal = data.sem_id;
+          examSemVal = data.sem_id;
+          assignSemVal = data.sem_id;
+        }
         return loadLiveData();
       })
       .then(function () {
@@ -582,6 +638,14 @@
         liveToken = null;
         try { sessionStorage.removeItem(LIVE_TOKEN_KEY); } catch (e) {}
         setLoginBusy(false);
+        /* A SESSION_EXPIRED from loadLiveData means the token was
+         * rejected right after login — show the login screen with the
+         * expired-session message, not "invalid password". */
+        if (err && (err.code === 'SESSION_EXPIRED' ||
+            err.message === 'Session expired. Please sign in again.')) {
+          signOutToLogin('Session expired. Please sign in again.');
+          return;
+        }
         showLoginError(err.status === 401
           ? 'Invalid username or password. Check for typos, or explore the demo below.'
           : (err.message || 'Could not reach the Worker. Check your connection, or explore the demo below.'));
@@ -620,6 +684,9 @@
     liveToken = null;
     liveCache = {};
     liveExtra = freshLiveExtra();
+    liveTtMonths = {};
+    ttFetchState = {};
+    ttWeekMonday = mondayOf(new Date());
     D = MC_DATA;
     displayName = D.PROFILE.name;
     try {
@@ -784,35 +851,75 @@
     var h = now.getHours();
     var greet = h < 12 ? 'Good morning' : (h < 17 ? 'Good afternoon' : 'Good evening');
     $('homeGreet').textContent = greet + ', ' + displayName.split(' ')[0].charAt(0).toUpperCase() + displayName.split(' ')[0].slice(1).toLowerCase();
-    $('homeDate').textContent = fmtDate(now) + ' · MCA Semester 3 · CEV';
+    $('homeDate').textContent = fmtDate(now) + ' · MCA Semester ' + (D.PROFILE.semester || 3) + ' · CEV';
 
-    var sem = 3;
+    var sem = D.PROFILE.semester || 3;
+    if (!D.ATTENDANCE[sem]) sem = attSem;
+    if (!D.ATTENDANCE[sem]) sem = 3;
     var overall = D.overallPct(sem);
     var rows = D.ATTENDANCE[sem];
     var pTot = 0, tTot = 0;
     rows.forEach(function (r) { pTot += r.present; tTot += r.total; });
     $('ringPct').textContent = overall.toFixed(1) + '%';
     $('ringFg').style.strokeDashoffset = String(276.5 * (1 - overall / 100));
-    $('ringSub').textContent = 'Semester 3 overall';
+    $('ringSub').textContent = 'Semester ' + sem + ' overall';
     $('ringHours').textContent = pTot + ' / ' + tTot + ' hours · ' + rows.length + ' subjects';
 
     /* Today's classes from the timetable (real weekday). */
     var dayKey = D.DAY_NAMES[(now.getDay() + 6) % 7];
     var dayLabel = D.DAY_LABELS[(now.getDay() + 6) % 7];
-    var codes = D.TIMETABLE[dayKey] || [];
-    $('todaySub').textContent = dayLabel + ' · ' + (codes.length ? codes.length + ' periods' : 'no classes scheduled');
     var box = $('todayBox');
-    if (!codes.length) {
-      box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No classes today. Enjoy the weekend.</span></p>';
+    if (liveMode) {
+      /* Live: today's entries from the cached timetable month. */
+      var entries = ttEntriesForDate(now);
+      var mKey = monthKeyOf(now.getFullYear(), now.getMonth());
+      if (entries === null && ttFetchState[mKey] === 'failed') {
+        $('todaySub').textContent = dayLabel + ' · could not load';
+        box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>Could not load today’s classes.</span></p>';
+      } else if (entries === null) {
+        $('todaySub').textContent = dayLabel + ' · loading…';
+        box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>Loading today’s classes…</span></p>';
+        loadLiveTimetableMonth(mKey, function (res) { if (res && liveMode) renderHome(); });
+      } else {
+        var todays = entries.filter(function (e) { return !e.day_event; });
+        var holiday = entries.length && entries[0].day_event ? entries[0].holiday_name : '';
+        $('todaySub').textContent = dayLabel + ' · ' +
+          (holiday ? 'holiday' : (todays.length ? todays.length + ' periods' : 'no classes scheduled'));
+        if (holiday) {
+          box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>Holiday — ' + esc(holiday) + '.</span></p>';
+        } else if (!todays.length) {
+          box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No classes today. Enjoy the weekend.</span></p>';
+        } else {
+          var thtml = '';
+          todays.forEach(function (e) {
+            var code = e.subject_code || '';
+            var time = e.time_period || D.PERIOD_TIMES[(e.hour || 1) - 1] || '';
+            var type = (e.type || '').toLowerCase() === 'lab' ? 'lab' : D.slotType(code);
+            thtml += '<div class="class-row"><span class="time">Period ' + e.hour + (time ? ' · ' + esc(time) : '') + '</span>' +
+              '<span class="subj">' + esc(e.subject || D.subjectName(code)) + '</span>' +
+              '<span class="tag' + (type === 'lab' ? ' tag-lab' : '') + '">' + (type === 'lab' ? 'Lab' : 'Theory') + '</span>' +
+              (e.suspended ? '<span class="tag">Suspended</span>' : '') +
+              '<span class="muted" style="margin-left:auto;font-size:13px;">' + esc(code) +
+              (e.teacher_name ? ' · ' + esc(e.teacher_name) : '') + '</span></div>';
+          });
+          box.innerHTML = thtml;
+        }
+      }
     } else {
-      var html = '';
-      codes.forEach(function (code, i) {
-        html += '<div class="class-row"><span class="time">Period ' + (i + 1) + ' · ' + D.PERIOD_TIMES[i] + '</span>' +
-          '<span class="subj">' + esc(D.subjectName(code)) + '</span>' +
-          '<span class="tag' + (D.slotType(code) === 'lab' ? ' tag-lab' : '') + '">' + (D.slotType(code) === 'lab' ? 'Lab' : 'Theory') + '</span>' +
-          '<span class="muted" style="margin-left:auto;font-size:13px;">' + esc(code) + '</span></div>';
-      });
-      box.innerHTML = html;
+      var codes = D.TIMETABLE[dayKey] || [];
+      $('todaySub').textContent = dayLabel + ' · ' + (codes.length ? codes.length + ' periods' : 'no classes scheduled');
+      if (!codes.length) {
+        box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No classes today. Enjoy the weekend.</span></p>';
+      } else {
+        var html = '';
+        codes.forEach(function (code, i) {
+          html += '<div class="class-row"><span class="time">Period ' + (i + 1) + ' · ' + D.PERIOD_TIMES[i] + '</span>' +
+            '<span class="subj">' + esc(D.subjectName(code)) + '</span>' +
+            '<span class="tag' + (D.slotType(code) === 'lab' ? ' tag-lab' : '') + '">' + (D.slotType(code) === 'lab' ? 'Lab' : 'Theory') + '</span>' +
+            '<span class="muted" style="margin-left:auto;font-size:13px;">' + esc(code) + '</span></div>';
+        });
+        box.innerHTML = html;
+      }
     }
 
     /* Subject bar chart. */
@@ -964,11 +1071,11 @@
       $('attOverallPct').textContent = '–';
       $('attOverallHours').textContent = '';
       $('attOverallBar').style.width = '0%';
-      $('attSemNote').textContent = liveMode ? 'No attendance data for this semester on the portal.' : 'No attendance data for this semester in demo.';
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No data for Semester ' + attSem + '</h3><p>The MCA course has 4 semesters. Semesters 5-8 have no data' + (liveMode ? ' on the portal.' : ' in demo.') + '</p></div>';
+      $('attSemNote').textContent = liveMode ? 'No attendance data for this semester from the student API.' : 'No attendance data for this semester in demo.';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No data for Semester ' + attSem + '</h3><p>The MCA course has 4 semesters. Semesters 5-8 have no data' + (liveMode ? ' from the student API.' : ' in demo.') + '</p></div>';
       return;
     }
-    $('attSemNote').textContent = liveMode ? 'Live data from the portal.' : (attSem === 3 ? 'Overall about 95%, matching the verified Sep 2026 portal check.' : 'Demo figures for this semester.');
+    $('attSemNote').textContent = liveMode ? 'Live data from the student API.' : (attSem === 3 ? 'Overall about 95%, matching the verified Sep 2026 portal check.' : 'Demo figures for this semester.');
     var pTot = 0, tTot = 0;
     rows.forEach(function (r) { pTot += r.present; tTot += r.total; });
     var overall = pct(pTot, tTot);
@@ -1020,8 +1127,8 @@
     }
     $('monthTitle').textContent = m.month;
     var idx = monthKeys.indexOf(monthKey);
-    /* Demo months are bounded by MONTH_ORDER. In live mode the portal
-     * may hold earlier months, so Prev stays enabled there; Next is
+    /* Demo months are bounded by MONTH_ORDER. In live mode the student
+     * API may hold earlier months, so Prev stays enabled there; Next is
      * disabled at the latest known month in both modes. */
     $('monthPrev').disabled = liveMode ? false : idx <= 0;
     $('monthNext').disabled = idx < 0 || idx >= monthKeys.length - 1;
@@ -1057,8 +1164,8 @@
   }
 
   /* Fetch one live month from the Worker and cache it in D.MONTHS.
-   * If the portal cannot serve the requested month, keep showing the
-   * current month and say which month the portal actually returned. */
+   * If the student API cannot serve the requested month, keep showing
+   * the current month and say which month the API actually returned. */
   function loadLiveMonth(key) {
     if (D.MONTHS && D.MONTHS[key]) {
       monthKey = key;
@@ -1070,7 +1177,7 @@
       var adapted = adaptMonthly(res);
       var served = res.servedMonth || monthKeyOf(adapted.year, adapted.monthIndex);
       if (served !== key) {
-        monthNotice = 'Portal returned ' + monthNameOfKey(served) + '; previous months may not be selectable on the portal.';
+        monthNotice = 'The student API returned ' + monthNameOfKey(served) + '; previous months may not be selectable.';
         if (!D.MONTHS) D.MONTHS = {};
         if (!D.MONTH_ORDER) D.MONTH_ORDER = [];
         if (!D.MONTHS[served]) {
@@ -1126,23 +1233,119 @@
   });
 
   /* ================= Timetable ================= */
-  function renderTimetable() {
-    var html = '<h2>' + IC.calH2 + 'Weekly timetable</h2>';
-    for (var i = 0; i < 5; i++) {
-      var key = D.DAY_NAMES[i];
-      var codes = D.TIMETABLE[key];
-      html += '<div class="day-block"><h3>' + D.DAY_LABELS[i] + '</h3>';
-      codes.forEach(function (code, p) {
-        html += '<div class="class-row"><span class="time">Period ' + (p + 1) + ' · ' + D.PERIOD_TIMES[p] + '</span>' +
-          '<span class="subj">' + esc(D.subjectName(code)) + '</span>' +
-          '<span class="tag' + (D.slotType(code) === 'lab' ? ' tag-lab' : '') + '">' + (D.slotType(code) === 'lab' ? 'Lab' : 'Theory') + '</span>' +
-          '<span class="muted" style="margin-left:auto;font-size:13px;">' + esc(code) + '</span></div>';
-      });
-      html += '</div>';
-    }
-    html += '<p class="muted">Saturday and Sunday: no classes. Lunch break 13:15 - 14:00. Teacher names are not shown in demo.</p>';
-    $('ttBox').innerHTML = html;
+  /* Live timetable: entries for one date from the cached months.
+   * Returns null when the month has not been loaded yet. */
+  function ttEntriesForDate(date) {
+    var key = monthKeyOf(date.getFullYear(), date.getMonth());
+    var m = liveTtMonths[key];
+    if (!m) return null;
+    var days = (m && m.days) || {};
+    var ds = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') +
+      '-' + String(date.getDate()).padStart(2, '0');
+    return days[ds] || [];
   }
+
+  /* Fetch one timetable month (once per key; failures are remembered
+   * so a failed month never refetches in a loop). onDone, if given,
+   * runs with the response (null on failure). */
+  function loadLiveTimetableMonth(key, onDone) {
+    if (liveTtMonths[key]) {
+      if (onDone) onDone(liveTtMonths[key]);
+      return Promise.resolve(liveTtMonths[key]);
+    }
+    if (ttFetchState[key]) return Promise.resolve(null);
+    ttFetchState[key] = 'loading';
+    return safeLiveFetch('/api/timetable?month=' + key).then(function (res) {
+      if (res) { liveTtMonths[key] = res; delete ttFetchState[key]; }
+      else ttFetchState[key] = 'failed';
+      if (onDone) onDone(res);
+      return res;
+    });
+  }
+
+  function renderTimetable() {
+    if (!liveMode) {
+      $('ttSub').textContent = 'Semester 3 · Monday to Friday · lunch 13:15 – 14:00';
+      $('ttWeekLabel').textContent = 'Demo week · fixed template';
+      var html = '<h2>' + IC.calH2 + 'Weekly timetable</h2>';
+      for (var i = 0; i < 5; i++) {
+        var key = D.DAY_NAMES[i];
+        var codes = D.TIMETABLE[key];
+        html += '<div class="day-block"><h3>' + D.DAY_LABELS[i] + '</h3>';
+        codes.forEach(function (code, p) {
+          html += '<div class="class-row"><span class="time">Period ' + (p + 1) + ' · ' + D.PERIOD_TIMES[p] + '</span>' +
+            '<span class="subj">' + esc(D.subjectName(code)) + '</span>' +
+            '<span class="tag' + (D.slotType(code) === 'lab' ? ' tag-lab' : '') + '">' + (D.slotType(code) === 'lab' ? 'Lab' : 'Theory') + '</span>' +
+            '<span class="muted" style="margin-left:auto;font-size:13px;">' + esc(code) + '</span></div>';
+        });
+        html += '</div>';
+      }
+      html += '<p class="muted">Saturday and Sunday: no classes. Lunch break 13:15 - 14:00. Teacher names are not shown in demo.</p>';
+      $('ttBox').innerHTML = html;
+      return;
+    }
+
+    /* Live: a week view built from the month-based student API. The
+     * week can cross a month boundary, so months load on demand. */
+    var fmt = function (d) { return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); };
+    var friday = new Date(ttWeekMonday);
+    friday.setDate(friday.getDate() + 4);
+    $('ttWeekLabel').textContent = fmt(ttWeekMonday) + ' – ' + fmt(friday) + ' ' + friday.getFullYear();
+    $('ttSub').textContent = 'Week of ' + fmt(ttWeekMonday) + ' · times from the student API';
+    var lhtml = '<h2>' + IC.calH2 + 'Weekly timetable</h2>';
+    var missingKeys = [];
+    for (var d = 0; d < 5; d++) {
+      var day = new Date(ttWeekMonday);
+      day.setDate(day.getDate() + d);
+      var entries = ttEntriesForDate(day);
+      var dayKey = monthKeyOf(day.getFullYear(), day.getMonth());
+      lhtml += '<div class="day-block"><h3>' + D.DAY_LABELS[d] + ' · ' + day.getDate() + ' ' +
+        day.toLocaleDateString('en-GB', { month: 'short' }) + '</h3>';
+      if (entries === null) {
+        if (ttFetchState[dayKey] === 'failed') {
+          lhtml += '<p class="muted empty-line">Could not load this day’s timetable.</p>';
+        } else {
+          lhtml += '<p class="muted empty-line">Loading…</p>';
+          if (missingKeys.indexOf(dayKey) < 0) missingKeys.push(dayKey);
+        }
+      } else if (!entries.length) {
+        lhtml += '<p class="muted empty-line">No classes scheduled.</p>';
+      } else {
+        var holiday = entries.length && entries[0].day_event ? entries[0].holiday_name : '';
+        if (holiday) {
+          lhtml += '<p class="muted empty-line">Holiday — ' + esc(holiday) + '.</p>';
+        }
+        entries.forEach(function (e) {
+          if (e.day_event) return;
+          var code = e.subject_code || '';
+          var time = e.time_period || D.PERIOD_TIMES[(e.hour || 1) - 1] || '';
+          var type = (e.type || '').toLowerCase() === 'lab' ? 'lab' : D.slotType(code);
+          lhtml += '<div class="class-row"><span class="time">Period ' + e.hour + (time ? ' · ' + esc(time) : '') + '</span>' +
+            '<span class="subj">' + esc(e.subject || D.subjectName(code)) + '</span>' +
+            '<span class="tag' + (type === 'lab' ? ' tag-lab' : '') + '">' + (type === 'lab' ? 'Lab' : 'Theory') + '</span>' +
+            (e.suspended ? '<span class="tag">Suspended</span>' : '') +
+            '<span class="muted" style="margin-left:auto;font-size:13px;">' + esc(code) +
+            (e.teacher_name ? ' · ' + esc(e.teacher_name) : '') + '</span></div>';
+        });
+      }
+      lhtml += '</div>';
+    }
+    lhtml += '<p class="muted">Saturday and Sunday: no classes. Times come from the student API when available.</p>';
+    $('ttBox').innerHTML = lhtml;
+    if (missingKeys.length) {
+      Promise.all(missingKeys.map(function (k) { return loadLiveTimetableMonth(k); }))
+        .then(function () { if (liveMode) renderTimetable(); });
+    }
+  }
+
+  $('ttWeekPrev').addEventListener('click', function () {
+    ttWeekMonday.setDate(ttWeekMonday.getDate() - 7);
+    renderTimetable();
+  });
+  $('ttWeekNext').addEventListener('click', function () {
+    ttWeekMonday.setDate(ttWeekMonday.getDate() + 7);
+    renderTimetable();
+  });
 
   /* ================= Results ================= */
   function renderResults() {
@@ -1152,9 +1355,9 @@
     var box = $('resultsBox');
     if (!groups.length) {
       var msg = sem === 3
-        ? 'The portal shows "No sessional exams yet" for Semester 3.'
-        : (liveMode ? 'No series marks for Semester ' + sem + ' on the portal.' : 'No verified series marks for Semester ' + sem + ' in demo.');
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No sessional exams yet</h3><p>' + msg + '</p><p style="margin-top:8px;">Series marks appear here once the college publishes them on the portal.</p></div>';
+        ? 'The student API shows no sessional exams yet for Semester 3.'
+        : (liveMode ? 'No series marks for Semester ' + sem + ' from the student API.' : 'No verified series marks for Semester ' + sem + ' in demo.');
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No sessional exams yet</h3><p>' + msg + '</p><p style="margin-top:8px;">Series marks appear here once the college publishes them.</p></div>';
       renderUniversityResults();
       return;
     }
@@ -1164,10 +1367,14 @@
       if (g.note) html += '<p class="muted" style="margin-bottom:6px;">' + esc(g.note) + '</p>';
       g.subjects.forEach(function (s) {
         var m = parseFloat(s.marks), mx = parseFloat(s.max);
-        var pc = mx > 0 ? (m * 100 / mx) : 0;
+        var pc = (mx > 0 && !isNaN(m)) ? (m * 100 / mx) : 0;
+        /* Direct-grading subjects have a grade instead of marks. */
+        var marksText = (s.marks == null || s.marks === '')
+          ? (s.grade ? esc(s.grade) : '–')
+          : (esc(s.marks) + ' / ' + esc(s.max));
         html += '<div class="subj-row"><div class="subj-head">' +
           '<span class="subj-name">' + esc(s.name) + '</span>' +
-          '<span class="marks-pill">' + esc(s.marks) + ' / ' + esc(s.max) + '</span></div>' +
+          '<span class="marks-pill">' + marksText + '</span></div>' +
           '<div class="subj-meta">' + esc(s.code) + '</div>' +
           '<div class="bar"><span style="width:' + pc.toFixed(1) + '%"></span></div></div>';
       });
@@ -1267,7 +1474,7 @@
     if (!box) return;
     var items = getExams(examSemVal);
     if (!items.length) {
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No exams for Semester ' + examSemVal + '</h3><p>' + (liveMode ? 'No exams published for this semester on the portal.' : 'No exams in demo for this semester.') + '</p></div>';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No exams for Semester ' + examSemVal + '</h3><p>' + (liveMode ? 'No exams published for this semester by the student API.' : 'No exams in demo for this semester.') + '</p></div>';
       return;
     }
     var html = '';
@@ -1294,7 +1501,7 @@
     if (!uni || (!uni.sgpa && !uni.cgpa && !(uni.subjects && uni.subjects.length))) {
       box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No university results published yet</h3>' +
         '<p>SGPA: – · CGPA: – · Credits: – / –</p>' +
-        '<p style="margin-top:8px;">University results appear here once KTU publishes them on the portal.</p></div>';
+        '<p style="margin-top:8px;">University results appear here once KTU publishes them.</p></div>';
       return;
     }
     var html = '<div class="overall-line"><span class="big-pct">SGPA ' + dash(uni.sgpa) + '</span><span class="muted">CGPA ' + dash(uni.cgpa) + '</span></div>' +
@@ -1323,7 +1530,7 @@
     else if (assignFilterVal === 'evaluation') items = parts.evaluations.slice();
     else items = parts.assignments.concat(parts.evaluations);
     if (!items.length) {
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No assignments for Semester ' + assignSemVal + '</h3><p>' + (liveMode ? 'Nothing published for this semester on the portal.' : 'No assignments in demo for this semester.') + '</p></div>';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No assignments for Semester ' + assignSemVal + '</h3><p>' + (liveMode ? 'Nothing published for this semester by the student API.' : 'No assignments in demo for this semester.') + '</p></div>';
       return;
     }
     var html = '';
@@ -1494,26 +1701,191 @@
   $('calNext').addEventListener('click', function () { shiftCalendar(1); });
 
   /* ================= Profile ================= */
+  /* Profile: renders EVERY field the student API returns, grouped
+   * into sections. Read-only display only — no photo/bank/portfolio
+   * editing or upload UI. Missing/empty values show a dash; nothing
+   * is invented. In demo the bank/portfolio sections show empty
+   * states (the demo profile has no bank or portfolio data). */
   function renderProfile() {
     var p = D.PROFILE;
-    $('profileAvatar').textContent = initials(displayName);
+    var av = $('profileAvatar');
+    if (liveMode && p.photoUrl) {
+      av.innerHTML = '<img src="' + esc(p.photoUrl) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">';
+    } else {
+      av.textContent = initials(displayName);
+    }
     $('profileName').textContent = displayName;
     $('profileSub').textContent = p.course + ' · Semester ' + p.semester + ' · Roll ' + p.roll;
-    var rows = [
-      ['Name', displayName],
-      ['Roll number', p.roll],
-      ['Course', p.course + ' · Semester ' + p.semester + ' · ' + p.scheme],
-      ['College', p.college],
-      ['University', p.university],
-      ['Admission no.', p.admissionNo || '–'],
-      ['University reg no.', p.universityRegNo || '–'],
-      ['Date of birth', p.dob || '–'],
-      ['Portal', '<a href="' + p.portal + '" target="_blank" rel="noopener">cev.etlab.in</a>']
-    ];
+
+    var dash = function (v) {
+      return (v === null || v === undefined || v === '') ? '–' : esc(String(v));
+    };
+    var yesNo = function (v) {
+      return v === true ? 'Yes' : (v === false ? 'No' : '–');
+    };
+    var kv = function (label, value) {
+      return '<div class="kv"><dt>' + label + '</dt><dd>' + value + '</dd></div>';
+    };
+    var sec = function (title) {
+      return '<h3 class="profile-sec">' + title + '</h3>';
+    };
+    var emptyNote = function (text) {
+      return '<p class="muted">' + text + '</p>';
+    };
+    /* "key: value" list for one object's scalar fields. */
+    var scalarList = function (o) {
+      if (!o || typeof o !== 'object') return '–';
+      var parts = [];
+      Object.keys(o).forEach(function (k) {
+        var v = o[k];
+        if (v === null || v === undefined || v === '') return;
+        if (Array.isArray(v)) {
+          if (v.length) {
+            parts.push(k + ': ' + v.map(function (x) {
+              return (x && typeof x === 'object') ? (x.name || x.title || x.label || '') : String(x);
+            }).filter(function (x) { return x; }).join(', '));
+          }
+          return;
+        }
+        if (typeof v === 'object') return;
+        parts.push(k + ': ' + String(v));
+      });
+      return parts.length ? esc(parts.join(' · ')) : '–';
+    };
+    var fmtBytes = function (n) {
+      if (n === null || n === undefined || n === '') return '–';
+      var b = Number(n);
+      if (!isFinite(b)) return esc(String(n));
+      if (b >= 1048576) return (b / 1048576).toFixed(b % 1048576 === 0 ? 0 : 1) + ' MB';
+      if (b >= 1024) return Math.round(b / 1024) + ' KB';
+      return b + ' bytes';
+    };
+
     var html = '';
-    rows.forEach(function (r) {
-      html += '<div class="kv"><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>';
-    });
+    /* Student details */
+    html += sec('Student details');
+    html += kv('Name', dash(displayName));
+    html += kv('Student ID', dash(p.studentId));
+    html += kv('Roll number', dash(p.roll));
+    html += kv('Admission no.', dash(p.admissionNo));
+    html += kv('University reg no.', dash(p.universityRegNo));
+    html += kv('Course', dash(p.course + ' · Semester ' + p.semester + ' · ' + p.scheme));
+    html += kv('College', dash(p.college));
+    html += kv('University', dash(p.university));
+    html += kv('Date of birth', dash(p.dob));
+    html += kv('Gender', dash(p.gender));
+    html += kv('Status', dash(p.status));
+    html += kv('Hostler', yesNo(p.isHostler));
+    html += kv('Portal', '<a href="' + p.portal + '" target="_blank" rel="noopener">cev.etlab.in</a>');
+
+    /* Contact */
+    html += sec('Contact');
+    html += kv('Email', p.email ? '<a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a>' : '–');
+    html += kv('Phone', dash(p.phone));
+
+    /* Academic */
+    html += sec('Academic');
+    html += kv('Current semester', dash(p.curntSem));
+    html += kv('Semester ID', dash(p.semId));
+    html += kv('Batch ID', dash(p.batchId));
+    html += kv('University exam', yesNo(p.hasUniversityExam));
+    html += kv('End-sem results', yesNo(p.hasEndSemResults));
+    html += kv('KTU results', yesNo(p.hasKtuResults));
+    html += kv('Providers', (p.providers && p.providers.length)
+      ? esc(p.providers.map(function (pr) { return pr.name || pr.id || ''; }).filter(function (x) { return x; }).join(', '))
+      : '–');
+    var survey = p.pendingSurveyBlock || {};
+    html += kv('Pending surveys', Object.keys(survey).length === 0 ? '–' :
+      (survey.active ? 'Active' + (survey.count ? ' · ' + survey.count + ' pending' : '') : 'None'));
+
+    /* Attendance summary (from /profile itself; the Home ring still
+     * comes from /attendancebysubject). */
+    html += sec('Attendance summary');
+    var att = p.attendanceSummary || {};
+    if (att.total_classes === undefined && att.classes_attended === undefined && att.percentage === undefined) {
+      html += emptyNote(liveMode ? 'No attendance summary returned by the student API.' : 'No attendance summary in demo.');
+    } else {
+      html += kv('Total classes', dash(att.total_classes));
+      html += kv('Classes attended', dash(att.classes_attended));
+      html += kv('Percentage', att.percentage === undefined || att.percentage === null || att.percentage === ''
+        ? '–' : esc(String(att.percentage)) + '%');
+    }
+
+    /* Bank details */
+    html += sec('Bank details');
+    var bank = p.bankDetails;
+    if (!bank || Object.keys(bank).length === 0) {
+      html += emptyNote(liveMode ? 'No bank details returned by the student API.' : 'No bank details in demo.');
+    } else {
+      html += kv('Application status', dash(bank.application_status));
+      html += kv('NRE account details', scalarList(bank.nre_account_details));
+      html += kv('Locked', yesNo(bank.locked));
+      html += kv('Certification', dash(bank.certification_text));
+    }
+
+    /* Portfolio */
+    html += sec('Portfolio');
+    var pf = p.portfolio || {};
+    var hasPf = pf && (Object.keys(pf).length > 0);
+    if (!hasPf) {
+      html += emptyNote(liveMode ? 'No portfolio returned by the student API.' : 'No portfolio sections in demo.');
+    } else {
+      html += kv('Can edit', yesNo(pf.can_edit));
+      html += kv('Years', (pf.years && pf.years.length) ? esc(pf.years.join(', ')) : '–');
+      html += kv('Semesters', (pf.semesters && pf.semesters.length) ? esc(pf.semesters.join(', ')) : '–');
+      html += kv('MOOC provider types', (pf.mooc_provider_types && pf.mooc_provider_types.length) ? esc(pf.mooc_provider_types.join(', ')) : '–');
+      html += kv('MOOC providers', (pf.mooc_providers && pf.mooc_providers.length)
+        ? esc(pf.mooc_providers.map(function (m) { return m.name || m.id || ''; }).filter(function (x) { return x; }).join(', ')) : '–');
+      html += kv('New provider types', (pf.new_provider_types && pf.new_provider_types.length) ? esc(pf.new_provider_types.join(', ')) : '–');
+      html += kv('File types', (pf.file_types && pf.file_types.length) ? esc(pf.file_types.join(', ')) : '–');
+      html += kv('File max size', fmtBytes(pf.file_max_bytes));
+      (pf.sections || []).forEach(function (s) {
+        var items = s.items || [];
+        var value;
+        if (items.length) {
+          value = esc(items.map(function (it) { return scalarList(it); }).join(' | '));
+        } else {
+          value = dash(s.empty_text);
+        }
+        var meta = [];
+        if (s.has_file) meta.push('File: ' + (s.file_label || s.file_field || 'yes'));
+        if (s.fields && s.fields.length) {
+          meta.push('Fields: ' + s.fields.map(function (f) {
+            return (f && typeof f === 'object') ? (f.label || f.key || f.name || '') : String(f);
+          }).filter(function (x) { return x; }).join(', '));
+        }
+        html += kv(dash(s.title || s.key || s.type), value + (meta.length ? '<br><span class="muted" style="font-weight:400;">' + esc(meta.join(' · ')) + '</span>' : ''));
+      });
+      if (!(pf.sections && pf.sections.length)) {
+        html += emptyNote('No portfolio sections.');
+      }
+    }
+
+    /* Features */
+    html += sec('Features');
+    var feats = p.features || {};
+    var featKeys = Object.keys(feats);
+    if (!featKeys.length) {
+      html += emptyNote(liveMode ? 'No feature flags returned by the student API.' : 'No feature flags in demo.');
+    } else {
+      var featLabels = {
+        photo_update_enabled: 'Photo update', profile_update_enabled: 'Profile update',
+        bank_update_enabled: 'Bank update', portfolio_update_enabled: 'Portfolio update',
+        documents_enabled: 'Documents', notice_board_enabled: 'Notice board',
+        dashboard_capabilities: 'Dashboard capabilities'
+      };
+      featKeys.forEach(function (k) {
+        var label = featLabels[k] || k;
+        var v = feats[k];
+        var text;
+        if (typeof v === 'boolean') text = yesNo(v);
+        else if (Array.isArray(v)) text = v.length ? esc(v.join(', ')) : '–';
+        else if (v && typeof v === 'object') text = scalarList(v);
+        else text = dash(v);
+        html += kv(label, text);
+      });
+    }
+
     $('profileKv').innerHTML = html;
   }
 
