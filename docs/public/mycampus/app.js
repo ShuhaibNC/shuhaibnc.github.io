@@ -29,6 +29,13 @@
       evaluations: {}, uni: {}, calendar: {} };
   }
   var liveExtra = freshLiveExtra();
+  /* Live semester identity: the API's semester is an internal record
+   * id (e.g. 97, "Ist semester"), NOT a semester number 1-8.
+   * liveSemId/liveSemName come from the login response; liveSemesters
+   * is the /semesterlist result driving the pickers in live mode. */
+  var liveSemesters = null;
+  var liveSemId = null;
+  var liveSemName = '';
 
   /* Live timetable cache: monthKey ('YYYY-MM') -> the Worker's
    * /api/timetable response {month, days: {date: [entries]}}. The
@@ -334,6 +341,9 @@
     liveToken = null;
     liveCache = {};
     liveExtra = freshLiveExtra();
+    liveSemesters = null;
+    liveSemId = null;
+    liveSemName = '';
     liveTtMonths = {};
     ttFetchState = {};
     ttWeekMonday = mondayOf(new Date());
@@ -391,7 +401,9 @@
         rows.push({
           code: k,
           present: parseInt(s.present_hours, 10) || 0,
-          total: parseInt(s.total_hours, 10) || 0
+          total: parseInt(s.total_hours, 10) || 0,
+          name: s.name || '',
+          teacher: s.teacher_name || s.teacher || ''
         });
       }
     });
@@ -462,7 +474,10 @@
         name: pd.name || '',
         roll: pd.roll_no || att.roll_no || '',
         course: pd.course || 'MCA',
-        semester: pd.curnt_sem || attSem || 3,
+        semester: (pd.curnt_sem !== undefined && pd.curnt_sem !== null && pd.curnt_sem !== '') ? pd.curnt_sem : null,
+        /* curnt_sem is the display semester number; the API semester
+         * record id (sem_id, e.g. 97) is NEVER shown as a semester
+         * number — displaySemester() renders it as the sem_name. */
         college: 'College of Engineering Vadakara (CEV)',
         university: 'APJ Abdul Kalam Technological University (KTU)',
         scheme: 'MCA 2020 scheme',
@@ -528,17 +543,53 @@
   }
 
   function loadLiveData() {
+    /* Semesters first: the pickers and every sem parameter depend on
+     * the API record id. On a session resume the site never saw the
+     * login response, so a single semesterlist entry IS the student's
+     * semester and becomes attSem/resSemVal/examSemVal/assignSemVal.
+     * If /semesterlist fails, the login semester (when known) is the
+     * single fallback option; nothing invents semesters 1-8.
+     * NOTE: liveFetch (not safeLiveFetch) here — liveMode is still
+     * false until the first load succeeds, and safeLiveFetch refuses
+     * to run while it is false. */
+    return liveFetch('/api/semesters').catch(function () { return null; }).then(function (semRes) {
+      if (semRes && semRes.items && semRes.items.length) {
+        liveSemesters = semRes.items.filter(function (it) {
+          return it && it.id !== undefined && it.id !== null && it.id !== '';
+        }).map(function (it) { return { id: it.id, name: it.name || '' }; });
+      }
+      if ((!liveSemesters || !liveSemesters.length) &&
+          liveSemId !== null && liveSemId !== undefined && liveSemId !== '') {
+        liveSemesters = [{ id: liveSemId, name: liveSemName || '' }];
+      }
+      if ((liveSemId === null || liveSemId === undefined || liveSemId === '') &&
+          liveSemesters && liveSemesters.length === 1) {
+        liveSemId = liveSemesters[0].id;
+        liveSemName = liveSemesters[0].name || '';
+        attSem = coerceSem(liveSemId);
+        resSemVal = attSem;
+        examSemVal = attSem;
+        assignSemVal = attSem;
+      }
+      return loadLiveDataRest();
+    });
+  }
+
+  function loadLiveDataRest() {
     var now = new Date();
     var thisMonth = monthKeyOf(now.getFullYear(), now.getMonth());
     /* Profile, attendance and results are essential: a failure there
      * fails the sign-in. Monthly and timetable are month-dependent
-     * and may legitimately be empty, so they are safe-fetched — a
-     * failure only means that section shows an empty state. */
+     * and may legitimately be empty, so they are fetched with a
+     * null-on-failure — a failure only means that section shows an
+     * empty state. (liveFetch + catch, not safeLiveFetch: liveMode
+     * is still false at this point, so safeLiveFetch would refuse
+     * and monthly/timetable would never load on sign-in.) */
     return Promise.all([
       liveFetch('/api/profile'),
       liveFetch('/api/attendance?sem=' + attSem),
-      safeLiveFetch('/api/monthly'),
-      safeLiveFetch('/api/timetable?month=' + thisMonth),
+      liveFetch('/api/monthly').catch(function () { return null; }),
+      liveFetch('/api/timetable?month=' + thisMonth).catch(function () { return null; }),
       liveFetch('/api/results?sem=' + resSemVal)
     ]).then(function (parts) {
       D = buildLiveData(parts[0], parts[1], parts[2], parts[4]);
@@ -620,12 +671,16 @@
         liveToken = data.token;
         try { sessionStorage.setItem(LIVE_TOKEN_KEY, liveToken); } catch (e) {}
         /* The login response carries the student's semester: use it
-         * for every semester picker instead of the default 3. */
-        if (typeof data.sem_id === 'number' && data.sem_id >= 1 && data.sem_id <= 8) {
-          attSem = data.sem_id;
-          resSemVal = data.sem_id;
-          examSemVal = data.sem_id;
-          assignSemVal = data.sem_id;
+         * for every semester picker instead of the default 3. The
+         * sem_id is an API record id (e.g. 97), NOT a 1-8 semester
+         * number — it is used as-is, with no range gate. */
+        if (data.sem_id !== undefined && data.sem_id !== null && data.sem_id !== '') {
+          liveSemId = data.sem_id;
+          liveSemName = data.sem_name || '';
+          attSem = coerceSem(data.sem_id);
+          resSemVal = attSem;
+          examSemVal = attSem;
+          assignSemVal = attSem;
         }
         return loadLiveData();
       })
@@ -684,6 +739,9 @@
     liveToken = null;
     liveCache = {};
     liveExtra = freshLiveExtra();
+    liveSemesters = null;
+    liveSemId = null;
+    liveSemName = '';
     liveTtMonths = {};
     ttFetchState = {};
     ttWeekMonday = mondayOf(new Date());
@@ -816,9 +874,17 @@
     return (MC_DATA.UNIVERSITY_RESULTS && MC_DATA.UNIVERSITY_RESULTS[sem] !== undefined)
       ? MC_DATA.UNIVERSITY_RESULTS[sem] : null;
   }
-  function subjectInfo(code) {
-    if (liveMode && liveExtra.subjects[code]) return liveExtra.subjects[code];
-    return { teacher: '', type: D.slotType(code) };
+  function subjectInfo(code, row) {
+    /* Name/teacher precedence: /api/subjects first, then the
+     * attendance row itself (the Worker carries name/teacher_name
+     * when the API sent them), then the built-in paper names — which
+     * fall back to the code itself, never blank, never invented. */
+    var fromSubjects = (liveMode && liveExtra.subjects[code]) || null;
+    return {
+      teacher: (fromSubjects && fromSubjects.teacher) || (row && row.teacher) || '',
+      type: (fromSubjects && fromSubjects.type) || D.slotType(code),
+      name: (fromSubjects && fromSubjects.name) || (row && row.name) || D.subjectName(code)
+    };
   }
   function assignmentStatus(item) {
     var s = String(item.status || '').toLowerCase();
@@ -851,7 +917,7 @@
     var h = now.getHours();
     var greet = h < 12 ? 'Good morning' : (h < 17 ? 'Good afternoon' : 'Good evening');
     $('homeGreet').textContent = greet + ', ' + displayName.split(' ')[0].charAt(0).toUpperCase() + displayName.split(' ')[0].slice(1).toLowerCase();
-    $('homeDate').textContent = fmtDate(now) + ' · MCA Semester ' + (D.PROFILE.semester || 3) + ' · CEV';
+    $('homeDate').textContent = fmtDate(now) + ' · MCA ' + displaySemester() + ' · CEV';
 
     var sem = D.PROFILE.semester || 3;
     if (!D.ATTENDANCE[sem]) sem = attSem;
@@ -862,7 +928,7 @@
     rows.forEach(function (r) { pTot += r.present; tTot += r.total; });
     $('ringPct').textContent = overall.toFixed(1) + '%';
     $('ringFg').style.strokeDashoffset = String(276.5 * (1 - overall / 100));
-    $('ringSub').textContent = 'Semester ' + sem + ' overall';
+    $('ringSub').textContent = displaySemester() + ' overall';
     $('ringHours').textContent = pTot + ' / ' + tTot + ' hours · ' + rows.length + ' subjects';
 
     /* Today's classes from the timetable (real weekday). */
@@ -927,7 +993,7 @@
     rows.forEach(function (r) {
       var pc = pct(r.present, r.total);
       chart += '<div class="chart-row" data-goto-attendance role="button" tabindex="0">' +
-        '<span class="cname" title="' + esc(D.subjectName(r.code)) + '">' + esc(D.subjectName(r.code)) + '</span>' +
+        '<span class="cname" title="' + esc(subjectInfo(r.code, r).name) + '">' + esc(subjectInfo(r.code, r).name) + '</span>' +
         '<span class="bar"><span class="' + (pc < 75 ? 'low' : '') + '" style="width:' + pc.toFixed(1) + '%"></span></span>' +
         '<span class="cpct">' + pc.toFixed(1) + '%</span></div>';
     });
@@ -1055,10 +1121,62 @@
   var monthKey = '';
   var monthNotice = '';
 
+  /* Semester id as the site holds it: a run of digits stays a
+   * number (97), anything else stays the string the API gave. */
+  function coerceSem(v) {
+    var s = String(v == null ? '' : v).trim();
+    return /^\d+$/.test(s) ? parseInt(s, 10) : s;
+  }
+
+  /* Human label for a semester id: the /semesterlist name in live
+   * mode ("Ist semester"), else "Semester <id>". The raw API record
+   * id (97) is never shown as a semester number. */
+  function semDisplay(id) {
+    if (liveMode && liveSemesters) {
+      for (var i = 0; i < liveSemesters.length; i++) {
+        if (String(liveSemesters[i].id) === String(id)) {
+          return liveSemesters[i].name || ('Semester ' + id);
+        }
+      }
+    }
+    if (liveMode && liveSemId !== null && liveSemId !== undefined && String(liveSemId) === String(id)) {
+      return liveSemName || ('Semester ' + id);
+    }
+    return 'Semester ' + id;
+  }
+
+  /* Display semester for the Home ring / Profile: the profile's
+   * semester number when known, else the login sem_name, else the
+   * current attendance semester's list name. */
+  function displaySemester() {
+    if (D.PROFILE && D.PROFILE.semester) return 'Semester ' + D.PROFILE.semester;
+    if (liveMode && liveSemName) return liveSemName;
+    return semDisplay(attSem);
+  }
+
   function fillSemSelect(sel, current) {
+    if (!sel) return;
+    var opts;
+    if (liveMode && liveSemesters && liveSemesters.length) {
+      opts = liveSemesters.map(function (s) {
+        return { value: s.id, label: s.name || ('Semester ' + s.id) };
+      });
+    } else if (liveMode && liveSemId !== null && liveSemId !== undefined && liveSemId !== '') {
+      opts = [{ value: liveSemId, label: liveSemName || ('Semester ' + liveSemId) }];
+    } else {
+      /* Demo mode: the 1-8 pickers, unchanged. */
+      opts = [];
+      for (var s = 1; s <= 8; s++) opts.push({ value: s, label: 'Semester ' + s });
+    }
+    var seen = false;
     var html = '';
-    for (var s = 1; s <= 8; s++) {
-      html += '<option value="' + s + '"' + (s === current ? ' selected' : '') + '>Semester ' + s + '</option>';
+    opts.forEach(function (o) {
+      var isCur = String(o.value) === String(current);
+      if (isCur) seen = true;
+      html += '<option value="' + esc(String(o.value)) + '"' + (isCur ? ' selected' : '') + '>' + esc(o.label) + '</option>';
+    });
+    if (!seen) {
+      html += '<option value="' + esc(String(current)) + '" selected>' + esc(semDisplay(current)) + '</option>';
     }
     sel.innerHTML = html;
   }
@@ -1072,7 +1190,7 @@
       $('attOverallHours').textContent = '';
       $('attOverallBar').style.width = '0%';
       $('attSemNote').textContent = liveMode ? 'No attendance data for this semester from the student API.' : 'No attendance data for this semester in demo.';
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No data for Semester ' + attSem + '</h3><p>The MCA course has 4 semesters. Semesters 5-8 have no data' + (liveMode ? ' from the student API.' : ' in demo.') + '</p></div>';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No data for ' + esc(semDisplay(attSem)) + '</h3><p>' + (liveMode ? 'The student API returned no attendance for this semester.' : 'The MCA course has 4 semesters. Semesters 5-8 have no data in demo.') + '</p></div>';
       return;
     }
     $('attSemNote').textContent = liveMode ? 'Live data from the student API.' : (attSem === 3 ? 'Overall about 95%, matching the verified Sep 2026 portal check.' : 'Demo figures for this semester.');
@@ -1085,11 +1203,11 @@
     var html = '';
     rows.forEach(function (r) {
       var pc = pct(r.present, r.total);
-      var info = subjectInfo(r.code);
+      var info = subjectInfo(r.code, r);
       var typeTag = '<span class="tag' + (info.type === 'lab' ? ' tag-lab' : '') + '">' + (info.type === 'lab' ? 'Lab' : 'Theory') + '</span>';
       var teacher = info.teacher ? ' · ' + esc(info.teacher) : '';
       html += '<div class="subj-row"><div class="subj-head">' +
-        '<span class="subj-name">' + esc(D.subjectName(r.code)) + '</span>' +
+        '<span class="subj-name">' + esc(info.name) + '</span>' +
         '<span class="subj-pct">' + pc.toFixed(1) + '%' + (pc < 75 ? '<span class="flag-low">Below 75%</span>' : '') + '</span></div>' +
         '<div class="subj-meta">' + esc(r.code) + ' · ' + r.present + ' / ' + r.total + ' hrs ' + typeTag + '<span class="muted">' + teacher + '</span></div>' +
         '<div class="bar"><span class="' + (pc < 75 ? 'low' : '') + '" style="width:' + pc.toFixed(1) + '%"></span></div></div>';
@@ -1227,7 +1345,7 @@
   $('monthNext').addEventListener('click', function () { shiftMonth(1); });
 
   $('attSem').addEventListener('change', function () {
-    attSem = parseInt($('attSem').value, 10);
+    attSem = coerceSem($('attSem').value);
     if (liveMode) loadLiveSem(attSem).then(renderAttendance, function () {});
     else renderAttendance();
   });
@@ -1354,9 +1472,11 @@
     var groups = D.RESULTS[sem] || [];
     var box = $('resultsBox');
     if (!groups.length) {
-      var msg = sem === 3
-        ? 'The student API shows no sessional exams yet for Semester 3.'
-        : (liveMode ? 'No series marks for Semester ' + sem + ' from the student API.' : 'No verified series marks for Semester ' + sem + ' in demo.');
+      var msg = liveMode
+        ? 'The student API shows no sessional exams yet for ' + semDisplay(sem) + '.'
+        : (sem === 3
+          ? 'The student API shows no sessional exams yet for Semester 3.'
+          : 'No verified series marks for Semester ' + sem + ' in demo.');
       box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No sessional exams yet</h3><p>' + msg + '</p><p style="margin-top:8px;">Series marks appear here once the college publishes them.</p></div>';
       renderUniversityResults();
       return;
@@ -1387,7 +1507,7 @@
   $('resSem').addEventListener('change', function () {
     /* Results keeps its own semester: changing it must not touch
      * the Attendance picker or re-render Attendance. */
-    resSemVal = parseInt($('resSem').value, 10);
+    resSemVal = coerceSem($('resSem').value);
     if (liveMode) {
       Promise.all([loadLiveSem(resSemVal), loadLiveUni(resSemVal)]).then(renderResults, function () {});
     } else {
@@ -1474,7 +1594,7 @@
     if (!box) return;
     var items = getExams(examSemVal);
     if (!items.length) {
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No exams for Semester ' + examSemVal + '</h3><p>' + (liveMode ? 'No exams published for this semester by the student API.' : 'No exams in demo for this semester.') + '</p></div>';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No exams for ' + esc(semDisplay(examSemVal)) + '</h3><p>' + (liveMode ? 'No exams published for this semester by the student API.' : 'No exams in demo for this semester.') + '</p></div>';
       return;
     }
     var html = '';
@@ -1530,7 +1650,7 @@
     else if (assignFilterVal === 'evaluation') items = parts.evaluations.slice();
     else items = parts.assignments.concat(parts.evaluations);
     if (!items.length) {
-      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No assignments for Semester ' + assignSemVal + '</h3><p>' + (liveMode ? 'Nothing published for this semester by the student API.' : 'No assignments in demo for this semester.') + '</p></div>';
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No assignments for ' + esc(semDisplay(assignSemVal)) + '</h3><p>' + (liveMode ? 'Nothing published for this semester by the student API.' : 'No assignments in demo for this semester.') + '</p></div>';
       return;
     }
     var html = '';
@@ -1684,12 +1804,12 @@
   var noticeSearchEl = $('noticeSearch');
   if (noticeSearchEl) noticeSearchEl.addEventListener('input', function () { noticeQuery = noticeSearchEl.value; renderNotices(); });
   $('examSem').addEventListener('change', function () {
-    examSemVal = parseInt($('examSem').value, 10);
+    examSemVal = coerceSem($('examSem').value);
     if (liveMode) loadLiveExams(examSemVal).then(renderExams, function () {});
     else renderExams();
   });
   $('assignSem').addEventListener('change', function () {
-    assignSemVal = parseInt($('assignSem').value, 10);
+    assignSemVal = coerceSem($('assignSem').value);
     if (liveMode) loadLiveAssignments(assignSemVal).then(renderAssignments, function () {});
     else renderAssignments();
   });
@@ -1715,7 +1835,7 @@
       av.textContent = initials(displayName);
     }
     $('profileName').textContent = displayName;
-    $('profileSub').textContent = p.course + ' · Semester ' + p.semester + ' · Roll ' + p.roll;
+    $('profileSub').textContent = p.course + ' · ' + displaySemester() + ' · Roll ' + p.roll;
 
     var dash = function (v) {
       return (v === null || v === undefined || v === '') ? '–' : esc(String(v));
@@ -1769,7 +1889,7 @@
     html += kv('Roll number', dash(p.roll));
     html += kv('Admission no.', dash(p.admissionNo));
     html += kv('University reg no.', dash(p.universityRegNo));
-    html += kv('Course', dash(p.course + ' · Semester ' + p.semester + ' · ' + p.scheme));
+    html += kv('Course', dash(p.course + ' · ' + displaySemester() + ' · ' + p.scheme));
     html += kv('College', dash(p.college));
     html += kv('University', dash(p.university));
     html += kv('Date of birth', dash(p.dob));
