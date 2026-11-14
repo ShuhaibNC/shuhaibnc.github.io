@@ -283,6 +283,13 @@ p { margin: 0; }
   background: var(--vp-c-brand-soft);
   font-weight: 600;
 }
+/* Tabs stay hidden until signed in: the body starts with class
+ * "signed-out" (set in index.html) and showApp() removes it, so the
+ * tab buttons and the bottom tab bar never appear on the login page —
+ * not even before the scripts run. The external links (Home site,
+ * MCA Hub, GitHub) and the theme picker stay visible. */
+body.signed-out .nav-links button.nav-tab { display: none; }
+body.signed-out .tabbar { display: none; }
 .palette-btn {
   display: flex;
   align-items: center;

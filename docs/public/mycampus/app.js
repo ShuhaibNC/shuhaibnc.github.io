@@ -256,12 +256,14 @@
     $('loginView').classList.add('hidden');
     $('appView').classList.remove('hidden');
     $('navLogoutBtn').classList.remove('hidden');
+    document.body.classList.remove('signed-out');
     renderAll();
   }
   function showLogin() {
     $('appView').classList.add('hidden');
     $('loginView').classList.remove('hidden');
     $('navLogoutBtn').classList.add('hidden');
+    document.body.classList.add('signed-out');
   }
 
   var DEMO_FOOT = 'MyCampus Web 1.0 · Demo mode, sample data, nothing is sent anywhere · Live login works in the Android app · ';
