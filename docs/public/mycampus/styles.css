@@ -914,9 +914,14 @@ footer.site-foot {
 
 /* ---------- Top nav, small desktops (1024-1279px) ----------
  * 5 labelled tabs fit (~921px) but the 3 external links do not
- * (~1225px with them), so the externals stay hidden until 1280px. */
+ * (~1225px with them), so the externals stay hidden until 1280px.
+ * With 9 tabs (Notices/Fees/Exams/Assignments added) labelled tabs
+ * need ~1600px, so the tabs stay icon-only until 1280px too. */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .nav-links .nav-ext { display: none; }
+  .nav-links button.nav-tab { font-size: 0; padding: 8px 10px; }
+  .nav-logout-label { display: none; }
+  .nav-logout { padding: 0 10px; }
 }
 
 /* ---------- Today's-classes / timetable rows (<=560px) ----------

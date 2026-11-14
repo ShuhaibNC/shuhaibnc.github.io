@@ -35,6 +35,10 @@
       <button type="button" class="nav-tab" data-tab="attendance"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>Attendance</button>
       <button type="button" class="nav-tab" data-tab="timetable"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>Timetable</button>
       <button type="button" class="nav-tab" data-tab="results"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>Results</button>
+      <button type="button" class="nav-tab" data-tab="notices"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>Notices</button>
+      <button type="button" class="nav-tab" data-tab="fees"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Fees</button>
+      <button type="button" class="nav-tab" data-tab="exams"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>Exams</button>
+      <button type="button" class="nav-tab" data-tab="assignments"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.5 2H8.5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M9 9h6"/><path d="M9 13h6"/></svg>Assignments</button>
       <button type="button" class="nav-tab" data-tab="profile"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</button>
       <a class="nav-ext" href="/" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Home site</a>
       <a class="nav-ext" href="https://shuhaibnc.github.io/MCA" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>MCA Hub</a>
@@ -150,6 +154,32 @@
           <div id="weekDetail" style="margin-top:8px;"></div>
         </div>
 
+        <div class="card">
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>Due soon / Alerts</h2>
+          <p class="card-sub">Overdue assignments and fees due <span class="demo-tag">Demo data</span></p>
+          <div id="alertsBox"></div>
+        </div>
+
+        <div class="card">
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>Latest notices</h2>
+          <p class="card-sub">Top 3 notices <span class="demo-tag">Demo data</span></p>
+          <div id="latestNoticesBox"></div>
+        </div>
+
+        <div class="card">
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span>Calendar</h2>
+          <p class="card-sub">Holidays and suspended hours <span class="demo-tag">Demo data</span></p>
+          <div class="week-nav">
+            <button type="button" id="calPrev" aria-label="Previous month">&#8249;</button>
+            <span class="week-label" id="calLabel"></span>
+            <button type="button" id="calNext" aria-label="Next month">&#8250;</button>
+          </div>
+          <div class="month-grid-wrap">
+            <table class="month-grid" id="calGrid"></table>
+          </div>
+          <div class="legend" id="calLegend"></div>
+        </div>
+
         <div class="quick-grid" id="quickGrid"></div>
       </section>
 
@@ -214,6 +244,87 @@
             <span class="muted">Marks are grouped by series exam, as on the portal.</span>
           </div>
           <div id="resultsBox" style="margin-top:8px;"></div>
+        </div>
+        <div class="card">
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg></span>University results</h2>
+          <p class="card-sub">KTU university results (SGPA / CGPA) <span class="demo-tag">Demo data</span></p>
+          <div id="uniResultsBox"></div>
+        </div>
+      </section>
+
+      <section id="tab-notices" class="tab-page hidden">
+        <div class="page-head">
+          <h1><span class="h-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>Notices</h1>
+          <p>Notices and circulars from the portal <span class="demo-tag">Demo data</span></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card">
+          <div class="field">
+            <label for="noticeSearch">Search notices</label>
+            <div class="input-wrap">
+              <input id="noticeSearch" type="text" placeholder="Search by title or description" />
+            </div>
+          </div>
+          <div id="noticesBox" style="margin-top:8px;"></div>
+        </div>
+      </section>
+
+      <section id="tab-fees" class="tab-page hidden">
+        <div class="page-head">
+          <h1><span class="h-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></span>Fees</h1>
+          <p>Fee summary, instalments and receipts <span class="demo-tag">Demo data</span></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card">
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></span>Summary</h2>
+          <div id="feesSummary"></div>
+        </div>
+        <div class="card">
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>Instalments</h2>
+          <div id="feesBox"></div>
+        </div>
+        <div class="card">
+          <h2><span class="h-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></span>Receipts</h2>
+          <div id="receiptsBox"></div>
+        </div>
+      </section>
+
+      <section id="tab-exams" class="tab-page hidden">
+        <div class="page-head">
+          <h1><span class="h-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg></span>Exams</h1>
+          <p>Upcoming and past exams <span class="demo-tag">Demo data</span></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card">
+          <div class="sem-row">
+            <div class="field">
+              <label for="examSem">Semester</label>
+              <select id="examSem"></select>
+            </div>
+            <span class="muted">Past exams are greyed out.</span>
+          </div>
+          <div id="examsBox" style="margin-top:8px;"></div>
+        </div>
+      </section>
+
+      <section id="tab-assignments" class="tab-page hidden">
+        <div class="page-head">
+          <h1><span class="h-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.5 2H8.5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M9 9h6"/><path d="M9 13h6"/></svg></span>Assignments</h1>
+          <p>Assignments and evaluations <span class="demo-tag">Demo data</span></p>
+        </div>
+        <div style="height:16px"></div>
+        <div class="card">
+          <div class="sem-row">
+            <div class="field">
+              <label for="assignSem">Semester</label>
+              <select id="assignSem"></select>
+            </div>
+            <div class="field">
+              <label for="assignFilter">Type</label>
+              <select id="assignFilter"><option value="all">All</option><option value="assignment">Assignment</option><option value="evaluation">Evaluation</option></select>
+            </div>
+          </div>
+          <div id="assignmentsBox" style="margin-top:8px;"></div>
         </div>
       </section>
 

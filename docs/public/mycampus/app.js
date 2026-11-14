@@ -21,6 +21,14 @@
   var liveMode = false;
   var liveToken = null;
   var liveCache = {};
+  /* Extra live data from the new Etlab-API routes. Every entry starts
+   * null/empty: a missing or failed fetch falls back to demo data. */
+  function freshLiveExtra() {
+    return { notices: null, circulars: null, fees: null, dues: null,
+      dashboard: null, subjects: {}, exams: {}, assignments: {},
+      evaluations: {}, uni: {}, calendar: {} };
+  }
+  var liveExtra = freshLiveExtra();
 
   function workerUrlOk(u) {
     if (!u) return false;
@@ -311,6 +319,7 @@
     liveMode = false;
     liveToken = null;
     liveCache = {};
+    liveExtra = freshLiveExtra();
     D = MC_DATA;
     displayName = (name || '').trim() || D.PROFILE.name;
     try {
@@ -343,6 +352,14 @@
         return data;
       });
     });
+  }
+
+  /* Safe live fetch for the new routes: any failure (including the
+   * Worker's 502 STUDENT_API_UNAVAILABLE) resolves to null, and the
+   * caller falls back to demo data with the Demo label. */
+  function safeLiveFetch(path) {
+    if (!liveMode || !liveToken) return Promise.resolve(null);
+    return liveFetch(path).catch(function () { return null; });
   }
 
   function rowsFromAttendance(att) {
@@ -483,6 +500,67 @@
       liveMode = true;
       liveCache = { 3: { att: D.ATTENDANCE[3], res: D.RESULTS[3] } };
       setModeBadge(true);
+      /* New Etlab-API routes: each is safe-fetched, so a 502 or an
+       * empty response only means that section falls back to demo. */
+      return Promise.all([
+        safeLiveFetch('/api/dashboard'),
+        safeLiveFetch('/api/notices'),
+        safeLiveFetch('/api/circulars'),
+        safeLiveFetch('/api/fees'),
+        safeLiveFetch('/api/dues'),
+        safeLiveFetch('/api/subjects?sem=3'),
+        safeLiveFetch('/api/exams?sem=3'),
+        safeLiveFetch('/api/assignments?sem=3'),
+        safeLiveFetch('/api/evaluations?sem=3'),
+        safeLiveFetch('/api/university-results?sem=3')
+      ]);
+    }).then(function (extra) {
+      if (!extra) return;
+      liveExtra.dashboard = extra[0];
+      liveExtra.notices = extra[1] && extra[1].items ? extra[1].items : null;
+      liveExtra.circulars = extra[2] && extra[2].items ? extra[2].items : null;
+      liveExtra.fees = extra[3] || null;
+      liveExtra.dues = extra[4] && extra[4].items ? extra[4].items : null;
+      if (extra[5] && extra[5].items) storeSubjects(3, extra[5].items);
+      if (extra[6] && extra[6].items) liveExtra.exams[3] = extra[6].items;
+      if (extra[7] && extra[7].items) liveExtra.assignments[3] = extra[7].items;
+      if (extra[8] && extra[8].items) liveExtra.evaluations[3] = extra[8].items;
+      if (extra[9]) liveExtra.uni[3] = extra[9];
+    });
+  }
+
+  function storeSubjects(sem, items) {
+    (items || []).forEach(function (it) {
+      if (!it || !it.code) return;
+      liveExtra.subjects[it.code] = {
+        teacher: it.teacher_name || '',
+        type: (it.type || '').toLowerCase() === 'lab' ? 'lab' : 'theory',
+        name: it.subject || ''
+      };
+    });
+  }
+
+  /* Per-semester live loaders for the new sections (cached). */
+  function loadLiveExams(sem) {
+    if (liveExtra.exams[sem]) return Promise.resolve();
+    return safeLiveFetch('/api/exams?sem=' + sem).then(function (res) {
+      if (res && res.items) liveExtra.exams[sem] = res.items;
+    });
+  }
+  function loadLiveAssignments(sem) {
+    if (liveExtra.assignments[sem] && liveExtra.evaluations[sem]) return Promise.resolve();
+    return Promise.all([
+      safeLiveFetch('/api/assignments?sem=' + sem),
+      safeLiveFetch('/api/evaluations?sem=' + sem)
+    ]).then(function (parts) {
+      if (parts[0] && parts[0].items) liveExtra.assignments[sem] = parts[0].items;
+      if (parts[1] && parts[1].items) liveExtra.evaluations[sem] = parts[1].items;
+    });
+  }
+  function loadLiveUni(sem) {
+    if (liveExtra.uni[sem] !== undefined) return Promise.resolve();
+    return safeLiveFetch('/api/university-results?sem=' + sem).then(function (res) {
+      if (res) liveExtra.uni[sem] = res;
     });
   }
 
@@ -519,13 +597,15 @@
     }
     return Promise.all([
       liveFetch('/api/attendance?sem=' + sem),
-      liveFetch('/api/results?sem=' + sem)
+      liveFetch('/api/results?sem=' + sem),
+      safeLiveFetch('/api/subjects?sem=' + sem)
     ]).then(function (parts) {
       var att = rowsFromAttendance(parts[0]);
       var res = (parts[1] && parts[1].series) || [];
       liveCache[sem] = { att: att, res: res };
       D.ATTENDANCE[sem] = att;
       D.RESULTS[sem] = res;
+      if (parts[2] && parts[2].items) storeSubjects(sem, parts[2].items);
     }).catch(function (err) {
       if (err.status === 401) signOutToLogin('Session expired. Please sign in again.');
       else {
@@ -539,6 +619,7 @@
     liveMode = false;
     liveToken = null;
     liveCache = {};
+    liveExtra = freshLiveExtra();
     D = MC_DATA;
     displayName = D.PROFILE.name;
     try {
@@ -613,6 +694,77 @@
     return '<span class="status-chip' + (light ? ' light' : '') + '" style="background:' + D.STATUS_COLORS[s] + '">' + s + '</span>';
   }
 
+  /* ================= new sections: data accessors =================
+   * Live data wins when present; anything missing falls back to the
+   * demo data in data.js (labelled Demo by setModeBadge). */
+  function fmtMoney(n) {
+    var v = parseFloat(n);
+    if (isNaN(v)) return '–';
+    try { return '\u20B9' + v.toLocaleString('en-IN'); } catch (e) { return '\u20B9' + v; }
+  }
+  function fmtDateStr(s) {
+    if (!s) return '–';
+    var d = new Date(String(s).length <= 10 ? s + 'T00:00:00' : s);
+    if (isNaN(d.getTime())) return String(s);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function isPastDate(s) {
+    if (!s) return false;
+    var d = new Date(String(s).length <= 10 ? s + 'T00:00:00' : s);
+    if (isNaN(d.getTime())) return false;
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    return d < today;
+  }
+  function getNotices() {
+    var items = [];
+    if (liveMode && (liveExtra.notices || liveExtra.circulars)) {
+      (liveExtra.notices || []).forEach(function (it) { items.push(it); });
+      (liveExtra.circulars || []).forEach(function (it) {
+        var c = Object.assign({}, it); c.source = 'circular'; items.push(c);
+      });
+    } else {
+      items = (MC_DATA.NOTICES || []).slice();
+    }
+    items.sort(function (a, b) { return String(b.date || '') < String(a.date || '') ? -1 : 1; });
+    return items;
+  }
+  function getFees() {
+    if (liveMode && liveExtra.fees) return liveExtra.fees;
+    return MC_DATA.FEES || null;
+  }
+  function getExams(sem) {
+    if (liveMode && liveExtra.exams[sem]) return liveExtra.exams[sem];
+    return (MC_DATA.EXAMS && MC_DATA.EXAMS[sem]) || [];
+  }
+  function getAssignments(sem) {
+    if (liveMode && (liveExtra.assignments[sem] || liveExtra.evaluations[sem])) {
+      return { assignments: liveExtra.assignments[sem] || [], evaluations: liveExtra.evaluations[sem] || [] };
+    }
+    return { assignments: (MC_DATA.ASSIGNMENTS && MC_DATA.ASSIGNMENTS[sem]) || [],
+      evaluations: (MC_DATA.EVALUATIONS && MC_DATA.EVALUATIONS[sem]) || [] };
+  }
+  function getUni(sem) {
+    if (liveMode && liveExtra.uni[sem] !== undefined) return liveExtra.uni[sem];
+    if (liveMode && liveExtra.dashboard && liveExtra.dashboard.has_university === false) return null;
+    return (MC_DATA.UNIVERSITY_RESULTS && MC_DATA.UNIVERSITY_RESULTS[sem] !== undefined)
+      ? MC_DATA.UNIVERSITY_RESULTS[sem] : null;
+  }
+  function subjectInfo(code) {
+    if (liveMode && liveExtra.subjects[code]) return liveExtra.subjects[code];
+    return { teacher: '', type: D.slotType(code) };
+  }
+  function assignmentStatus(item) {
+    var s = String(item.status || '').toLowerCase();
+    if (s === 'submitted' || s === 'done' || s === 'completed') return 'Submitted';
+    if (isPastDate(item.last_date)) return 'Overdue';
+    return 'Pending';
+  }
+  function statusTag(text) {
+    if (text === 'Submitted' || text === 'Paid') return '<span class="tag tag-lab">' + text + '</span>';
+    if (text === 'Overdue') return '<span class="flag-low">' + text + '</span>';
+    return '<span class="tag">' + text + '</span>';
+  }
+
   /* ================= Home ================= */
   var weekMonday = mondayOf(new Date());
   var selectedDay = new Date();
@@ -679,6 +831,9 @@
 
     renderWeek();
     renderQuick();
+    renderAlerts();
+    renderLatestNotices();
+    renderCalendar();
   }
 
   function renderQuick() {
@@ -686,6 +841,10 @@
       { tab: 'attendance', title: 'Attendance', sub: 'Subject-wise and monthly', icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>' },
       { tab: 'timetable', title: 'Timetable', sub: 'Full week, Periods 1-7', icon: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>' },
       { tab: 'results', title: 'Results', sub: 'Series exam marks', icon: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>' },
+      { tab: 'notices', title: 'Notices', sub: 'Notices and circulars', icon: '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>' },
+      { tab: 'fees', title: 'Fees', sub: 'Summary, instalments, receipts', icon: '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>' },
+      { tab: 'exams', title: 'Exams', sub: 'Upcoming and past exams', icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/>' },
+      { tab: 'assignments', title: 'Assignments', sub: 'Assignments and evaluations', icon: '<path d="M15.5 2H8.5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M9 9h6"/><path d="M9 13h6"/>' },
       { tab: 'profile', title: 'Profile', sub: 'Details and appearance', icon: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' }
     ];
     var html = '';
@@ -819,10 +978,13 @@
     var html = '';
     rows.forEach(function (r) {
       var pc = pct(r.present, r.total);
+      var info = subjectInfo(r.code);
+      var typeTag = '<span class="tag' + (info.type === 'lab' ? ' tag-lab' : '') + '">' + (info.type === 'lab' ? 'Lab' : 'Theory') + '</span>';
+      var teacher = info.teacher ? ' · ' + esc(info.teacher) : '';
       html += '<div class="subj-row"><div class="subj-head">' +
         '<span class="subj-name">' + esc(D.subjectName(r.code)) + '</span>' +
         '<span class="subj-pct">' + pc.toFixed(1) + '%' + (pc < 75 ? '<span class="flag-low">Below 75%</span>' : '') + '</span></div>' +
-        '<div class="subj-meta">' + esc(r.code) + ' · ' + r.present + ' / ' + r.total + ' hrs</div>' +
+        '<div class="subj-meta">' + esc(r.code) + ' · ' + r.present + ' / ' + r.total + ' hrs ' + typeTag + '<span class="muted">' + teacher + '</span></div>' +
         '<div class="bar"><span class="' + (pc < 75 ? 'low' : '') + '" style="width:' + pc.toFixed(1) + '%"></span></div></div>';
     });
     box.innerHTML = html;
@@ -993,6 +1155,7 @@
         ? 'The portal shows "No sessional exams yet" for Semester 3.'
         : (liveMode ? 'No series marks for Semester ' + sem + ' on the portal.' : 'No verified series marks for Semester ' + sem + ' in demo.');
       box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No sessional exams yet</h3><p>' + msg + '</p><p style="margin-top:8px;">Series marks appear here once the college publishes them on the portal.</p></div>';
+      renderUniversityResults();
       return;
     }
     var html = '';
@@ -1011,6 +1174,7 @@
       html += '</div>';
     });
     box.innerHTML = html;
+    renderUniversityResults();
   }
 
   $('resSem').addEventListener('change', function () {
@@ -1018,11 +1182,316 @@
      * the Attendance picker or re-render Attendance. */
     resSemVal = parseInt($('resSem').value, 10);
     if (liveMode) {
-      loadLiveSem(resSemVal).then(renderResults, function () {});
+      Promise.all([loadLiveSem(resSemVal), loadLiveUni(resSemVal)]).then(renderResults, function () {});
     } else {
       renderResults();
     }
   });
+
+  /* ================= Notices ================= */
+  var noticeQuery = '';
+  function renderNotices() {
+    var box = $('noticesBox');
+    if (!box) return;
+    var q = noticeQuery.trim().toLowerCase();
+    var items = getNotices().filter(function (it) {
+      if (!q) return true;
+      return (String(it.title || '') + ' ' + String(it.description || '') + ' ' + String(it.content || '')).toLowerCase().indexOf(q) >= 0;
+    });
+    if (!items.length) {
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No notices found</h3><p>' + (q ? 'Nothing matches that search.' : 'No notices published yet.') + '</p></div>';
+      return;
+    }
+    var html = '';
+    items.forEach(function (it) {
+      var isCirc = String(it.source || '').toLowerCase() === 'circular';
+      html += '<div class="subj-row"><div class="subj-head">' +
+        '<span class="subj-name">' + esc(it.title || 'Notice') + '</span>' +
+        '<span class="muted" style="white-space:nowrap;">' + esc(fmtDateStr(it.date)) + '</span></div>' +
+        '<div class="subj-meta">' + (isCirc ? '<span class="tag">Circular</span> ' : '') + esc(it.description || it.content || '') + '</div>' +
+        (it.url ? '<p><a href="' + esc(it.url) + '" target="_blank" rel="noopener">View attachment</a></p>' : '') +
+        '</div>';
+    });
+    box.innerHTML = html;
+  }
+
+  /* ================= Fees ================= */
+  function renderFees() {
+    var fees = getFees();
+    var sumBox = $('feesSummary'), box = $('feesBox'), recBox = $('receiptsBox');
+    if (!sumBox || !box || !recBox) return;
+    if (!fees) {
+      sumBox.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No fee data</h3><p>No fee details are available.</p></div>';
+      box.innerHTML = ''; recBox.innerHTML = '';
+      return;
+    }
+    var total = fees.total_fee, paid = fees.total_paid, bal = fees.total_balance;
+    sumBox.innerHTML =
+      '<div class="overall-line"><span class="big-pct">' + esc(fmtMoney(total)) + '</span><span class="muted">Total fee</span></div>' +
+      '<div class="overall-line"><span class="big-pct">' + esc(fmtMoney(paid)) + '</span><span class="muted">Total paid</span></div>' +
+      '<div class="overall-line"><span class="big-pct">' + esc(fmtMoney(bal)) + '</span><span class="muted">Balance' + (fees.has_due ? ' · Due' : '') + '</span></div>' +
+      (liveMode ? '' : '<p class="muted">Sample totals for the demo.</p>');
+    var list = fees.fees || fees.items || [];
+    if (!list.length) {
+      box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No instalments listed.</span></p>';
+    } else {
+      var html = '';
+      list.forEach(function (it) {
+        html += '<div class="subj-row"><div class="subj-head">' +
+          '<span class="subj-name">' + esc(it.title || it.label || 'Fee') + '</span>' +
+          '<span class="marks-pill">' + esc(fmtMoney(it.amount)) + '</span></div>' +
+          '<div class="subj-meta">' + (it.due_date ? 'Due ' + esc(fmtDateStr(it.due_date)) + ' · ' : '') + esc(it.status || '') + ' ' + statusTag(it.status || 'Pending') + '</div></div>';
+      });
+      box.innerHTML = html;
+    }
+    var receipts = fees.receipts || [];
+    if (!receipts.length) {
+      recBox.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No receipts listed.</span></p>';
+    } else {
+      var rh = '';
+      receipts.forEach(function (rc) {
+        rh += '<div class="subj-row"><div class="subj-head">' +
+          '<span class="subj-name">' + esc(rc.title || ('Receipt ' + (rc.receipt_no || ''))) + '</span>' +
+          '<span class="marks-pill">' + esc(fmtMoney(rc.amount)) + '</span></div>' +
+          '<div class="subj-meta">' + (rc.receipt_no ? esc(rc.receipt_no) + ' · ' : '') + esc(fmtDateStr(rc.date)) + '</div></div>';
+      });
+      recBox.innerHTML = rh;
+    }
+  }
+
+  /* ================= Exams ================= */
+  var examSemVal = 3;
+  function renderExams() {
+    fillSemSelect($('examSem'), examSemVal);
+    var box = $('examsBox');
+    if (!box) return;
+    var items = getExams(examSemVal);
+    if (!items.length) {
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No exams for Semester ' + examSemVal + '</h3><p>' + (liveMode ? 'No exams published for this semester on the portal.' : 'No exams in demo for this semester.') + '</p></div>';
+      return;
+    }
+    var html = '';
+    items.forEach(function (it) {
+      var past = isPastDate(it.date);
+      var subj = it.subject || D.subjectName(it.subject_code || '');
+      html += '<div class="subj-row' + (past ? ' muted' : '') + '"><div class="subj-head">' +
+        '<span class="subj-name">' + esc(subj) + '</span>' +
+        '<span class="marks-pill">' + esc(fmtDateStr(it.date)) + '</span></div>' +
+        '<div class="subj-meta">' + esc(it.subject_code || '') + (it.exam_name ? ' · ' + esc(it.exam_name) : '') +
+        (it.time ? ' · ' + esc(it.time) : '') + (it.period ? ' · ' + esc(it.period) : '') +
+        (it.venue ? ' · ' + esc(it.venue) : '') + (past ? ' · Past' : '') + '</div>' +
+        (it.description ? '<p class="muted">' + esc(it.description) + '</p>' : '') + '</div>';
+    });
+    box.innerHTML = html;
+  }
+
+  /* ================= University results (inside Results tab) ================= */
+  function renderUniversityResults() {
+    var box = $('uniResultsBox');
+    if (!box) return;
+    var uni = getUni(resSemVal);
+    var dash = function (v) { return (v === undefined || v === null || v === '') ? '–' : esc(String(v)); };
+    if (!uni || (!uni.sgpa && !uni.cgpa && !(uni.subjects && uni.subjects.length))) {
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.gradCap + '</div><h3>No university results published yet</h3>' +
+        '<p>SGPA: – · CGPA: – · Credits: – / –</p>' +
+        '<p style="margin-top:8px;">University results appear here once KTU publishes them on the portal.</p></div>';
+      return;
+    }
+    var html = '<div class="overall-line"><span class="big-pct">SGPA ' + dash(uni.sgpa) + '</span><span class="muted">CGPA ' + dash(uni.cgpa) + '</span></div>' +
+      '<div class="subj-meta">Credits earned ' + dash(uni.earned_credits) + ' / ' + dash(uni.total_credits) +
+      (uni.reg_no ? ' · Reg no. ' + esc(String(uni.reg_no)) : '') +
+      (uni.status ? ' · ' + esc(String(uni.status)) : '') + '</div>';
+    (uni.subjects || []).forEach(function (s) {
+      html += '<div class="subj-row"><div class="subj-head">' +
+        '<span class="subj-name">' + esc(s.name || s.subject || s.code || '') + '</span>' +
+        '<span class="marks-pill">' + esc(String(s.grade || s.marks || '–')) + '</span></div>' +
+        '<div class="subj-meta">' + esc(String(s.code || s.subject_code || '')) + '</div></div>';
+    });
+    box.innerHTML = html;
+  }
+
+  /* ================= Assignments ================= */
+  var assignSemVal = 3;
+  var assignFilterVal = 'all';
+  function renderAssignments() {
+    fillSemSelect($('assignSem'), assignSemVal);
+    var box = $('assignmentsBox');
+    if (!box) return;
+    var parts = getAssignments(assignSemVal);
+    var items = [];
+    if (assignFilterVal === 'assignment') items = parts.assignments.slice();
+    else if (assignFilterVal === 'evaluation') items = parts.evaluations.slice();
+    else items = parts.assignments.concat(parts.evaluations);
+    if (!items.length) {
+      box.innerHTML = '<div class="empty-state"><div class="empty-icon">' + IC.inbox + '</div><h3>No assignments for Semester ' + assignSemVal + '</h3><p>' + (liveMode ? 'Nothing published for this semester on the portal.' : 'No assignments in demo for this semester.') + '</p></div>';
+      return;
+    }
+    var html = '';
+    items.forEach(function (it) {
+      var st = assignmentStatus(it);
+      var subj = it.subject || D.subjectName(it.subject_code || '');
+      html += '<div class="subj-row"><div class="subj-head">' +
+        '<span class="subj-name">' + esc(it.title || 'Assignment') + '</span>' + statusTag(st) + '</div>' +
+        '<div class="subj-meta">' + esc(subj) + (it.last_date ? ' · Due ' + esc(fmtDateStr(it.last_date)) : '') +
+        (it.issued_date ? ' · Issued ' + esc(fmtDateStr(it.issued_date)) : '') + '</div>' +
+        (it.details ? '<p class="muted">' + esc(it.details) + '</p>' : '') + '</div>';
+    });
+    box.innerHTML = html;
+  }
+
+  /* ================= Home enrichment: alerts + latest notices ================= */
+  function renderAlerts() {
+    var box = $('alertsBox');
+    if (!box) return;
+    var alerts = [];
+    if (liveMode && liveExtra.dashboard && liveExtra.dashboard.alerts) {
+      (liveExtra.dashboard.alerts || []).forEach(function (a) {
+        alerts.push(typeof a === 'string' ? a : (a.title || a.message || ''));
+      });
+    }
+    /* Overdue assignments (demo or live) and fees due. */
+    getAssignments(3).assignments.concat(getAssignments(3).evaluations).forEach(function (it) {
+      if (assignmentStatus(it) === 'Overdue') alerts.push('Overdue: ' + (it.title || 'Assignment') + ' — due ' + fmtDateStr(it.last_date));
+    });
+    var fees = getFees();
+    if (fees && fees.has_due) {
+      var due = (fees.fees || fees.items || []).filter(function (it) { return String(it.status || '').toLowerCase() !== 'paid'; });
+      due.forEach(function (it) {
+        alerts.push('Fee due: ' + (it.title || it.label || 'Fee') + ' — ' + fmtMoney(it.amount) + (it.due_date ? ' by ' + fmtDateStr(it.due_date) : ''));
+      });
+    }
+    if (!alerts.length) {
+      box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>Nothing due soon.</span></p>';
+      return;
+    }
+    var html = '';
+    alerts.forEach(function (a) {
+      html += '<div class="day-detail-row"><span class="flag-low">Due</span><span>' + esc(a) + '</span></div>';
+    });
+    box.innerHTML = html;
+  }
+
+  function renderLatestNotices() {
+    var box = $('latestNoticesBox');
+    if (!box) return;
+    var items = getNotices().slice(0, 3);
+    if (!items.length) {
+      box.innerHTML = '<p class="muted empty-line">' + IC.calLine + '<span>No notices yet.</span></p>';
+      return;
+    }
+    var html = '';
+    items.forEach(function (it) {
+      html += '<div class="day-detail-row"><span>' + esc(it.title || 'Notice') + ' <span class="muted">· ' + esc(fmtDateStr(it.date)) + '</span></span></div>';
+    });
+    html += '<p style="margin-top:8px;"><button type="button" class="btn btn-sm" data-goto-notices>View all notices</button></p>';
+    box.innerHTML = html;
+    var btn = box.querySelector('[data-goto-notices]');
+    if (btn) btn.addEventListener('click', function () { switchTab('notices'); });
+  }
+
+  /* ================= Calendar on Home ================= */
+  var calYear = new Date().getFullYear();
+  var calMonth = new Date().getMonth();
+  var calLoading = false;
+  function demoCalendar(year, monthIndex) {
+    var key = year + '-' + String(monthIndex + 1).padStart(2, '0');
+    var m = D.MONTHS && D.MONTHS[key];
+    var daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    var days = [];
+    for (var d = 1; d <= daysInMonth; d++) {
+      var date = new Date(year, monthIndex, d);
+      var holiday = '';
+      var suspended = [];
+      if (m) {
+        var md = null;
+        for (var i = 0; i < m.days.length; i++) { if (m.days[i].d === d) { md = m.days[i]; break; } }
+        if (md) {
+          holiday = md.holiday || '';
+          md.periods.forEach(function (per) { if (per.s === 'S') suspended.push('P' + per.p); });
+        }
+      }
+      /* Sundays are holidays even when the month grid has no entry
+       * for the day (e.g. a sparse live monthly fallback). */
+      if (!holiday && date.getDay() === 0) holiday = 'Sunday';
+      if (year === 2026 && monthIndex === 9 && d === 2) holiday = 'Gandhi Jayanti';
+      days.push({ date: d, holiday_name: holiday, suspended_hours: suspended });
+    }
+    return { month: monthIndex + 1, year: year, days: days };
+  }
+  function renderCalendar() {
+    var grid = $('calGrid');
+    if (!grid) return;
+    var label = $('calLabel');
+    var names = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
+    if (label) label.textContent = names[calMonth] + ' ' + calYear;
+    var key = calYear + '-' + String(calMonth + 1).padStart(2, '0');
+    var draw = function (cal) {
+      var byDay = {};
+      (cal.days || []).forEach(function (day) {
+        var num = typeof day.date === 'number' ? day.date : parseInt(String(day.date).split('-').pop(), 10);
+        if (num) byDay[num] = day;
+      });
+      var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+      var firstDow = new Date(calYear, calMonth, 1).getDay(); /* Sun=0 */
+      var html = '<thead><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead><tbody><tr>';
+      for (var b = 0; b < firstDow; b++) html += '<td class="cell empty"></td>';
+      for (var d = 1; d <= daysInMonth; d++) {
+        var day = byDay[d] || {};
+        var hol = day.holiday_name || '';
+        var susp = day.suspended_hours || [];
+        html += '<td class="cell" style="vertical-align:top;min-height:44px;"><div style="font-weight:700;">' + d + '</div>' +
+          (hol ? '<div><span class="tag">' + esc(hol) + '</span></div>' : '') +
+          (susp.length ? '<div class="muted" style="font-size:11px;">Suspended: ' + esc(susp.join(', ')) + '</div>' : '') + '</td>';
+        if ((firstDow + d) % 7 === 0 && d < daysInMonth) html += '</tr><tr>';
+      }
+      var tail = (firstDow + daysInMonth) % 7;
+      if (tail) { for (var e = tail; e < 7; e++) html += '<td class="cell empty"></td>'; }
+      html += '</tr></tbody>';
+      grid.innerHTML = html;
+      var legend = $('calLegend');
+      if (legend) legend.innerHTML = '<span class="lg"><span class="tag">Holiday</span> Holiday / Sunday</span><span class="lg">Suspended hours are listed under the day.</span>';
+    };
+    if (liveMode) {
+      var cached = liveExtra.calendar[key];
+      if (cached) { draw(cached); return; }
+      if (calLoading) return;
+      calLoading = true;
+      safeLiveFetch('/api/calendar?month=' + (calMonth + 1) + '&year=' + calYear).then(function (res) {
+        calLoading = false;
+        if (res && res.days) { liveExtra.calendar[key] = res; draw(res); }
+        else draw(demoCalendar(calYear, calMonth));
+      });
+      return;
+    }
+    draw(demoCalendar(calYear, calMonth));
+  }
+  function shiftCalendar(delta) {
+    calMonth += delta;
+    while (calMonth < 0) { calMonth += 12; calYear -= 1; }
+    while (calMonth > 11) { calMonth -= 12; calYear += 1; }
+    renderCalendar();
+  }
+
+  /* New-section controls. */
+  var noticeSearchEl = $('noticeSearch');
+  if (noticeSearchEl) noticeSearchEl.addEventListener('input', function () { noticeQuery = noticeSearchEl.value; renderNotices(); });
+  $('examSem').addEventListener('change', function () {
+    examSemVal = parseInt($('examSem').value, 10);
+    if (liveMode) loadLiveExams(examSemVal).then(renderExams, function () {});
+    else renderExams();
+  });
+  $('assignSem').addEventListener('change', function () {
+    assignSemVal = parseInt($('assignSem').value, 10);
+    if (liveMode) loadLiveAssignments(assignSemVal).then(renderAssignments, function () {});
+    else renderAssignments();
+  });
+  $('assignFilter').addEventListener('change', function () {
+    assignFilterVal = $('assignFilter').value;
+    renderAssignments();
+  });
+  $('calPrev').addEventListener('click', function () { shiftCalendar(-1); });
+  $('calNext').addEventListener('click', function () { shiftCalendar(1); });
 
   /* ================= Profile ================= */
   function renderProfile() {
@@ -1055,6 +1524,10 @@
     renderTimetable();
     renderResults();
     renderProfile();
+    renderNotices();
+    renderFees();
+    renderExams();
+    renderAssignments();
     switchTab(currentTab);
   }
 

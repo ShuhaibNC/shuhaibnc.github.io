@@ -283,6 +283,62 @@ var MC_DATA = (function () {
     return null;
   }
 
+  /* ---------------- notices / circulars (demo) ----------------
+   * Generic sample notices only; no personal data. Circulars are
+   * merged into the same list with a "Circular" tag. */
+  var NOTICES = [
+    { id: 'n1', title: 'Semester 3 timetable published', description: 'The Semester 3 weekly timetable is now available on the Timetable tab. Labs run as double periods.', content: '', date: '2026-11-02', url: '', source: 'notice' },
+    { id: 'n2', title: 'Holiday — Gandhi Jayanti, 2 Oct', description: 'The college remains closed on 2 October 2026 for Gandhi Jayanti. No classes that day.', content: '', date: '2026-09-28', url: '', source: 'notice' },
+    { id: 'n3', title: 'Series Exam 1 schedule', description: 'Series Exam 1 for Semester 3 will be held as per the schedule published on the Exams tab.', content: '', date: '2026-10-20', url: '', source: 'notice' },
+    { id: 'c1', title: 'Circular: Attendance below 75%', description: 'Students with attendance below 75% are advised to meet their staff advisor. See the Attendance tab for subject-wise figures.', content: '', date: '2026-10-15', url: '', source: 'circular' }
+  ];
+
+  /* ---------------- fees (demo, clearly sample totals) ----------------
+   * Sample figures only — labelled Demo in the UI, never real totals. */
+  var FEES = {
+    total_fee: 90000,
+    total_paid: 60000,
+    total_balance: 30000,
+    has_due: true,
+    fees: [
+      { title: 'Tuition Fee — Semester 3 (Instalment 1)', label: 'Tuition Fee — Semester 3 (Instalment 1)', amount: 45000, due_date: '2026-08-31', status: 'Paid' },
+      { title: 'Tuition Fee — Semester 3 (Instalment 2)', label: 'Tuition Fee — Semester 3 (Instalment 2)', amount: 45000, due_date: '2026-11-30', status: 'Pending' }
+    ],
+    items: [],
+    receipts: [
+      { receipt_no: 'SAMPLE-001', amount: 45000, date: '2026-08-15', title: 'Tuition Fee — Instalment 1' },
+      { receipt_no: 'SAMPLE-002', amount: 15000, date: '2026-09-10', title: 'Tuition Fee — Part payment' }
+    ]
+  };
+
+  /* ---------------- exams (demo, Sem 3) ---------------- */
+  var EXAMS = {
+    3: [
+      { id: 'e1', subject: 'Data Science & Machine Learning', subject_code: '20MCA201', date: '2026-11-18', time: '09:30 - 12:30', period: '', venue: 'Hall A', exam_name: 'Series Exam 1', semester: 3, description: '' },
+      { id: 'e2', subject: 'Design & Analysis of Algorithms', subject_code: '20MCA203', date: '2026-11-19', time: '09:30 - 12:30', period: '', venue: 'Hall A', exam_name: 'Series Exam 1', semester: 3, description: '' },
+      { id: 'e3', subject: 'Data Science Lab', subject_code: '20MCA241', date: '2026-11-20', time: '09:30 - 12:30', period: '', venue: 'Lab 2', exam_name: 'Series Exam 1', semester: 3, description: '' }
+    ]
+  };
+
+  /* ---------------- assignments / evaluations (demo, Sem 3) ---------------- */
+  var ASSIGNMENTS = {
+    3: [
+      { id: 'a1', subject: 'Data Science & Machine Learning', title: 'Assignment 1 — Data cleaning', details: 'Clean and summarise the sample dataset.', last_date: '2026-11-20', issued_date: '2026-11-05', status: 'Pending' },
+      { id: 'a2', subject: 'Design & Analysis of Algorithms', title: 'Assignment 1 — Sorting analysis', details: 'Compare sorting algorithms on the given inputs.', last_date: '2026-11-10', issued_date: '2026-10-28', status: 'Pending' },
+      { id: 'a3', subject: 'Cyber Security & Cryptography', title: 'Assignment 1 — Cipher worksheet', details: 'Work through the cipher exercises.', last_date: '2026-11-05', issued_date: '2026-10-20', status: 'Submitted' }
+    ]
+  };
+  var EVALUATIONS = {
+    3: [
+      { id: 'v1', subject: 'Data Science Lab', title: 'Lab evaluation — Practical 1', details: 'Record work and viva.', last_date: '2026-11-21', issued_date: '2026-11-06', status: 'Pending' }
+    ]
+  };
+
+  /* ---------------- university results (demo: EMPTY) ----------------
+   * Never invent grades: demo has no university results at all. */
+  var UNIVERSITY_RESULTS = { 1: null, 2: null, 3: null, 4: null };
+
+
   return {
     PROFILE: PROFILE,
     SUBJECTS: SUBJECTS,
@@ -300,6 +356,12 @@ var MC_DATA = (function () {
     MONTHS: MONTHS,
     MONTH_ORDER: MONTH_ORDER,
     MONTHLY: MONTHLY,
-    findDay: findDay
+    findDay: findDay,
+    NOTICES: NOTICES,
+    FEES: FEES,
+    EXAMS: EXAMS,
+    ASSIGNMENTS: ASSIGNMENTS,
+    EVALUATIONS: EVALUATIONS,
+    UNIVERSITY_RESULTS: UNIVERSITY_RESULTS
   };
 })();
