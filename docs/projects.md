@@ -95,4 +95,11 @@ features:
     icon: |
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4"/><circle cx="12" cy="3" r="1"/><rect width="18" height="12" x="3" y="8" rx="2"/><path d="M8 14h.01"/><path d="M16 14h.01"/><path d="M9 17h6"/><title>Bot</title></svg>
 
+  - title: BChat
+    details: "Read EPUB books as a Telegram style chat in your browser"
+    link: /bchat
+    target: "_blank"
+    icon: |
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/><title>Book</title></svg>
+
 ---
